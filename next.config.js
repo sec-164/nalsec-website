@@ -4,13 +4,13 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.microcms-assets.io"
-      }
-    ]
+        hostname: "images.microcms-assets.io",
+      },
+    ],
   },
   experimental: {
-    appDir: true
-  }
+    // appDir: true
+  },
 };
 
 module.exports = nextConfig;

@@ -1,7 +1,6 @@
-import { use } from "react";
 import { AiFillAlert } from "react-icons/ai";
-import { ParseBr } from "@/libs/microcms/ParseBr";
-import { ParseHtml } from "@/libs/microcms/ParseHtml";
+import { ParseBr } from "@/components/microcms/ParseBr";
+import { ParseHtml } from "@/components/microcms/ParseHtml";
 import { microcmsClient } from "@/libs/microcms/microcmsClient";
 
 type Props = {
@@ -17,19 +16,16 @@ type Props = {
   }>;
 };
 
-const useMicrocmsServices = async () => {
+export const getStaticProps = async () => {
   const res = await microcmsClient.get({ endpoint: "services" });
-  console.log(res);
-  return res as Props;
+  return {
+    props: res,
+  };
 };
-export const Comp = () => {
-  // const { serviceName, backgroundImage, shortDesc, detailedDesc } = (
-  //   await useMicrocmsServices()
-  // ).contents[0];
-  const { serviceName, backgroundImage, shortDesc, detailedDesc } = use(
-    useMicrocmsServices()
-  ).contents[0];
 
+export default (props: Props) => {
+  const { serviceName, backgroundImage, shortDesc, detailedDesc } =
+    props.contents[0];
   return (
     <div>
       <div // Hero area

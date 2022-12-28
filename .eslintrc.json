@@ -9,6 +9,8 @@
     "import/order": [
       "error",
       {"alphabetize": {"order": "asc"}}
-    ]
+    ],
+    "import/no-anonymous-default-export": "off",
+    "react/display-name": "off"
   }
 }
