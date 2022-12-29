@@ -1,4 +1,5 @@
-import { GetStaticProps } from "next";
+import { ParsedUrlQuery } from "querystring";
+import { GetStaticPaths, GetStaticProps } from "next";
 import { createRef, RefObject, useEffect, useRef } from "react";
 import { AiFillAlert } from "react-icons/ai";
 import { ParseBr } from "@/components/microcms/ParseBr";
@@ -8,6 +9,7 @@ import { microcmsClient } from "@/libs/microcms/microcmsClient";
 
 type Props = {
   contents: Array<{
+    slug: string;
     serviceName: string;
     backgroundImage: {
       url: string;
@@ -19,8 +21,18 @@ type Props = {
   }>;
 };
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
+export const getStaticPaths: GetStaticPaths = async () => {
   const res = await microcmsClient.get<Props>({ endpoint: "services" });
+  const paths = res.contents.map((service) => "/services/" + service.slug);
+  return { paths, fallback: false };
+};
+
+export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
+  const res = await microcmsClient.get<Props>({
+    endpoint: "services",
+    // @ts-ignore
+    queries: { filters: "slug[equals]" + params.slug },
+  });
   return {
     props: res,
   };

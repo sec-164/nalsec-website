@@ -14,7 +14,7 @@ export const ParseHtml = ({
   replace?: (
     props: Props,
     children: ReactNode
-  ) => { [_: string]: ReactElement };
+  ) => { [_: string]: ReactElement /*| (() => ReactElement)*/ };
 }) => (
   <>
     {replace
@@ -25,6 +25,9 @@ export const ParseHtml = ({
             const children = domToReact(domNode.children);
 
             return replace(props, children)[domNode.name];
+
+            // if (typeof maybeElement === "function") return maybeElement();
+            // else return maybeElement;
           },
         })
       : parse(text)}
