@@ -4,32 +4,38 @@ import parse, {
   Element,
 } from "html-react-parser";
 import { Props } from "html-react-parser/lib/attributes-to-props";
-import { ReactNode, ReactElement } from "react";
+import { ReactNode, ReactElement, ComponentPropsWithRef } from "react";
 
-export const ParseHtml = ({
-  text,
+export const MicrocmsHtml = ({
+  children,
   replace,
-}: {
-  text: string;
+  ...restProps
+}: Omit<ComponentPropsWithRef<"div">, "children" | "replace"> & {
+  children: string;
   replace?: (
     props: Props,
     children: ReactNode
-  ) => { [_: string]: ReactElement /*| (() => ReactElement)*/ };
+  ) => Partial<{
+    [_ in keyof JSX.IntrinsicElements | string]: () => ReactElement;
+  }>;
 }) => (
-  <>
+  <div {...restProps}>
     {replace
-      ? parse(text, {
+      ? parse(children, {
           replace: (domNode) => {
             if (!(domNode instanceof Element)) return null;
             const props = attributesToProps(domNode.attribs);
             const children = domToReact(domNode.children);
 
-            return replace(props, children)[domNode.name];
+            const replacer = replace(props, children)[domNode.name] as () =>
+              | ReactElement
+              | undefined;
+            if (replacer) return replacer();
 
             // if (typeof maybeElement === "function") return maybeElement();
             // else return maybeElement;
           },
         })
-      : parse(text)}
-  </>
+      : parse(children)}
+  </div>
 );
