@@ -117,7 +117,13 @@ export const ServicePage = ({
                     else return <img alt="" {...props} className="mx-auto" />;
                   },
                   iframe: () => (
-                    <iframe {...props} className="mx-auto">
+                    <iframe
+                      {...props}
+                      className="mx-auto h-auto max-w-full"
+                      style={{
+                        aspectRatio: `${props.width}/${props.height}`,
+                      }}
+                    >
                       {children}
                     </iframe>
                   ),
