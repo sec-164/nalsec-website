@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "ifconfig en0 | grep \"inet \" | awk '{print $2}' | xargs next dev -H",
-    "build": "next build && next export -o document/",
+    "build": "next build && next export -o docs/",
     "start": "next start",
     "lint": "next lint"
   },
