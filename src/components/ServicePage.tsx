@@ -165,9 +165,9 @@ export const ServicePage = ({
               </div>
             </form>
           </div>
-        </div>
-        <div className="relative z-10 bg-white py-8 text-center text-sm">
-          <p>Copyright © NALSEC All Rights Reserved.</p>
+          <div className="w-full bg-white py-8 text-center text-sm">
+            <p>Copyright © NALSEC All Rights Reserved.</p>
+          </div>
         </div>
       </div>
     </div>
