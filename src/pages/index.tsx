@@ -1,5 +1,10 @@
 import { GetStaticPaths, GetStaticProps } from "next";
+import { useRef } from "react";
+import { ContactForm } from "@/components/ContactForm";
+import { HeroArea } from "@/components/HeroArea";
 import { ServicePage } from "@/components/ServicePage";
+import { SiteFooter } from "@/components/SiteFooter";
+import { StickyBgContainer } from "@/components/StickyBgContainer";
 import { microcmsClient } from "@/libs/microcms/microcmsClient";
 
 export type Props = {
@@ -38,12 +43,22 @@ export default ({
   shortDesc,
   detailedDesc,
 }: Props) => {
+  const mainH1Ref = useRef<HTMLHeadingElement>(null);
+
   return (
-    <ServicePage
-      serviceName={serviceName}
-      backgroundImage={backgroundImage}
-      shortDesc={shortDesc}
-      detailedDesc={detailedDesc}
-    />
+    <StickyBgContainer bgImageUrl={backgroundImage.url}>
+      <HeroArea
+        h1Ref={mainH1Ref}
+        serviceName={serviceName}
+        shortDesc={shortDesc}
+      />
+      <ServicePage
+        mainH1Ref={mainH1Ref}
+        serviceName={serviceName}
+        detailedDesc={detailedDesc}
+      />
+      <ContactForm />
+      <SiteFooter />
+    </StickyBgContainer>
   );
 };
