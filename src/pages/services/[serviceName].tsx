@@ -6,31 +6,20 @@ import { ServicePage } from "@/components/ServicePage";
 import { SiteFooter } from "@/components/SiteFooter";
 import { StickyBgContainer } from "@/components/StickyBgContainer";
 import { microcmsClient } from "@/libs/microcms/microcmsClient";
-
-export type Props = {
-  slug: string;
-  serviceName: string;
-  backgroundImage: {
-    url: string;
-    width: number;
-    height: number;
-  };
-  shortDesc: string;
-  detailedDesc: string;
-};
-
-type Res = { contents: Props[] };
+import { Service, ServicesRes } from "@/types/microcms";
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const res = await microcmsClient.get<Res>({ endpoint: "services" });
+  const res = await microcmsClient.get<ServicesRes>({
+    endpoint: "services",
+  });
   const paths = res.contents.map((service) => "/services/" + service.slug);
   return { paths, fallback: false };
 };
 
-export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
-  const res = await microcmsClient.get<Res>({
+export const getStaticProps: GetStaticProps<Service> = async ({ params }) => {
+  const res = await microcmsClient.get<ServicesRes>({
     endpoint: "services",
-    queries: { filters: "slug[equals]" + params?.slug },
+    queries: { filters: "slug[equals]" + params?.serviceName },
   });
   return {
     props: res.contents[0],
@@ -42,7 +31,7 @@ export default ({
   backgroundImage,
   shortDesc,
   detailedDesc,
-}: Props) => {
+}: Service) => {
   const mainH1Ref = useRef<HTMLHeadingElement>(null);
 
   return (

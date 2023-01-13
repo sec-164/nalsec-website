@@ -21,7 +21,7 @@ export default class Document extends NextDocument {
             rel="stylesheet"
           />
         </Head>
-        <body>
+        <body className="bg-black">
           <Main />
           <NextScript />
         </body>

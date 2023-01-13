@@ -13,7 +13,7 @@ module.exports = {
         slidein: {
           "0%": {
             transform:
-              "translate(var(--tw-translate-x), 100px) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
+              "translate(var(--tw-translate-x), 4rem) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
           },
           "100%": {
             transform:
@@ -38,6 +38,11 @@ module.exports = {
         "screen-large": "100lvh",
       },
       margin: {
+        screen: "100dvh",
+        "screen-small": "100svh",
+        "screen-large": "100lvh",
+      },
+      padding: {
         screen: "100dvh",
         "screen-small": "100svh",
         "screen-large": "100lvh",
