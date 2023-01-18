@@ -1,26 +1,49 @@
 import { GetStaticProps } from "next";
-import { ServiceListItem } from "@/components/serviceListItem";
+import { createRef, RefObject, useRef } from "react";
+import { CompanyInfo } from "@/CompanyInfo";
+import { ContactForm } from "@/components/ContactForm";
+import { ServiceListItem } from "@/components/ServiceListItem";
+import { SiteFooter } from "@/components/SiteFooter";
+import { TopHeroArea } from "@/components/TopHeroArea";
+import { TopTableOfContents } from "@/components/TopTableOfContents";
 import { microcmsClient } from "@/libs/microcms/microcmsClient";
-import { Service, ServicesRes } from "@/types/microcms";
+import { Main, Service, ServicesRes } from "@/types/microcms";
 
 export const getStaticProps: GetStaticProps<{
+  main: Main;
   services: Service[];
 }> = async () => {
-  const res = await microcmsClient.get<ServicesRes>({
+  const resMain = await microcmsClient.get<Main>({
+    endpoint: "main",
+  });
+  const resServices = await microcmsClient.get<ServicesRes>({
     endpoint: "services",
   });
   return {
-    props: { services: res.contents },
+    props: { main: resMain, services: resServices.contents },
   };
 };
 
-export default (props: { services: Service[] }) => {
-  const { services } = props;
+export default (props: { main: Main; services: Service[] }) => {
+  const { main, services } = props;
+  const serviceList = useRef<[string, RefObject<HTMLDivElement>][]>(
+    services.map((service) => [service.serviceName, createRef()])
+  );
+
   return (
     <div>
-      {[...services, ...services].map((service, index) => (
-        <ServiceListItem key={index} {...service} />
+      <TopTableOfContents serviceList={serviceList.current} />
+      <TopHeroArea {...main} />
+      {services.map((service, index) => (
+        <ServiceListItem
+          key={index}
+          {...service}
+          serviceRef={serviceList.current[index][1]}
+        />
       ))}
+      <CompanyInfo {...main} />
+      <ContactForm isTopPage />
+      <SiteFooter />
     </div>
   );
 };

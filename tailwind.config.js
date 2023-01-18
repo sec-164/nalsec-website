@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+      },
       keyframes: {
         fadein: { "0%": { opacity: 0 }, "100%": { opacity: 1 } },
         slidein: {
@@ -17,35 +20,52 @@ module.exports = {
           },
           "100%": {
             transform:
-              "translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
+              "translate(var(--tw-translate-x), 0) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
+          },
+        },
+        "slidein-from-left": {
+          "0%": {
+            transform:
+              "translate(-4rem, var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
+          },
+          "100%": {
+            transform:
+              "translate(0, var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
           },
         },
       },
       animation: {
         fadein: ".5s linear 0s 1 normal both running fadein",
         slidein: ".5s linear 0s 1 normal both running slidein",
+        "slidein-from-left":
+          ".5s linear 0s 1 normal both running slidein-from-left",
         "fade-slidein":
           ".5s linear 0s 1 normal both running fadein, .5s ease-out 0s 1 normal both running slidein",
+        "fade-slidein-from-left":
+          ".5s linear 0s 1 normal both running fadein, .5s ease-out 0s 1 normal both running slidein-from-left",
       },
       height: {
-        screen: "100dvh",
-        "screen-small": "100svh",
-        "screen-large": "100lvh",
+        screen: ["100vh", "100dvh"],
+        "screen-small": ["100vh", "100svh"],
+        "screen-large": ["100vh", "100lvh"],
       },
       minHeight: {
-        screen: "100dvh",
-        "screen-small": "100svh",
-        "screen-large": "100lvh",
+        screen: ["100vh", "100dvh"],
+        "screen-small": ["100vh", "100svh"],
+        "screen-large": ["100vh", "100lvh"],
       },
       margin: {
-        screen: "100dvh",
-        "screen-small": "100svh",
-        "screen-large": "100lvh",
+        screen: ["100vh", "100dvh"],
+        "-screen": ["-100vh", "-100dvh"],
+        "screen-small": ["100vh", "100svh"],
+        "-screen-small": ["-100vh", "-100svh"],
+        "screen-large": ["100vh", "100lvh"],
+        "-screen-large": ["-100vh", "-100lvh"],
       },
       padding: {
-        screen: "100dvh",
-        "screen-small": "100svh",
-        "screen-large": "100lvh",
+        screen: ["100vh", "100dvh"],
+        "screen-small": ["100vh", "100svh"],
+        "screen-large": ["100vh", "100lvh"],
       },
     },
   },
@@ -73,12 +93,12 @@ module.exports = {
         {
           values: {
             ...theme("width"),
-            "screen-min": "100dvmin",
-            "screen-max": "100dvmax",
-            "screen-min-small": "100svmin",
-            "screen-max-small": "100svmax",
-            "screen-min-large": "100lvmin",
-            "screen-max-large": "100lvmax",
+            "screen-min": ["100vmin", "100dvmin"],
+            "screen-max": ["100vmax", "100dvmax"],
+            "screen-min-small": ["100vmin", "100svmin"],
+            "screen-max-small": ["100vmax", "100svmax"],
+            "screen-min-large": ["100vmin", "100lvmin"],
+            "screen-max-large": ["100vmax", "100lvmax"],
           },
         }
       );

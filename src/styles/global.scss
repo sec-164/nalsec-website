@@ -11,6 +11,9 @@ body {
   font-family: "Montserrat", "M PLUS 1p", sans-serif;
 }
 
+b, strong {
+}
+
 *, *::before, *::after {
   border-color: currentColor;
   animation-fill-mode: both;
@@ -22,6 +25,15 @@ body {
   }
   100% {
     transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(110%) scaleY(var(--tw-scale-y))
+  }
+}
+
+@keyframes expand-title-sideline {
+  0% {
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(0%)
+  }
+  100% {
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(100%)
   }
 }
 

@@ -10,6 +10,7 @@ specifiers:
   eslint: 8.29.0
   eslint-config-next: 13.0.6
   eslint-config-prettier: ^8.5.0
+  hamburger-react: ^2.5.0
   html-react-parser: ^3.0.4
   http-server: ^14.1.1
   microcms-js-sdk: ^2.3.2
@@ -26,6 +27,7 @@ specifiers:
 
 dependencies:
   bezier-easing: 2.1.0
+  hamburger-react: 2.5.0_react@18.2.0
   html-react-parser: 3.0.4_react@18.2.0
   microcms-js-sdk: 2.3.2
   next: 13.0.6_3duxcpitbtplz62feflag7fwby
@@ -1375,6 +1377,14 @@ packages:
   /grapheme-splitter/1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
     dev: true
+
+  /hamburger-react/2.5.0_react@18.2.0:
+    resolution: {integrity: sha512-5GSXe+ucxTPJ0SkhIsPQ/PRDweZPIKya1lfahAuExx31SdheeUA4uOPfQIAirbKona8hvo79VDr5LJQzPXsdpw==}
+    peerDependencies:
+      react: ^16.8 || ^17 || ^18
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /has-bigints/1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}

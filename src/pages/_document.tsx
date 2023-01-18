@@ -13,11 +13,7 @@ export default class Document extends NextDocument {
             crossOrigin="anonymous"
           />
           <link
-            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap"
-            rel="stylesheet"
-          />
-          <link
-            href="https://fonts.googleapis.com/css?family=M+PLUS+1p&display=swap"
+            href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&family=Montserrat:wght@400;700&display=swap"
             rel="stylesheet"
           />
         </Head>

@@ -1,5 +1,5 @@
 // import BezierEasing from "bezier-easing";
-import { CSSProperties, useRef, useState } from "react";
+import { CSSProperties, RefObject, useRef, useState } from "react";
 import { HeroArea } from "@/components/HeroArea";
 import { StickyBgContainer } from "@/components/StickyBgContainer";
 import { useIntersection } from "@/hooks/useIntersection";
@@ -9,14 +9,16 @@ export const ServiceListItem = ({
   serviceName,
   shortDesc,
   backgroundImage,
-}: Service) => {
-  const [debug, setDebug] = useState<string>("");
+  serviceRef,
+  slug,
+}: Service & { serviceRef: RefObject<HTMLDivElement> }) => {
+  // const [debug, setDebug] = useState<string>("");
 
-  const copyRef = useRef<HTMLDivElement>(null);
+  // const copyRef = useRef<HTMLDivElement>(null);
   const areaRef = useIntersection(({ top, bottom, lvh }) => {
-    setDebug("" + bottom);
+    // setDebug("" + bottom);
 
-    Object.assign(copyRef.current?.style || {}, {
+    Object.assign(serviceRef.current?.style || {}, {
       opacity: top < 0 ? top * 2 + 1 : bottom < 0 ? 1 : bottom * -1 + 1,
       transform: `translateY(${
         top < 0 ? top * -20 * lvh : bottom < 0 ? 0 : bottom * 40 * lvh
@@ -35,8 +37,12 @@ export const ServiceListItem = ({
         {/*<div className="sticky top-0 bg-white p-4">{debug}</div>*/}
         <div className="h-[200lvh]" ref={areaRef}>
           <div className="sticky top-0 pt-[40px]">
-            <div ref={copyRef}>
-              <HeroArea serviceName={serviceName} shortDesc={shortDesc} />
+            <div ref={serviceRef}>
+              <HeroArea
+                serviceName={serviceName}
+                shortDesc={shortDesc}
+                linkUrl={`/services/${slug}`}
+              />
             </div>
           </div>
         </div>

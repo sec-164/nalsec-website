@@ -19,7 +19,7 @@ export const ServicePage = ({
       setH1Elms(Array.from(contentRef.current.getElementsByTagName("h1")));
   }, []);
 
-  const scrollTo = (target: HTMLHeadingElement | null) => {
+  const scrollTo = (target: HTMLDivElement | null) => {
     if (!target) return;
     window.scrollTo({
       top: target.getBoundingClientRect().top + window.scrollY - 50,
@@ -106,6 +106,11 @@ export const ServicePage = ({
                 </iframe>
               );
             },
+            a: () => (
+              <a {...props} className="text-blue-600 underline">
+                {children}
+              </a>
+            ),
           })}
         >
           {detailedDesc}

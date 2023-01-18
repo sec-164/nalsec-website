@@ -1,8 +1,15 @@
-export const ContactForm = () => {
+export const ContactForm = ({ isTopPage }: { isTopPage?: boolean }) => {
   return (
-    <div className="mt-[-20px] w-full bg-black/20 py-32 px-[20px] text-white backdrop-blur">
-      <h1 className="mb-8 text-center text-2xl">カタログ請求</h1>
-      <form className="mx-auto max-w-[600px] space-y-4">
+    <div
+      className={
+        "flex min-h-screen-small w-full flex-col justify-center bg-black/20 py-32 px-[20px] text-white backdrop-blur " +
+        (isTopPage ? "" : "mt-[-20px]")
+      }
+    >
+      <h1 className="mb-8 text-center text-2xl">
+        {isTopPage ? "お問い合わせ" : "カタログ請求"}
+      </h1>
+      <form className="mx-auto w-full max-w-[600px] space-y-4">
         <label className="flex flex-col">
           <span className="flex p-1">
             お名前<sup className="top-[-.25em] text-xl">*</sup>
