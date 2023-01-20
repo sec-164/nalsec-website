@@ -9,12 +9,15 @@ export const ServiceListItem = ({
   serviceName,
   shortDesc,
   backgroundImage,
-  serviceRef,
+  scrollToRef,
   slug,
-}: Service & { serviceRef: RefObject<HTMLDivElement> }) => {
+}: Service & {
+  scrollToRef: RefObject<HTMLDivElement>;
+}) => {
   // const [debug, setDebug] = useState<string>("");
 
   // const copyRef = useRef<HTMLDivElement>(null);
+  const serviceRef = useRef<HTMLDivElement>(null);
   const areaRef = useIntersection(({ top, bottom, lvh }) => {
     // setDebug("" + bottom);
 
@@ -36,7 +39,7 @@ export const ServiceListItem = ({
       <StickyBgContainer bgImageUrl={backgroundImage.url}>
         {/*<div className="sticky top-0 bg-white p-4">{debug}</div>*/}
         <div className="h-[200lvh]" ref={areaRef}>
-          <div className="sticky top-0 pt-[40px]">
+          <div className="sticky top-0 pt-[40px]" ref={scrollToRef}>
             <div ref={serviceRef}>
               <HeroArea
                 serviceName={serviceName}

@@ -1,5 +1,5 @@
 import { GetStaticProps } from "next";
-import { createRef, RefObject, useRef } from "react";
+import { createRef, RefObject, useEffect, useRef } from "react";
 import { CompanyInfo } from "@/CompanyInfo";
 import { ContactForm } from "@/components/ContactForm";
 import { ServiceListItem } from "@/components/ServiceListItem";
@@ -29,20 +29,30 @@ export default (props: { main: Main; services: Service[] }) => {
   const serviceList = useRef<[string, RefObject<HTMLDivElement>][]>(
     services.map((service) => [service.serviceName, createRef()])
   );
+  const companyRef = useRef<HTMLDivElement>(null);
+  const contactFormRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    console.log(companyRef);
+    console.log(contactFormRef);
+  });
 
   return (
     <div>
-      <TopTableOfContents serviceList={serviceList.current} />
+      <TopTableOfContents
+        serviceList={serviceList.current}
+        companyRef={companyRef}
+        contactFormRef={contactFormRef}
+      />
       <TopHeroArea {...main} />
       {services.map((service, index) => (
         <ServiceListItem
           key={index}
           {...service}
-          serviceRef={serviceList.current[index][1]}
+          scrollToRef={serviceList.current[index][1]}
         />
       ))}
-      <CompanyInfo {...main} />
-      <ContactForm isTopPage />
+      <CompanyInfo {...main} scrollToRef={companyRef} />
+      <ContactForm isTopPage scrollToRef={contactFormRef} />
       <SiteFooter />
     </div>
   );

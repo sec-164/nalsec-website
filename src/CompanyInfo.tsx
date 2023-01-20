@@ -1,11 +1,15 @@
-import { CSSProperties, useRef } from "react";
+import { CSSProperties, RefObject, useRef } from "react";
 import { StickyBgContainer } from "@/components/StickyBgContainer";
 import { MicrocmsParagraph } from "@/components/microcms/MicrocmsParagraph";
 import { NalsecLogo } from "@/components/nalsecLogo";
 import { useIntersection } from "@/hooks/useIntersection";
 import { Main } from "@/types/microcms";
 
-export const CompanyInfo = ({ companyProfile, backgroundImage }: Main) => {
+export const CompanyInfo = ({
+  companyProfile,
+  backgroundImage,
+  scrollToRef,
+}: Main & { scrollToRef: RefObject<HTMLDivElement> }) => {
   const copyRef = useRef<HTMLDivElement>(null);
   const areaRef = useIntersection(({ top, bottom, lvh }) => {
     // setDebug("" + bottom);
@@ -29,7 +33,7 @@ export const CompanyInfo = ({ companyProfile, backgroundImage }: Main) => {
       <StickyBgContainer bgImageUrl={backgroundImage.url}>
         {/*<div className="sticky top-0 bg-white p-4">{debug}</div>*/}
         <div className="h-[200lvh]" ref={areaRef}>
-          <div className="sticky top-0 pt-[40px]">
+          <div className="sticky top-0 pt-[40px]" ref={scrollToRef}>
             <div ref={copyRef}>
               <div // Hero area
                 className="mb-[-40px] flex min-h-screen-small max-w-full flex-col justify-center px-[20px] pb-[40px] text-white"

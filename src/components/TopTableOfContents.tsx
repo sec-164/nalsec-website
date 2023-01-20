@@ -3,15 +3,19 @@ import { RefObject, useState } from "react";
 
 export const TopTableOfContents = ({
   serviceList,
+  companyRef,
+  contactFormRef,
 }: {
   serviceList: [string, RefObject<HTMLDivElement>][];
+  companyRef: RefObject<HTMLDivElement>;
+  contactFormRef: RefObject<HTMLDivElement>;
 }) => {
   const [isOpen, setOpen] = useState(false);
 
   const scrollTo = (target: HTMLDivElement | null) => {
     if (!target || !target.parentElement) return;
     window.scrollTo({
-      top: target.parentElement.getBoundingClientRect().top + window.scrollY,
+      top: target.getBoundingClientRect().top + window.scrollY,
       left: 0,
       behavior: "smooth",
     });
@@ -43,6 +47,26 @@ export const TopTableOfContents = ({
             ))}
           </ul>
           <hr className="w-64 border-t" />
+          <ul className="flex flex-col space-y-4">
+            <li
+              className="cursor-pointer"
+              onClick={() => {
+                scrollTo(companyRef.current);
+                setOpen(false);
+              }}
+            >
+              会社情報
+            </li>
+            <li
+              className="cursor-pointer"
+              onClick={() => {
+                scrollTo(contactFormRef.current);
+                setOpen(false);
+              }}
+            >
+              お問い合わせ
+            </li>
+          </ul>
         </div>
       </div>
       <div className="relative">

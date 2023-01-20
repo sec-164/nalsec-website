@@ -1,6 +1,15 @@
-export const ContactForm = ({ isTopPage }: { isTopPage?: boolean }) => {
+import { RefObject } from "react";
+
+export const ContactForm = ({
+  isTopPage,
+  scrollToRef,
+}: {
+  isTopPage?: boolean;
+  scrollToRef?: RefObject<HTMLDivElement>;
+}) => {
   return (
     <div
+      ref={scrollToRef}
       className={
         "flex min-h-screen-small w-full flex-col justify-center bg-black/20 py-32 px-[20px] text-white backdrop-blur " +
         (isTopPage ? "" : "mt-[-20px]")
