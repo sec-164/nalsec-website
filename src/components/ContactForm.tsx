@@ -18,31 +18,49 @@ export const ContactForm = ({
       <h1 className="mb-8 text-center text-2xl">
         {isTopPage ? "お問い合わせ" : "カタログ請求"}
       </h1>
-      <form className="mx-auto w-full max-w-[600px] space-y-4">
+      <p className="max-w-32 mx-auto my-8">
+        ただいまフォームは調整中です。info@nalsec.com へ直接ご連絡ください。
+      </p>
+      <form className="mx-auto w-full max-w-[600px] space-y-4 opacity-20">
         <label className="flex flex-col">
           <span className="flex p-1">
             お名前<sup className="top-[-.25em] text-xl">*</sup>
           </span>
-          <input className="rounded-sm border-[.5px] border-white/80 bg-black/40 px-2 py-1 font-sans" />
+          <input
+            className="rounded-sm border-[.5px] border-white/80 bg-black/40 px-2 py-1 font-sans"
+            disabled
+          />
         </label>
         <label className="flex flex-col">
           <span className="flex p-1">
             メールアドレス<sup className="top-[-.25em] text-xl">*</sup>
           </span>
-          <input className="rounded-sm border-[.5px] border-white/80 bg-black/40 px-2 py-1 font-sans" />
+          <input
+            className="rounded-sm border-[.5px] border-white/80 bg-black/40 px-2 py-1 font-sans"
+            disabled
+          />
         </label>
         <label className="flex flex-col">
           <span className="flex p-1">
             電話番号<sup className="top-[-.25em] text-xl">*</sup>
           </span>
-          <input className="rounded-sm border-[.5px] border-white/80 bg-black/40 px-2 py-1 font-sans" />
+          <input
+            className="rounded-sm border-[.5px] border-white/80 bg-black/40 px-2 py-1 font-sans"
+            disabled
+          />
         </label>
         <label className="flex flex-col">
           <span className="flex p-1">備考</span>
-          <textarea className="min-h-[8em] rounded-sm border-[.5px] border-white/80 bg-black/40 px-2 py-1 font-sans" />
+          <textarea
+            className="min-h-[8em] rounded-sm border-[.5px] border-white/80 bg-black/40 px-2 py-1 font-sans"
+            disabled
+          />
         </label>
         <div className="py-4">
-          <button className="mx-auto mt-8 block rounded border bg-white/20 px-4 py-2">
+          <button
+            className="mx-auto mt-8 block rounded border bg-white/20 px-4 py-2"
+            disabled
+          >
             送信
           </button>
         </div>
