@@ -6,7 +6,6 @@ export default class Document extends NextDocument {
       <Html lang="ja">
         <Head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
-          {/* @ts-ignore */}
           <link
             rel="preconnect"
             href="https://fonts.gstatic.com"

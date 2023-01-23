@@ -32,6 +32,7 @@ export const HeroArea = ({
           style={
             linkUrl
               ? {
+                  height: "12rem",
                   maskImage:
                     "linear-gradient(to bottom, white, transparent 6rem)",
                   WebkitMaskImage:

@@ -31,10 +31,6 @@ export default (props: { main: Main; services: Service[] }) => {
   );
   const companyRef = useRef<HTMLDivElement>(null);
   const contactFormRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    console.log(companyRef);
-    console.log(contactFormRef);
-  });
 
   return (
     <div>

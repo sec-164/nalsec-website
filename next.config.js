@@ -6,8 +6,10 @@ const nextConfig = {
     loader: "custom",
   },
   trailingSlash: true,
-  basePath: isProduction ? "/nalsec-website" : "",
-  assetPrefix: isProduction ? "/nalsec-website" : "",
+  // basePath: isProduction ? "/nalsec-website" : "",
+  basePath: isProduction ? "" : "",
+  // assetPrefix: isProduction ? "/nalsec-website" : "",
+  assetPrefix: isProduction ? "" : "",
   experimental: {
     // appDir: true
   },
