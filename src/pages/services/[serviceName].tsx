@@ -46,7 +46,7 @@ export default ({
         serviceName={serviceName}
         detailedDesc={detailedDesc}
       />
-      <ContactForm />
+      <ContactForm serviceName={serviceName} />
       <SiteFooter />
     </StickyBgContainer>
   );

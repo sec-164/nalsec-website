@@ -54,6 +54,11 @@ module.exports = {
         "screen-small": ["100vh", "100svh"],
         "screen-large": ["100vh", "100lvh"],
       },
+      maxHeight: {
+        screen: ["100vh", "100dvh"],
+        "screen-small": ["100vh", "100svh"],
+        "screen-large": ["100vh", "100lvh"],
+      },
       margin: {
         screen: ["100vh", "100dvh"],
         "-screen": ["-100vh", "-100dvh"],
