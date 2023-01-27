@@ -30,7 +30,7 @@ export const ContactForm = ({
   const onSubmit: SubmitHandler<Form> = async (data) => {
     setIsSending(true);
     setSentMessage("");
-    await fetch("https://hyperform.jp/api/async/2g791Dcd/complete", {
+    await fetch("https://hyperform.jp/api/async/iIOw62J8/complete", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
