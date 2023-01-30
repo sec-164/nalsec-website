@@ -28,7 +28,7 @@ export const TopHeroArea = ({ siteDesc, backgroundImage }: Main) => {
   });
   return (
     <div>
-      <StickyBgContainer bgImageUrl={backgroundImage.url}>
+      <StickyBgContainer bgImageUrl={backgroundImage.url} darkenOpacity={100}>
         {/*<div className="sticky top-0 bg-white p-4">{debug}</div>*/}
         <div className="h-[200lvh]" ref={areaRef}>
           <div className="sticky top-0 pt-[40px]">
