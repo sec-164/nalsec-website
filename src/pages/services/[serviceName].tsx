@@ -29,13 +29,17 @@ export const getStaticProps: GetStaticProps<Service> = async ({ params }) => {
 export default ({
   serviceName,
   backgroundImage,
+  darkenOpacity = 0,
   shortDesc,
   detailedDesc,
 }: Service) => {
   const mainH1Ref = useRef<HTMLHeadingElement>(null);
 
   return (
-    <StickyBgContainer bgImageUrl={backgroundImage.url}>
+    <StickyBgContainer
+      bgImageUrl={backgroundImage.url}
+      darkenOpacity={darkenOpacity}
+    >
       <HeroArea
         h1Ref={mainH1Ref}
         serviceName={serviceName}

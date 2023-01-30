@@ -19,6 +19,7 @@ export type Service = {
     width: number;
     height: number;
   };
+  darkenOpacity?: number;
   shortDesc: string;
   detailedDesc: string;
 };

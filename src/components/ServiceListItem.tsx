@@ -9,6 +9,7 @@ export const ServiceListItem = ({
   serviceName,
   shortDesc,
   backgroundImage,
+  darkenOpacity = 0,
   scrollToRef,
   slug,
 }: Service & {
@@ -36,7 +37,10 @@ export const ServiceListItem = ({
   });
   return (
     <div>
-      <StickyBgContainer bgImageUrl={backgroundImage.url}>
+      <StickyBgContainer
+        bgImageUrl={backgroundImage.url}
+        darkenOpacity={darkenOpacity}
+      >
         {/*<div className="sticky top-0 bg-white p-4">{debug}</div>*/}
         <div className="h-[200lvh]" ref={areaRef}>
           <div className="sticky top-0 pt-[40px]" ref={scrollToRef}>
