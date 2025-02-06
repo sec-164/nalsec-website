@@ -84,7 +84,7 @@ jobs:
           MICROCMS_API_KEY_DEFAULT: ${{ vars.MICROCMS_API_KEY_DEFAULT }}
         run: pnpm run build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./.dist
 
