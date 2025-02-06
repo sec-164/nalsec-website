@@ -86,7 +86,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: /home/runner/work/nalsec-website/nalsec-website/.dist
+          name: pages-artifact
+          path: ./.dist
 
   # Deployment job
   deploy:
