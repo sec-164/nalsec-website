@@ -34,9 +34,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.2
+        uses: pnpm/action-setup@v4
         with:
-          version: 7.18.2
+          version: 10.2.0
 #      - name: Detect package manager
 #        id: detect-package-manager
 #        run: |
@@ -73,7 +73,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
-        run: pnpm i --frozen-lockfile
+        run: pnpm i  --no-frozen-lockfile
 #      - name: Build with Next.js
 #        run: ${{ steps.detect-package-manager.outputs.runner }} next build
 #      - name: Static HTML export with Next.js
@@ -84,7 +84,7 @@ jobs:
           MICROCMS_API_KEY_DEFAULT: ${{ vars.MICROCMS_API_KEY_DEFAULT }}
         run: pnpm run build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./.dist
 
@@ -98,4 +98,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4

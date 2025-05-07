@@ -11,6 +11,7 @@
       {"alphabetize": {"order": "asc"}}
     ],
     "import/no-anonymous-default-export": "off",
-    "react/display-name": "off"
+    "react/display-name": "off",
+    "import/named": "off"
   }
 }
