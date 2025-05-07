@@ -29,3 +29,6 @@ dist-ssr
 
 # dotenv files
 .env*.local
+
+deploy_key
+deploy_key.pub

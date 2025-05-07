@@ -1,4 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from "next";
+import Head from "next/head";
 import { useRef } from "react";
 import { ContactForm } from "@/components/ContactForm";
 import { HeroArea } from "@/components/HeroArea";
@@ -36,22 +37,25 @@ export default ({
   const mainH1Ref = useRef<HTMLHeadingElement>(null);
 
   return (
-    <StickyBgContainer
-      bgImageUrl={backgroundImage.url}
-      darkenOpacity={darkenOpacity}
-    >
-      <HeroArea
-        h1Ref={mainH1Ref}
-        serviceName={serviceName}
-        shortDesc={shortDesc}
-      />
-      <ServicePage
-        mainH1Ref={mainH1Ref}
-        serviceName={serviceName}
-        detailedDesc={detailedDesc}
-      />
-      <ContactForm serviceName={serviceName} />
-      <SiteFooter />
-    </StickyBgContainer>
+    <>
+      <Head><title>{serviceName + " | 株式会社NALSEC"}</title></Head>
+      <StickyBgContainer
+        bgImageUrl={backgroundImage.url}
+        darkenOpacity={darkenOpacity}
+      >
+        <HeroArea
+          h1Ref={mainH1Ref}
+          serviceName={serviceName}
+          shortDesc={shortDesc}
+        />
+        <ServicePage
+          mainH1Ref={mainH1Ref}
+          serviceName={serviceName}
+          detailedDesc={detailedDesc}
+        />
+        <ContactForm serviceName={serviceName} />
+        <SiteFooter />
+      </StickyBgContainer>
+    </>
   );
 };

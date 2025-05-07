@@ -1,4 +1,5 @@
 import { GetStaticProps } from "next";
+import Head from "next/head";
 import { createRef, RefObject, useEffect, useRef } from "react";
 import { CompanyInfo } from "@/CompanyInfo";
 import { ContactForm } from "@/components/ContactForm";
@@ -33,23 +34,26 @@ export default (props: { main: Main; services: Service[] }) => {
   const contactFormRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div>
-      <TopTableOfContents
-        serviceList={serviceList.current}
-        companyRef={companyRef}
-        contactFormRef={contactFormRef}
-      />
-      <TopHeroArea {...main} />
-      {services.map((service, index) => (
-        <ServiceListItem
-          key={index}
-          {...service}
-          scrollToRef={serviceList.current[index][1]}
-        />
-      ))}
-      <CompanyInfo {...main} scrollToRef={companyRef} />
-      <ContactForm isTopPage scrollToRef={contactFormRef} />
-      <SiteFooter />
-    </div>
+    <>
+      <Head><title>株式会社NALSEC</title></Head>
+      <div>
+          <TopTableOfContents
+            serviceList={serviceList.current}
+            companyRef={companyRef}
+            contactFormRef={contactFormRef}
+          />
+          <TopHeroArea {...main} />
+          {services.map((service, index) => (
+            <ServiceListItem
+              key={index}
+              {...service}
+              scrollToRef={serviceList.current[index][1]}
+            />
+          ))}
+          <CompanyInfo {...main} scrollToRef={companyRef} />
+          <ContactForm isTopPage scrollToRef={contactFormRef} />
+          <SiteFooter />
+        </div>
+    </>
   );
 };
