@@ -1,10 +1,11 @@
 import { GetStaticProps } from "next";
 import Head from "next/head";
-import { createRef, RefObject, useEffect, useRef } from "react";
+import { createRef, RefObject, useRef } from "react";
 import { CompanyInfo } from "@/CompanyInfo";
 import { ContactForm } from "@/components/ContactForm";
 import { ServiceListItem } from "@/components/ServiceListItem";
 import { SiteFooter } from "@/components/SiteFooter";
+import { TechNalsecLink } from "@/components/TechNalsecLink";
 import { TopHeroArea } from "@/components/TopHeroArea";
 import { TopTableOfContents } from "@/components/TopTableOfContents";
 import { microcmsClient } from "@/libs/microcms/microcmsClient";
@@ -42,6 +43,7 @@ export default (props: { main: Main; services: Service[] }) => {
             companyRef={companyRef}
             contactFormRef={contactFormRef}
           />
+        <TechNalsecLink/>
           <TopHeroArea {...main} />
           {services.map((service, index) => (
             <ServiceListItem
