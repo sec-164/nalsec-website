@@ -10,6 +10,7 @@ import { TopHeroArea } from "@/components/TopHeroArea";
 import { TopTableOfContents } from "@/components/TopTableOfContents";
 import { microcmsClient } from "@/libs/microcms/microcmsClient";
 import { Main, Service, ServicesRes } from "@/types/microcms";
+import { TechNalsecLink } from "@/components/TechNalsecLink";
 
 export const getStaticProps: GetStaticProps<{
   main: Main;
