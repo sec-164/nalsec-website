@@ -42,8 +42,12 @@ const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 // pt-14 は固定ヘッダーの高さ。本文はその下の残りで縦中央に置く。
 const sectionClass =
   "sticky top-0 flex h-svh items-center overflow-hidden border-t border-line bg-background pt-14";
-const buttonClass =
-  "inline-block rounded-full border border-white/40 px-4 py-1.5 text-sm transition-colors hover:bg-white hover:text-black";
+// 項目全体を 1 枚のリンクパネルにする。ヘッダーと同じ黒の半透明 + ぼかしで写真上の可読性を上げる。
+const panelClass =
+  "group block rounded-lg border border-line bg-black/40 p-3 backdrop-blur-md transition-colors hover:bg-black/55 focus-visible:bg-black/55 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:p-8";
+// パネル内の擬似ボタン(非インタラクティブ)。パネルの hover で塗りつぶす。
+const arrowClass =
+  "inline-block rounded-full border border-white/40 px-4 py-1.5 text-sm transition-colors group-hover:bg-white group-hover:text-black group-focus-visible:bg-white group-focus-visible:text-black";
 const labelClass = "flex items-center gap-3 text-sm text-muted";
 ---
 
@@ -68,19 +72,13 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         <p class="mt-2 text-lg leading-relaxed text-muted md:mt-4">{s.lead}</p>
 
         {s.products.length === 2 && (
-          <div class="mt-5 md:mt-12 md:grid md:grid-cols-2 md:grid-rows-[auto_auto_auto]">
-            {s.products.map((p, j) => (
-              <article
-                class={`md:row-span-3 md:grid md:grid-rows-subgrid ${
-                  j === 0
-                    ? "pb-4 md:pr-10 md:pb-0"
-                    : "border-t border-line pt-4 md:border-t-0 md:border-l md:pt-0 md:pl-10"
-                }`}
-              >
+          <div class="mt-4 grid items-stretch gap-3 md:mt-12 md:grid-cols-2 md:gap-6">
+            {s.products.map((p) => (
+              <a href={p.href} class={`${panelClass} flex flex-col`}>
                 <h3 class="text-xl leading-snug font-bold md:text-[22px]">
                   {p.title}
                 </h3>
-                <p class="mt-2 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
+                <p class="mt-1 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
                   {p.highlights.map((line, k) => (
                     <>
                       {k > 0 && <br />}
@@ -88,25 +86,24 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                     </>
                   ))}
                 </p>
-                <p class="mt-2 md:mt-4">
-                  <a
-                    href={p.href}
-                    class={buttonClass}
-                    aria-label={`${p.title}の詳細を見る`}
-                  >
-                    詳細を見る →
-                  </a>
-                </p>
-              </article>
+                <span
+                  class={`${arrowClass} mt-2 self-start md:mt-auto md:pt-0`}
+                >
+                  詳細を見る →
+                </span>
+              </a>
             ))}
           </div>
         )}
 
         {s.products.length >= 3 && (
-          <div class="mt-5 border-b border-line md:mt-12">
+          <div class="mt-4 flex flex-col gap-2 md:mt-12 md:gap-6">
             {s.products.map((p) => (
-              <article class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-t border-line py-3 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_auto] md:items-center md:gap-x-10 md:py-6">
-                <h3 class="col-span-2 text-lg leading-snug font-bold md:col-span-1 md:text-[22px]">
+              <a
+                href={p.href}
+                class={`${panelClass} grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 !p-2.5 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_auto] md:items-center md:gap-x-10 md:!p-8`}
+              >
+                <h3 class="col-span-2 text-base leading-snug font-bold md:col-span-1 md:text-[22px]">
                   {p.title}
                 </h3>
                 <p class="mt-1 text-sm leading-relaxed md:mt-0 md:text-[17px] md:leading-loose">
@@ -117,28 +114,22 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                     </>
                   ))}
                 </p>
-                <p class="self-end text-sm md:self-auto md:text-base">
-                  <a
-                    href={p.href}
-                    class={buttonClass}
-                    aria-label={`${p.title}の詳細を見る`}
-                  >
-                    詳細を見る →
-                  </a>
-                </p>
-              </article>
+                <span class={`${arrowClass} self-end md:self-auto`}>
+                  詳細を見る →
+                </span>
+              </a>
             ))}
           </div>
         )}
 
         {s.products.length === 1 && (
-          <div class="mt-6 grid items-center gap-12 md:mt-12 md:grid-cols-2">
+          <div class="mt-6 grid items-stretch gap-12 md:mt-12 md:grid-cols-2">
             {s.products.map((p) => (
-              <article>
+              <a href={p.href} class={`${panelClass} flex flex-col`}>
                 <h3 class="text-xl leading-snug font-bold md:text-[22px]">
                   {p.title}
                 </h3>
-                <p class="mt-2 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
+                <p class="mt-1 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
                   {p.highlights.map((line, k) => (
                     <>
                       {k > 0 && <br />}
@@ -146,16 +137,10 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                     </>
                   ))}
                 </p>
-                <p class="mt-2 md:mt-4">
-                  <a
-                    href={p.href}
-                    class={buttonClass}
-                    aria-label={`${p.title}の詳細を見る`}
-                  >
-                    詳細を見る →
-                  </a>
-                </p>
-              </article>
+                <span class={`${arrowClass} mt-2 self-start md:mt-auto`}>
+                  詳細を見る →
+                </span>
+              </a>
             ))}
           </div>
         )}
@@ -176,29 +161,26 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
             <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
             サービス
           </p>
-          <h2 class="mt-4 text-4xl leading-snug font-bold lg:text-5xl">
-            {item.data.title}
-          </h2>
-          <p class="mt-8 text-lg leading-loose">
-            {item.data.summary
-              .trim()
-              .split("\n")
-              .map((line, j) => (
-                <>
-                  {j > 0 && <br />}
-                  {line}
-                </>
-              ))}
-          </p>
-          <p class="mt-8">
-            <a
-              href={`/services/${item.id}/`}
-              class={buttonClass}
-              aria-label={`${item.data.title}の詳細を見る`}
-            >
-              詳細を見る →
-            </a>
-          </p>
+          <a
+            href={`/services/${item.id}/`}
+            class={`${panelClass} mt-4 flex flex-col`}
+          >
+            <h2 class="text-4xl leading-snug font-bold lg:text-5xl">
+              {item.data.title}
+            </h2>
+            <p class="mt-6 text-lg leading-loose">
+              {item.data.summary
+                .trim()
+                .split("\n")
+                .map((line, j) => (
+                  <>
+                    {j > 0 && <br />}
+                    {line}
+                  </>
+                ))}
+            </p>
+            <span class={`${arrowClass} mt-6 self-start`}>詳細を見る →</span>
+          </a>
         </div>
       </div>
     </section>
