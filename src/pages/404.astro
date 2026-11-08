@@ -3,8 +3,13 @@ import Base from "../layouts/Base.astro";
 ---
 
 <Base title="ページが見つかりません | 株式会社NALSEC">
-  <h1>ページが見つかりません</h1>
-  <p>
-    <a href="/">トップへ戻る</a>
-  </p>
+  <div class="mx-auto flex min-h-[60svh] max-w-[1120px] flex-col items-center justify-center px-4 py-24 text-center md:px-8">
+    <p class="text-5xl font-bold tracking-wide lg:text-6xl">404</p>
+    <h1 class="mt-6 text-xl font-bold">ページが見つかりません</h1>
+    <p class="mt-8 text-sm">
+      <a href="/" class="underline underline-offset-4 hover:text-muted">
+        トップへ戻る
+      </a>
+    </p>
+  </div>
 </Base>

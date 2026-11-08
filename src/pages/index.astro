@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import Card from "../components/Card.astro";
 import { getCollection } from "astro:content";
 import { site } from "../data/site";
 
@@ -11,79 +12,114 @@ const services = (await getCollection("services")).sort(
   (a, b) => a.data.order - b.data.order,
 );
 const taglineLines = site.tagline.split("\n");
+const container = "mx-auto max-w-[1120px] px-4 md:px-8";
+const section = "py-16 md:py-24";
 ---
 
 <Base title={site.name}>
-  <h1>{site.name}</h1>
-  <p>
-    {taglineLines.map((line, i) => (
-      <>
-        {i > 0 && <br />}
-        {line}
-      </>
-    ))}
-  </p>
-
-  <h2>製品</h2>
-  {categoryLabels.map((label) => (
-    <section>
-      <h3>{label}</h3>
-      {products
-        .filter((p) => p.data.categoryLabel === label)
-        .map((p) => (
-          <section>
-            <h4>
-              <a href={`/products/${p.id}/`}>{p.data.title}</a>
-            </h4>
-            <p>
-              {p.data.summary
-                .trim()
-                .split("\n")
-                .map((line, i) => (
-                  <>
-                    {i > 0 && <br />}
-                    {line}
-                  </>
-                ))}
-            </p>
-          </section>
+  <section class="flex min-h-svh items-center">
+    <div class={`${container} w-full py-16`}>
+      <h1 class="text-5xl font-bold tracking-wide lg:text-6xl">NALSEC</h1>
+      <div class="mt-6 w-24 border-t-2 border-foreground"></div>
+      <p class="mt-8 leading-loose">
+        {taglineLines.map((line, i) => (
+          <>
+            {i > 0 && <br />}
+            {line}
+          </>
         ))}
-    </section>
-  ))}
-
-  <h2>サービス</h2>
-  {services.map((s) => (
-    <section>
-      <h3>
-        <a href={`/services/${s.id}/`}>{s.data.title}</a>
-      </h3>
-      <p>
-        {s.data.summary
-          .trim()
-          .split("\n")
-          .map((line, i) => (
-            <>
-              {i > 0 && <br />}
-              {line}
-            </>
-          ))}
       </p>
-    </section>
-  ))}
+    </div>
+  </section>
 
-  <h2>会社情報</h2>
-  <p>
-    {site.address.postalCode} {site.address.text}
-  </p>
-  <p>電話: {site.phone}</p>
-  <ul>
-    {site.businessLines.map((line) => (
-      <li>{line}</li>
-    ))}
-  </ul>
+  <section id="products" class={`border-t border-line ${section}`}>
+    <div class={container}>
+      <h2 class="text-4xl font-bold lg:text-5xl">製品</h2>
+      <div class="mt-6 w-24 border-t-2 border-foreground"></div>
+      {categoryLabels.map((label) => (
+        <section class="mt-16">
+          <h3 class="text-2xl font-bold">{label}</h3>
+          <div class="mt-8 grid gap-6 md:grid-cols-2">
+            {products
+              .filter((p) => p.data.categoryLabel === label)
+              .map((p) => (
+                <Card
+                  href={`/products/${p.id}/`}
+                  title={p.data.title}
+                  summary={p.data.summary}
+                />
+              ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </section>
 
-  <h2>技術マガジン</h2>
-  <p>
-    <a href={site.techSiteUrl}>{site.techSiteLabel}</a>
-  </p>
+  <section id="services" class={`border-t border-line ${section}`}>
+    <div class={container}>
+      <h2 class="text-4xl font-bold lg:text-5xl">サービス</h2>
+      <div class="mt-6 w-24 border-t-2 border-foreground"></div>
+      <div class="mt-16 grid gap-6 md:grid-cols-2">
+        {services.map((s) => (
+          <Card
+            href={`/services/${s.id}/`}
+            title={s.data.title}
+            summary={s.data.summary}
+            level={3}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="company" class={`border-t border-line ${section}`}>
+    <div class={container}>
+      <h2 class="text-4xl font-bold lg:text-5xl">会社情報</h2>
+      <div class="mt-6 w-24 border-t-2 border-foreground"></div>
+      <div class="mt-16 grid gap-12 md:grid-cols-2">
+        <dl class="space-y-6 leading-loose">
+          <div>
+            <dt class="text-sm text-muted">会社名</dt>
+            <dd>{site.name}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-muted">所在地</dt>
+            <dd>
+              {site.address.postalCode}
+              <br />
+              {site.address.text}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm text-muted">電話</dt>
+            <dd>{site.phone}</dd>
+          </div>
+        </dl>
+        <div>
+          <h3 class="text-sm text-muted">事業内容</h3>
+          <ul class="mt-2 border-t border-line">
+            {site.businessLines.map((line) => (
+              <li class="border-b border-line py-4">{line}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-line bg-surface">
+    <div
+      class={`${container} flex flex-col gap-4 py-12 md:flex-row md:items-center md:justify-between`}
+    >
+      <h2 class="text-sm font-bold tracking-wider">技術マガジン</h2>
+      <p>
+        <a
+          href={site.techSiteUrl}
+          class="underline underline-offset-4 hover:text-muted"
+        >
+          {site.techSiteLabel} →
+        </a>
+      </p>
+    </div>
+  </section>
 </Base>

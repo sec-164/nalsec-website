@@ -1,0 +1,35 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  summary: string;
+  /** 見出しの階層。カテゴリ見出し(h3)の下に置くときは 4。 */
+  level?: 3 | 4;
+}
+
+const { href, title, summary, level = 4 } = Astro.props;
+const Heading = level === 3 ? "h3" : "h4";
+const lines = summary.trim().split("\n");
+---
+
+<article class="flex flex-col border border-line p-6">
+  <div class="aspect-video bg-surface" aria-hidden="true"></div>
+  <Heading class="mt-6 text-xl leading-snug font-bold">
+    <a href={href} class="hover:text-muted">
+      {title}
+    </a>
+  </Heading>
+  <p class="mt-4 leading-loose text-muted">
+    {lines.map((line, i) => (
+      <>
+        {i > 0 && <br />}
+        {line}
+      </>
+    ))}
+  </p>
+  <p class="mt-auto pt-6 text-sm">
+    <a href={href} class="hover:text-muted" aria-label={`${title}の詳細を見る`}>
+      詳細を見る →
+    </a>
+  </p>
+</article>
