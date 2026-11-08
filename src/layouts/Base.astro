@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import Logo from "../components/Logo.astro";
+import TechBanner from "../components/TechBanner.astro";
 import { site } from "../data/site";
 import { getScreens, navHref } from "../lib/screens";
 
@@ -57,7 +58,7 @@ const navGroups = nav.map((item) => {
     <header
       data-site-header
       data-scrolled="true"
-      class="group/header fixed inset-x-0 top-0 z-50 border-b border-line bg-black/60 backdrop-blur transition-[background-color,backdrop-filter,border-color] duration-300 motion-reduce:transition-none data-[scrolled=false]:border-transparent data-[scrolled=false]:bg-transparent data-[scrolled=false]:backdrop-blur-none"
+      class="peer/header group/header fixed inset-x-0 top-0 z-50 border-b border-line bg-black/60 backdrop-blur transition-[background-color,backdrop-filter,border-color] duration-300 motion-reduce:transition-none data-[scrolled=false]:border-transparent data-[scrolled=false]:bg-transparent data-[scrolled=false]:backdrop-blur-none"
     >
       <div class="container-x relative flex h-14 items-center gap-6">
         <a
@@ -146,6 +147,8 @@ const navGroups = nav.map((item) => {
         </div>
       )}
     </header>
+    {/* ヘッダーの直後に置くこと(ヘッダーの data-scrolled を peer/header で読む) */}
+    <TechBanner />
     <main>
       <slot />
     </main>

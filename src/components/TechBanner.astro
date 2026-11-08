@@ -1,0 +1,36 @@
+---
+// 右下に固定する TECH NALSEC(技術マガジン)へのバナー。全ページ共通で Base.astro から置く。
+// ヘッダーの直後の兄弟として置き、ヘッダーの data-scrolled を peer で読む(状態の写しを持たない)。
+// トップのヒーロー表示中は隠し、それ以外(他ページ・JS なし)は常に表示。
+// ロゴ SVG は黒文字を含むので白い面に載せる。
+import { Image } from "astro:assets";
+import { site } from "../data/site";
+import techLogo from "../assets/legacy/technalsec.svg";
+---
+
+<a
+  href={site.techSiteUrl}
+  target="_blank"
+  rel="noopener"
+  aria-label={`${site.techSiteLabel}(新しいタブで開く)`}
+  class="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(0.75rem,env(safe-area-inset-bottom))] md:bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex h-10 items-center gap-2 rounded-full bg-white px-3.5 text-black shadow-lg ring-1 shadow-black/40 ring-black/10 transition-[translate,opacity,box-shadow,visibility] duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/50 focus-visible:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white motion-reduce:transition-none peer-data-[scrolled=false]/header:pointer-events-none peer-data-[scrolled=false]/header:invisible peer-data-[scrolled=false]/header:translate-y-4 peer-data-[scrolled=false]/header:opacity-0 md:h-11"
+>
+  <Image src={techLogo} alt="" height={20} class="h-[18px] w-auto md:h-5" />
+  <span
+    aria-hidden="true"
+    class="hidden items-center gap-1 border-l border-black/15 pl-2 text-xs font-bold tracking-wider md:flex"
+  >
+    {site.techSiteShortLabel}
+    <svg
+      viewBox="0 0 12 12"
+      class="size-2.5"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M3.5 8.5l5-5M4.5 3.5h4v4"></path>
+    </svg>
+  </span>
+</a>

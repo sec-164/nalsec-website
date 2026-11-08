@@ -6,7 +6,6 @@
 import Base from "../layouts/Base.astro";
 import Hero from "../components/Hero.astro";
 import CompanyInfo from "../components/CompanyInfo.astro";
-import TechBand from "../components/TechBand.astro";
 import PhotoBackground from "../components/PhotoBackground.astro";
 import {
   heroBackground,
@@ -76,7 +75,8 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         {s && (
           <section class={sectionClass} style={`z-index:${i + 1}`}>
             <PhotoBackground bg={s.bg} />
-            <div class="container-x reveal relative w-full py-4 md:py-12">
+            {/* スマホは下を厚くして中身を上へ寄せ、右下の固定バナー(TechBanner)と最後の「詳細を見る」が重ならないようにする */}
+            <div class="container-x reveal relative w-full pt-0 pb-10 md:py-12">
               <p class={labelClass}>
                 <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
                 {s.categoryLabel}
@@ -210,9 +210,8 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         {screen.id === "company" && (
           <section class={sectionClass} style={`z-index:${i + 1}`}>
             <PhotoBackground bg={heroBackground} heavy />
-            <div class="container-x reveal relative w-full py-4">
+            <div class="container-x reveal relative w-full py-8">
               <CompanyInfo />
-              <TechBand />
             </div>
           </section>
         )}
