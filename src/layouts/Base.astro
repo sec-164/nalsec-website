@@ -59,10 +59,69 @@ const navGroups = nav.map((item) => {
       data-scrolled="true"
       class="group/header fixed inset-x-0 top-0 z-50 border-b border-line bg-black/60 backdrop-blur transition-[background-color,backdrop-filter,border-color] duration-300 motion-reduce:transition-none data-[scrolled=false]:border-transparent data-[scrolled=false]:bg-transparent data-[scrolled=false]:backdrop-blur-none"
     >
-      {/* 進捗バー(見た目はヘッダー下端。DOM 上はナビより前に置き、ヘッダー内の最初の aria-current がバーになるようにする) */}
+      <div class="container-x relative flex h-14 items-center gap-6">
+        <a
+          href="/"
+          aria-label={`${site.name} トップへ`}
+          class="flex items-center transition-[opacity,visibility] duration-300 group-data-[scrolled=false]/header:invisible group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none"
+        >
+          <Logo class="h-5" decorative />
+        </a>
+        {/*
+          ナビは右端に固定した幅の決まった「窓」にして横だけクリップする(窓の中で現在の項目を中央に)。
+          JS なし(トップ以外)では行を ml-auto で右寄せ。トップでは JS が data-js を付け、
+          --nav-x(translateX)で現在の項目を窓の中央へ、ヒーローでは右寄せ位置へ動かす。
+          はみ出している時だけ data-clipped を付けて両端をフェードする。
+          下線(after:)が行の下に出るので、窓は上下に余白を取ってマスクで切れないようにする。
+          子の展開は全デバイス共通。折りたたみ側は横だけクリップする。
+        */}
+        <nav
+          aria-label="サイト内"
+          data-nav-viewport
+          class="group/vp ml-auto w-[min(100%,60vw)] min-w-0 overflow-x-clip py-2 md:w-[min(100%,36rem)] data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_5%,#000_95%,transparent)] md:data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)]"
+        >
+          <ul class="ml-auto flex w-max items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap transition-transform duration-300 ease-[ease] group-data-[js]/vp:ml-0 group-data-[js]/vp:[transform:translateX(var(--nav-x,0px))] motion-reduce:transition-none md:gap-x-8">
+            {navGroups.map((item) => (
+              <li class="flex items-baseline">
+                <a
+                  href={item.href}
+                  data-nav-link={item.id}
+                  class="relative transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-muted data-[active=false]:text-muted data-[active=false]:hover:text-foreground aria-[current=true]:after:opacity-100"
+                >
+                  {item.label}
+                </a>
+                {item.children.length > 0 && (
+                  <div
+                    data-group={item.id}
+                    inert
+                    class="invisible grid grid-cols-[0fr] transition-[grid-template-columns,visibility] duration-300 ease-in-out data-[open]:visible data-[open]:grid-cols-[1fr] motion-reduce:transition-none"
+                  >
+                    <div class="min-w-0 overflow-x-clip">
+                      <ul class="flex items-baseline gap-x-6 pl-8 font-normal tracking-[0.1em]">
+                        {item.children.map((child) => (
+                          <li>
+                            <a
+                              href={`/#${child.id}`}
+                              data-nav-child={child.id}
+                              class="relative text-muted transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-foreground aria-[current=true]:text-white aria-[current=true]:after:opacity-100"
+                            >
+                              {child.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+      {/* 進捗バー(見た目はヘッダー下端。フォーカス順をロゴ → ナビ → バーにするため DOM ではナビの後ろに置く) */}
       {progress && (
         <div class="absolute inset-x-0 bottom-0 z-10 translate-y-px">
-          <ol class="mx-auto flex max-w-[1120px] items-end gap-1 px-4 md:px-8">
+          <ol class="container-x flex items-end gap-1">
             {segments.map((seg) => (
               <li class:list={["flex-1", seg.groupBreak && "ml-1"]}>
                 <a
@@ -85,73 +144,12 @@ const navGroups = nav.map((item) => {
           </ol>
         </div>
       )}
-      <div class="relative mx-auto flex h-14 max-w-[1120px] items-center justify-between gap-6 px-4 md:px-8">
-        <a
-          href="/"
-          aria-label="株式会社NALSEC トップへ"
-          class="flex items-center transition-opacity duration-300 group-data-[scrolled=false]/header:pointer-events-none group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none"
-        >
-          <Logo class="h-5" decorative />
-        </a>
-        {/*
-          ナビは右端に固定した幅の決まった「窓」にして横だけクリップする(窓の中で現在の項目を中央に)。
-          JS なし(トップ以外)では行を ml-auto で右寄せ。トップでは JS が data-js を付け、
-          --nav-x(translateX)で現在の項目を窓の中央へ、ヒーローでは右寄せ位置へ動かす。
-          はみ出している時だけ data-clipped を付けて両端をフェードする。
-          下線(after:)が行の下に出るので、窓は上下に余白を取ってマスクで切れないようにする。
-          子の展開は全デバイス共通。折りたたみ側は横だけクリップする。
-        */}
-        <nav
-          aria-label="サイト内"
-          data-site-nav
-          data-nav-viewport
-          class="group/vp ml-auto w-[min(100%,60vw)] min-w-0 overflow-x-clip md:w-[min(100%,36rem)] overflow-y-visible py-2 data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_5%,#000_95%,transparent)] md:data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)]"
-        >
-          <ul class="ml-auto flex w-max items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap transition-transform duration-300 ease-[ease] group-data-[js]/vp:ml-0 group-data-[js]/vp:[transform:translateX(var(--nav-x,0px))] motion-reduce:transition-none md:gap-x-8">
-            {navGroups.map((item) => (
-              <li class="flex items-baseline">
-                <a
-                  href={item.href}
-                  data-nav-link={item.id}
-                  class="relative transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-muted data-[active=false]:text-muted data-[active=true]:text-white aria-[current=true]:after:opacity-100"
-                >
-                  {item.label}
-                </a>
-                {item.children.length > 0 && (
-                  <div
-                    data-group={item.id}
-                    inert
-                    aria-hidden="true"
-                    class="invisible grid grid-cols-[0fr] transition-[grid-template-columns,visibility] duration-300 ease-in-out data-[open]:visible data-[open]:grid-cols-[1fr] motion-reduce:transition-none"
-                  >
-                    <div class="min-w-0 overflow-x-clip overflow-y-visible">
-                      <ul class="flex items-baseline gap-x-6 pl-8 font-normal tracking-[0.1em]">
-                        {item.children.map((child) => (
-                          <li>
-                            <a
-                              href={`/#${child.id}`}
-                              data-nav-child={child.id}
-                              class="relative text-muted transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-foreground aria-[current=true]:text-white aria-[current=true]:after:opacity-100"
-                            >
-                              {child.label}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
     </header>
     <main>
       <slot />
     </main>
     <footer class="relative z-20 border-t border-line bg-background">
-      <div class="mx-auto flex max-w-[1120px] items-center justify-between gap-4 px-4 py-8 text-sm text-muted md:px-8">
+      <div class="container-x flex items-center justify-between gap-4 py-8 text-sm text-muted">
         <Logo class="h-4 text-foreground" decorative />
         <p>© NALSEC</p>
       </div>
@@ -164,17 +162,14 @@ const navGroups = nav.map((item) => {
         const segs = [...header.querySelectorAll("[data-screen]")];
         const navs = [...header.querySelectorAll("[data-nav-link]")];
         // 右のナビ: 現在のナビの子だけ開き、現在の画面の子(子がなければナビ名)に aria-current を付ける
-        const navEl = header.querySelector("[data-site-nav]");
+        const navEl = header.querySelector("[data-nav-viewport]");
         const groups = [...header.querySelectorAll("[data-group]")];
         const children = [...header.querySelectorAll("[data-nav-child]")];
         const placeNav = (id, nav) => {
-          navEl.dataset.activeGroup = nav;
           groups.forEach((g) => {
             const open = g.dataset.group === nav;
             g.toggleAttribute("data-open", open);
             g.inert = !open;
-            if (open) g.removeAttribute("aria-hidden");
-            else g.setAttribute("aria-hidden", "true");
           });
           const leaf = children.find((a) => a.dataset.navChild === id);
           children.forEach((a) => {
@@ -196,20 +191,16 @@ const navGroups = nav.map((item) => {
           const vw = navEl.clientWidth;
           const rw = row.offsetWidth;
           const cur = row.querySelector("[aria-current]");
-          if (!cur) return rw > vw ? 0 : vw - rw;
+          if (!cur) return { x: rw > vw ? 0 : vw - rw, vw, rw };
           // offsetLeft は row 基準ではないことがあるので、変形を除いた矩形の差で測る
           const x = row.getBoundingClientRect().left;
           const r = cur.getBoundingClientRect();
           const left = r.left - x;
-          return vw / 2 - (left + r.width / 2);
+          return { x: vw / 2 - (left + r.width / 2), vw, rw };
         };
-        const setX = (x) => {
-          const vw = navEl.clientWidth;
+        const setX = ({ x, vw, rw }) => {
           row.style.setProperty("--nav-x", `${x}px`);
-          navEl.toggleAttribute(
-            "data-clipped",
-            x < -0.5 || x + row.offsetWidth > vw + 0.5,
-          );
+          navEl.toggleAttribute("data-clipped", x < -0.5 || x + rw > vw + 0.5);
         };
         // 展開(grid-template-columns)と移動はどちらも 300ms のアニメーション。
         // 終わった時の位置を先に知るため、アニメーションを止めて新しい状態を当てて測り、
@@ -246,12 +237,15 @@ const navGroups = nav.map((item) => {
         };
         groups.forEach((g) =>
           g.addEventListener("transitionend", (e) => {
-            if (e.target === g && e.propertyName === "grid-template-columns")
+            if (
+              e.target === g &&
+              g.hasAttribute("data-open") &&
+              e.propertyName === "grid-template-columns"
+            )
               remeasure();
           }),
         );
         document.fonts?.ready.then(remeasure);
-        addEventListener("resize", remeasure);
         // 移動先は各画面の直前にある高さ 0 の目印(sticky でないので offsetTop が本来の位置になる)
         const sections = segs.map((a) =>
           document.getElementById(a.getAttribute("href").slice(1)),
@@ -260,6 +254,7 @@ const navGroups = nav.map((item) => {
         let tops = [];
         let spans = [];
         let current = -1;
+        let progress = "";
         const measure = () => {
           tops = sections.map((el) => el.offsetTop);
           // 各画面の長さ = 次の目印までの距離(ちょうど 1 画面分)。最後の画面は積み重ねの終わり
@@ -279,16 +274,18 @@ const navGroups = nav.map((item) => {
           let i = 0;
           while (i + 1 < tops.length && tops[i + 1] <= scrollY) i++;
           const p = Math.min(1, Math.max(0, (scrollY - tops[i]) / spans[i]));
-          const global = (i + p) / Math.max(1, tops.length - 1);
-          segs[i].style.setProperty("--p", p.toFixed(3));
-          header.dataset.index = String(i);
-          header.dataset.progress = p.toFixed(3);
-          header.dataset.global = global.toFixed(3);
+          const ps = p.toFixed(3);
+          if (ps !== progress || i !== current) {
+            progress = ps;
+            segs[i].style.setProperty("--p", ps);
+            header.dataset.progress = ps;
+          }
           if (i === current) return;
           current = i;
+          header.dataset.index = String(i);
           segs.forEach((a, k) => {
-            a.dataset.state =
-              k < i ? "passed" : k === i ? "current" : "upcoming";
+            if (k < i) a.dataset.state = "passed";
+            else delete a.dataset.state;
             if (k === i) a.setAttribute("aria-current", "true");
             else a.removeAttribute("aria-current");
           });
@@ -307,6 +304,7 @@ const navGroups = nav.map((item) => {
         addEventListener("scroll", onScroll, { passive: true });
         addEventListener("resize", () => {
           measure();
+          remeasure();
           onScroll();
         });
         addEventListener("load", () => {

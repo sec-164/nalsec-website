@@ -12,6 +12,16 @@
   --font-sans: "Montserrat", "M PLUS 1p", sans-serif;
 }
 
+/* 本文幅の共通コンテナ(最大 1120px + 左右の余白) */
+@utility container-x {
+  margin-inline: auto;
+  max-width: 1120px;
+  padding-inline: --spacing(4);
+  @variant md {
+    padding-inline: --spacing(8);
+  }
+}
+
 /* ヘッダーナビ: 展開後の最終レイアウトを測る一瞬だけアニメーションを止める(Base.astro の script が付け外しする)。 */
 [data-nav-viewport].is-measuring,
 [data-nav-viewport].is-measuring * {

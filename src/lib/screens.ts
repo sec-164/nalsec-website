@@ -3,6 +3,8 @@
 import { getCollection } from "astro:content";
 import { site } from "../data/site";
 
+const companyLabel = site.nav.find((n) => n.id === "company")!.label;
+
 export type NavId = (typeof site.nav)[number]["id"];
 
 export type Screen = {
@@ -40,8 +42,8 @@ export async function getScreens(): Promise<Screen[]> {
     })),
     {
       id: "company",
-      label: "会社情報",
-      short: "会社情報",
+      label: companyLabel,
+      short: companyLabel,
       nav: "company",
       group: null,
     },

@@ -2,22 +2,10 @@
 import { Image } from "astro:assets";
 import { site } from "../data/site";
 import techLogo from "../assets/legacy/technalsec.svg";
-
-const { embedded = false } = Astro.props;
-const Tag = embedded ? "div" : "section";
-const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 ---
 
-<Tag
-  class={
-    embedded
-      ? "mt-8 border-t border-line md:mt-12"
-      : "border-t border-line bg-surface"
-  }
->
-  <div
-    class={`${embedded ? "" : container} flex flex-col ${embedded ? "gap-3" : "gap-4"} md:flex-row md:items-center md:justify-between ${embedded ? "pt-4 md:pt-6" : "py-12"}`}
-  >
+<div class="mt-8 border-t border-line md:mt-12">
+  <div class="flex flex-col gap-3 pt-4 md:flex-row md:items-center md:justify-between md:pt-6">
     <h2 class="text-sm font-bold tracking-wider">技術マガジン</h2>
     <a
       href={site.techSiteUrl}
@@ -35,4 +23,4 @@ const container = "mx-auto max-w-[1120px] px-4 md:px-8";
       <span class="underline underline-offset-4">{site.techSiteLabel} →</span>
     </a>
   </div>
-</Tag>
+</div>

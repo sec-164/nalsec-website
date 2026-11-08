@@ -15,7 +15,7 @@ const { bg, label, title, summary } = Astro.props;
 
 <header class="relative flex min-h-[40svh] items-end overflow-hidden border-b border-line pt-14">
   <PhotoBackground bg={bg} eager />
-  <div class="hero-in relative mx-auto w-full max-w-[1120px] px-4 pt-12 pb-10 md:px-8 md:pt-16 md:pb-14">
+  <div class="hero-in container-x relative w-full pt-12 pb-10 md:pt-16 md:pb-14">
     <p class="flex items-center gap-3 text-sm text-muted">
       <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
       {label}

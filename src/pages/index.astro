@@ -2,7 +2,7 @@
 // 全画面セクションを sticky で重ねる構成(ヒーロー → 製品シリーズ → サービス → 会社情報)。
 // 画面の並びと id は src/lib/screens.ts の getScreens() が唯一の定義。ヘッダーの進捗バーも同じ一覧から作る。
 // 製品は series コレクション単位で 1 画面。兄弟製品は同じ画面に並べ、highlights で違いだけを示す。
-// 背景は現行サイトの写真を暫定流用(src/data/backgrounds.ts)。動きは CSS のみ、JS なし。
+// 背景は現行サイトの写真を暫定流用(src/data/backgrounds.ts)。セクションの動きは CSS(スクロール連動)のみ。ヘッダーの進捗・ナビは layout の小さなインラインスクリプトが担う。
 import Base from "../layouts/Base.astro";
 import Hero from "../components/Hero.astro";
 import CompanyInfo from "../components/CompanyInfo.astro";
@@ -50,7 +50,6 @@ for (const screen of screens) {
   if (!known) throw new Error(`screen "${screen.id}": 描画する内容がない`);
 }
 
-const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 // pt-14 は固定ヘッダーの高さ。本文はその下の残りで縦中央に置く。
 const sectionClass =
   "sticky top-0 flex h-svh items-center overflow-hidden border-t border-line bg-background pt-14";
@@ -72,12 +71,12 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         {/* 移動先の目印(id = 画面 id)。sticky のセクション自体を移動先にすると、貼り付いている間は
             上へ戻るアンカー移動が効かないので、流れの中に高さ 0 の要素を置く。 */}
         <div id={screen.id} aria-hidden="true"></div>
-        {screen.id === "hero" && <Hero stacked />}
+        {screen.id === "hero" && <Hero />}
 
         {s && (
           <section class={sectionClass} style={`z-index:${i + 1}`}>
             <PhotoBackground bg={s.bg} />
-            <div class={`${container} reveal relative w-full py-4 md:py-12`}>
+            <div class="container-x reveal relative w-full py-4 md:py-12">
               <p class={labelClass}>
                 <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
                 {s.categoryLabel}
@@ -175,7 +174,7 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         {item && (
           <section class={sectionClass} style={`z-index:${i + 1}`}>
             <PhotoBackground bg={serviceBackground} />
-            <div class={`${container} reveal relative w-full py-12 md:py-16`}>
+            <div class="container-x reveal relative w-full py-12 md:py-16">
               <div class="max-w-3xl">
                 <p class={labelClass}>
                   <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
@@ -211,9 +210,9 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         {screen.id === "company" && (
           <section class={sectionClass} style={`z-index:${i + 1}`}>
             <PhotoBackground bg={heroBackground} heavy />
-            <div class={`${container} reveal relative w-full py-4`}>
-              <CompanyInfo embedded />
-              <TechBand embedded />
+            <div class="container-x reveal relative w-full py-4">
+              <CompanyInfo />
+              <TechBand />
             </div>
           </section>
         )}

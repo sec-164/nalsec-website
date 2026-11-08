@@ -4,19 +4,12 @@ import { heroBackground } from "../data/backgrounds";
 import Logo from "./Logo.astro";
 import PhotoBackground from "./PhotoBackground.astro";
 
-const { stacked = false } = Astro.props;
 const taglineLines = site.tagline.split("\n");
-const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 ---
 
-<section
-  class:list={[
-    "relative flex items-center overflow-hidden pt-14",
-    stacked ? "sticky top-0 z-[1] h-svh" : "min-h-svh",
-  ]}
->
+<section class="sticky top-0 z-[1] flex h-svh items-center overflow-hidden pt-14">
   <PhotoBackground bg={heroBackground} eager />
-  <div class={`${container} relative w-full py-12 md:py-16`}>
+  <div class="container-x relative w-full py-12 md:py-16">
     <div class="hero-in">
       <h1>
         <Logo class="h-14 md:h-20" decorative />
