@@ -44,7 +44,7 @@ const sectionClass =
   "sticky top-0 flex h-svh items-center overflow-hidden border-t border-line bg-background pt-14";
 // 項目全体を 1 枚のリンクパネルにする。ヘッダーと同じ黒の半透明 + ぼかしで写真上の可読性を上げる。
 const panelClass =
-  "group block rounded-lg border border-line bg-black/40 p-3 backdrop-blur-md transition-colors hover:bg-black/55 focus-visible:bg-black/55 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:p-8";
+  "group block bg-black/20 p-3 backdrop-blur-[6px] transition-colors hover:bg-black/35 focus-visible:bg-black/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:p-8";
 // パネル内の擬似ボタン(非インタラクティブ)。パネルの hover で塗りつぶす。
 const arrowClass =
   "inline-block rounded-full border border-white/40 px-4 py-1.5 text-sm transition-colors group-hover:bg-white group-hover:text-black group-focus-visible:bg-white group-focus-visible:text-black";
@@ -72,7 +72,7 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         <p class="mt-2 text-lg leading-relaxed text-muted md:mt-4">{s.lead}</p>
 
         {s.products.length === 2 && (
-          <div class="mt-4 grid items-stretch gap-3 md:mt-12 md:grid-cols-2 md:gap-6">
+          <div class="mt-4 grid items-stretch gap-0 divide-y divide-line border border-line md:mt-12 md:grid-cols-2 md:divide-x md:divide-y-0">
             {s.products.map((p) => (
               <a href={p.href} class={`${panelClass} flex flex-col`}>
                 <h3 class="text-xl leading-snug font-bold md:text-[22px]">
@@ -97,7 +97,7 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         )}
 
         {s.products.length >= 3 && (
-          <div class="mt-4 flex flex-col gap-2 md:mt-12 md:gap-6">
+          <div class="mt-4 flex flex-col gap-0 divide-y divide-line border border-line md:mt-12">
             {s.products.map((p) => (
               <a
                 href={p.href}
@@ -123,9 +123,12 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
         )}
 
         {s.products.length === 1 && (
-          <div class="mt-6 grid items-stretch gap-12 md:mt-12 md:grid-cols-2">
+          <div class="mt-6 grid items-stretch gap-0 md:mt-12 md:grid-cols-2">
             {s.products.map((p) => (
-              <a href={p.href} class={`${panelClass} flex flex-col`}>
+              <a
+                href={p.href}
+                class={`${panelClass} flex flex-col border border-line`}
+              >
                 <h3 class="text-xl leading-snug font-bold md:text-[22px]">
                   {p.title}
                 </h3>
@@ -163,7 +166,7 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
           </p>
           <a
             href={`/services/${item.id}/`}
-            class={`${panelClass} mt-4 flex flex-col`}
+            class={`${panelClass} mt-4 flex flex-col border border-line`}
           >
             <h2 class="text-4xl leading-snug font-bold lg:text-5xl">
               {item.data.title}
