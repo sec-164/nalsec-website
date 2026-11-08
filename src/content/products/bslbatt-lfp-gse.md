@@ -21,7 +21,7 @@ summary: |-
   48V 系(51.2V)4 型番、80V 系(83.2V)5 型番。
   充電器ではなく電池そのものです。
 catalog: リチウムイオン電池_nalsec-1M.pdf
-order: 3
+order: 5
 ---
 
 ## 特長
