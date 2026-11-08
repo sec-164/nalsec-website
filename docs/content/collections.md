@@ -6,17 +6,17 @@
 
 スラッグはファイル名(`xnergy-ph.md` → `/products/xnergy-ph/`)。
 
-| フィールド      | 型                        | 意味                                      |
-| --------------- | ------------------------- | ----------------------------------------- |
-| `title`         | string                    | 表示名(例: Xnergy ワイヤレス充電器 PH)    |
-| `manufacturer`  | string                    | メーカー表記(Xnergy、BSLBATT、VITZROCELL) |
-| `category`      | `"charger"` / `"battery"` | 分類                                      |
-| `categoryLabel` | string                    | 分類の表示用(充電器 / 電池)               |
-| `models`        | string[]                  | 型番。なければ `[]`                       |
-| `applications`  | string[]                  | 用途タグ。製品リストの「市場」に合わせる  |
-| `summary`       | string                    | トップページに載せる 2〜3 文の説明(散文)  |
-| `catalog`       | string(省略可)            | `references/` 内のカタログのファイル名    |
-| `order`         | number                    | 一覧での並び順                            |
+| フィールド      | 型                        | 意味                                                        |
+| --------------- | ------------------------- | ----------------------------------------------------------- |
+| `title`         | string                    | 表示名(例: Xnergy ワイヤレス充電器 PH)                      |
+| `manufacturer`  | string                    | メーカー表記(Xnergy、BSLBATT、VITZROCELL)                   |
+| `category`      | `"charger"` / `"battery"` | 分類                                                        |
+| `categoryLabel` | string                    | 分類の表示用(充電器 / 電池)                                 |
+| `models`        | string[]                  | 型番。なければ `[]`                                         |
+| `applications`  | string[]                  | 用途タグ。製品リストの「市場」に合わせる                    |
+| `summary`       | string                    | トップページに載せる紹介文。1 行 1 文、改行は `<br>` で表示 |
+| `catalog`       | string(省略可)            | `references/` 内のカタログのファイル名                      |
+| `order`         | number                    | 一覧での並び順                                              |
 
 ## services(`src/content/services/*.md`)
 
