@@ -21,7 +21,7 @@
 - `noindex` の `<meta name="robots">` は `src/pages/index.astro` だけに置き、レイアウトには置かない。
 - Cloudflare 用の `X-Robots-Tag: noindex, nofollow` は `public/_headers` に置く。
 - コミットメッセージは日本語、末尾に `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>` を付ける。
-- ローカルの pnpm は `~/Library/pnpm/pnpm`(standalone)。Bash ツールはシェル状態を保持しないので、pnpm を使うコマンドの先頭で毎回 `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH";` を付ける(mise の `pnpm` shim を先に拾わないため)。
+- ローカルの pnpm は `~/Library/pnpm/bin/pnpm`(standalone)。Bash ツールはシェル状態を保持しないので、pnpm を使うコマンドの先頭で毎回 `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH";` を付ける(mise の `pnpm` shim を先に拾わないため)。
 
 ---
 
@@ -107,12 +107,12 @@ EOF
 
 - [ ] **Step 1: ローカルに standalone の pnpm を導入する(未導入の場合のみ)**
 
-Run: `ls ~/Library/pnpm/pnpm 2>/dev/null || curl -fsSL https://get.pnpm.io/install.sh | sh -`
-Expected: `~/Library/pnpm/pnpm` が存在する。インストーラは `~/.zshrc` に `PNPM_HOME` と PATH の設定を追記する(ユーザーには報告する)。
+Run: `ls ~/Library/pnpm/bin/pnpm 2>/dev/null || curl -fsSL https://get.pnpm.io/install.sh | sh -`
+Expected: `~/Library/pnpm/bin/pnpm` が存在する。インストーラは `~/.zshrc` に `PNPM_HOME` と PATH の設定を追記する(ユーザーには報告する)。
 
 - [ ] **Step 2: pnpm が動くことを確認する**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm --version`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm --version`
 Expected: バージョン番号が出る(`12.18.0` でなくてもよい。`packageManager` により次ステップ以降で自動的に 12.18.0 へ切り替わる)。
 
 - [ ] **Step 3: `package.json` を書く**
@@ -155,12 +155,12 @@ Expected: バージョン番号が出る(`12.18.0` でなくてもよい。`pack
 
 - [ ] **Step 4: 依存をインストールしてロックファイルを作る**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm install`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm install`
 Expected: エラーなく終了し `pnpm-lock.yaml` と `node_modules/` ができる。`devEngines.runtime` により pnpm が Node 24.x を取得する旨のログが出ることがある。
 
 - [ ] **Step 5: 固定が効いていることを確認する**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm --version && pnpm exec node --version && pnpm exec astro --version`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm --version && pnpm exec node --version && pnpm exec astro --version`
 Expected: `12.18.0`、`v24.x.x`、`astro  v7.4.x`。
 
 - [ ] **Step 6: コミット**
@@ -309,17 +309,17 @@ import Base from "../layouts/Base.astro";
 
 - [ ] **Step 8: 型チェックを通す**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm check`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm check`
 Expected: 最終行が `Result (N files): 0 errors 0 warnings 0 hints` の形で終了コード 0。`.astro/` ディレクトリが生成される(gitignore 済み)。
 
 - [ ] **Step 9: ビルドを通す**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm build && ls dist && grep -c 'noindex' dist/index.html && test -f dist/_headers && test -f dist/CNAME`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm build && ls dist && grep -c 'noindex' dist/index.html && test -f dist/_headers && test -f dist/CNAME`
 Expected: ビルド成功。`dist/` に `index.html`、`_headers`、`CNAME`、`.nojekyll`、`_astro/` がある。`grep` は `1` 以上を出力。
 
 - [ ] **Step 10: 表示を確認する**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm preview --port 4321` をバックグラウンドで起動し、アプリ内ブラウザで `http://localhost:4321/` を開いてスクリーンショットを確認する。
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm preview --port 4321` をバックグラウンドで起動し、アプリ内ブラウザで `http://localhost:4321/` を開いてスクリーンショットを確認する。
 Expected: 黒背景に白文字で「NALSEC」、白い横線、「サイトリニューアル準備中です。…」が中央に表示される。確認後にプロセスを止める。
 
 - [ ] **Step 11: コミット**
@@ -381,17 +381,17 @@ public/
 
 - [ ] **Step 3: 整形チェックを実行して差分の有無を見る**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm format:check; echo "exit=$?"`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm format:check; echo "exit=$?"`
 Expected: 対象は `astro.config.mjs`、`tsconfig.json`、`package.json`、`.prettierrc`、`src/**`、`docs/**/*.md`。Task 3 で書いたファイルに整形差分があれば `[warn]` で列挙され exit=1。
 
 - [ ] **Step 4: 整形を適用する**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm format`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm format`
 Expected: 各ファイル名と所要時間が出て終了。
 
 - [ ] **Step 5: チェックが通ることを確認する**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm format:check && pnpm check && pnpm build`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm format:check && pnpm check && pnpm build`
 Expected: `All matched files use Prettier code style!`、型チェック 0 errors、ビルド成功。
 
 - [ ] **Step 6: コミット**
@@ -529,7 +529,7 @@ jobs:
 
 - [ ] **Step 3: YAML として読めることと整形を確認する**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm exec prettier --check .github/workflows/site.yml || pnpm exec prettier --write .github/workflows/site.yml`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm exec prettier --check .github/workflows/site.yml || pnpm exec prettier --write .github/workflows/site.yml`
 Expected: Prettier が YAML をパースできる(構文エラーなら失敗する)。差分があれば整形され、再度 `pnpm format:check` が通る。
 
 - [ ] **Step 4: コミット**
@@ -592,7 +592,7 @@ Expected:
 
 - [ ] **Step 1: 全スクリプトを通しで実行する**
 
-Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME:$PATH"; pnpm check && pnpm format:check && pnpm build`
+Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm check && pnpm format:check && pnpm build`
 Expected: すべて成功。
 
 - [ ] **Step 2: 作業ツリーがクリーンで push 済みであることを確認する**
