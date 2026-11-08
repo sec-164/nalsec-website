@@ -8,7 +8,7 @@ export type NavId = (typeof site.nav)[number]["id"];
 export type Screen = {
   id: string;
   label: string;
-  /** ヘッダーの見出し帯に出す短い名前(series / services の short。なければ title) */
+  /** ヘッダー右のナビで展開する短い名前(series / services の short。なければ title) */
   short: string;
   nav: NavId | null;
   group: string | null;

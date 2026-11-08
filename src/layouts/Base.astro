@@ -6,7 +6,7 @@ import { getScreens, navHref } from "../lib/screens";
 
 interface Props {
   title: string;
-  /** トップページだけ true。ヘッダーに進捗バーと見出し帯を出し、ヒーロー上では透明にする。 */
+  /** トップページだけ true。ヘッダーに進捗バーを出し、ナビを現在位置で展開し、ヒーロー上では透明にする。 */
   progress?: boolean;
 }
 
@@ -26,21 +26,15 @@ const segments = screens.map((screen, i) => {
       !!prev && !!prev.group && !!screen.group && prev.group !== screen.group,
   };
 });
-// ヘッダー中央の見出し帯: ナビ順に「ナビ名(グループ見出し) → 属する画面の短い名前」。
-// 画面が 1 つだけのナビはその画面の名前だけ(見出しを重ねない)。ヒーローは出さない。
-type StripItem =
-  | { kind: "group"; label: string }
-  | { kind: "screen"; id: string; label: string };
-const strip: StripItem[] = site.nav.flatMap((item) => {
+// 右のナビ: ナビ名のあとに、そのナビに属する画面の短い名前を並べる(現在のナビの分だけ JS が開く)。
+// 画面が 1 つだけで短い名前がナビ名と同じもの(会社情報)は子を持たない。
+const navGroups = nav.map((item) => {
   const own = screens.filter((s) => s.nav === item.id);
-  const items: StripItem[] = own.map((s) => ({
-    kind: "screen",
-    id: s.id,
-    label: s.short,
-  }));
-  return own.length > 1
-    ? [{ kind: "group", label: item.label } as StripItem, ...items]
-    : items;
+  const children =
+    own.length === 1 && own[0].short === item.label
+      ? []
+      : own.map((s) => ({ id: s.id, label: s.short }));
+  return { ...item, children };
 });
 ---
 
@@ -101,44 +95,42 @@ const strip: StripItem[] = site.nav.flatMap((item) => {
             株式会社NALSEC
           </span>
         </a>
-        {progress && (
-          <div
-            data-strip
-            class="absolute top-1/2 left-1/2 hidden w-[40%] -translate-x-1/2 -translate-y-1/2 overflow-hidden py-1.5 transition-opacity duration-300 [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)] group-data-[scrolled=false]/header:invisible group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none md:block lg:w-1/2"
-          >
-            <div
-              data-strip-row
-              class="flex w-max items-baseline gap-6 whitespace-nowrap text-[13px] text-muted transition-transform duration-300 ease-in-out motion-reduce:transition-none"
-            >
-              {strip.map((item) =>
-                item.kind === "group" ? (
-                  <span class="text-[11px] tracking-[0.15em] opacity-60">
-                    {item.label}
-                  </span>
-                ) : (
-                  <a
-                    href={`#${item.id}`}
-                    data-strip-item={item.id}
-                    class="relative transition-colors after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-white after:opacity-0 hover:text-foreground aria-[current=true]:text-white aria-[current=true]:after:opacity-100"
-                  >
-                    {item.label}
-                  </a>
-                ),
-              )}
-            </div>
-          </div>
-        )}
-        <nav aria-label="サイト内">
-          <ul class="flex gap-x-5 text-xs font-bold tracking-[0.15em] md:gap-x-8">
-            {nav.map((item) => (
-              <li>
+        {/* data-active-group(現在のナビ id)は JS が付ける。子の展開は md 以上だけ。 */}
+        <nav aria-label="サイト内" data-site-nav>
+          <ul class="flex items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap md:gap-x-8">
+            {navGroups.map((item) => (
+              <li class="flex items-baseline">
                 <a
                   href={item.href}
                   data-nav-link={item.id}
-                  class="relative transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-muted aria-[current=true]:after:opacity-100"
+                  class="relative transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-muted data-[active=false]:text-muted data-[active=true]:text-white aria-[current=true]:after:opacity-100"
                 >
                   {item.label}
                 </a>
+                {item.children.length > 0 && (
+                  <div
+                    data-group={item.id}
+                    inert
+                    aria-hidden="true"
+                    class="invisible hidden grid-cols-[0fr] transition-[grid-template-columns,visibility] duration-300 ease-in-out data-[open]:visible data-[open]:grid-cols-[1fr] motion-reduce:transition-none md:grid"
+                  >
+                    <div class="min-w-0 overflow-hidden">
+                      <ul class="flex items-baseline gap-x-6 pl-8 font-normal tracking-[0.1em]">
+                        {item.children.map((child) => (
+                          <li>
+                            <a
+                              href={`/#${child.id}`}
+                              data-nav-child={child.id}
+                              class="relative text-muted transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-foreground aria-[current=true]:text-white aria-[current=true]:after:opacity-100"
+                            >
+                              {child.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
@@ -155,35 +147,37 @@ const strip: StripItem[] = site.nav.flatMap((item) => {
       </div>
     </footer>
     {progress && <script is:inline>
-      // トップページのヘッダー: 進捗バー・見出し帯・ナビのアクティブ表示・ヒーロー上の透明化。
+      // トップページのヘッダー: 進捗バー・ナビの現在位置(子のインライン展開)・ヒーロー上の透明化。
       // 画面の一覧はセグメントのリンク(href と data-*)から読む。JS 側に一覧の写しは持たない。
       (() => {
         const header = document.querySelector("[data-site-header]");
         const segs = [...header.querySelectorAll("[data-screen]")];
         const navs = [...header.querySelectorAll("[data-nav-link]")];
-        // 見出し帯: 現在の画面の項目を帯の中央に寄せる(data-index が変わった時と、寸法が変わった時に測り直す)
-        const strip = header.querySelector("[data-strip]");
-        const row = strip && strip.querySelector("[data-strip-row]");
-        const stripItems = row
-          ? new Map(
-              [...row.querySelectorAll("[data-strip-item]")].map((a) => [
-                a.dataset.stripItem,
-                a,
-              ]),
-            )
-          : new Map();
-        const placeStrip = () => {
-          if (!row || current < 0) return;
-          const id = segs[current].getAttribute("href").slice(1);
-          const cur = stripItems.get(id);
-          stripItems.forEach((a) => {
-            if (a === cur) a.setAttribute("aria-current", "true");
+        // 右のナビ: 現在のナビの子だけ開き、現在の画面の子(子がなければナビ名)に aria-current を付ける
+        const navEl = header.querySelector("[data-site-nav]");
+        const groups = [...header.querySelectorAll("[data-group]")];
+        const children = [...header.querySelectorAll("[data-nav-child]")];
+        const placeNav = (id, nav) => {
+          navEl.dataset.activeGroup = nav;
+          groups.forEach((g) => {
+            const open = g.dataset.group === nav;
+            g.toggleAttribute("data-open", open);
+            g.inert = !open;
+            if (open) g.removeAttribute("aria-hidden");
+            else g.setAttribute("aria-hidden", "true");
+          });
+          const leaf = children.find((a) => a.dataset.navChild === id);
+          children.forEach((a) => {
+            if (a === leaf) a.setAttribute("aria-current", "true");
             else a.removeAttribute("aria-current");
           });
-          if (!cur) return;
-          const x =
-            strip.clientWidth / 2 - (cur.offsetLeft + cur.offsetWidth / 2);
-          row.style.transform = `translateX(${x.toFixed(1)}px)`;
+          navs.forEach((a) => {
+            const active = a.dataset.navLink === nav;
+            if (nav) a.dataset.active = String(active);
+            else delete a.dataset.active;
+            if (active && !leaf) a.setAttribute("aria-current", "true");
+            else a.removeAttribute("aria-current");
+          });
         };
         // 移動先は各画面の直前にある高さ 0 の目印(sticky でないので offsetTop が本来の位置になる)
         const sections = segs.map((a) =>
@@ -225,13 +219,7 @@ const strip: StripItem[] = site.nav.flatMap((item) => {
             if (k === i) a.setAttribute("aria-current", "true");
             else a.removeAttribute("aria-current");
           });
-          const nav = segs[i].dataset.nav;
-          navs.forEach((a) => {
-            if (nav && a.dataset.navLink === nav)
-              a.setAttribute("aria-current", "true");
-            else a.removeAttribute("aria-current");
-          });
-          placeStrip();
+          placeNav(segs[i].getAttribute("href").slice(1), segs[i].dataset.nav);
           header.dataset.scrolled = String(i > 0);
         };
         let queued = false;
@@ -247,13 +235,10 @@ const strip: StripItem[] = site.nav.flatMap((item) => {
         addEventListener("resize", () => {
           measure();
           onScroll();
-          placeStrip();
         });
-        if (document.fonts) document.fonts.ready.then(placeStrip);
         addEventListener("load", () => {
           measure();
           update();
-          placeStrip();
         });
         measure();
         update();
