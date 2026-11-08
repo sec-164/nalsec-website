@@ -2,6 +2,10 @@
 
 テキストのみのプレビュー用に、Astro のコンテンツコレクションを 3 つ定義している(`src/content.config.ts`)。内容の根拠は `docs/content/inventory.md`、URL は `docs/content/url-structure.md`。
 
+## トップページの画面順
+
+トップページの画面の並び(ヒーロー → series を `order` 順 → services を `order` 順 → 会社情報)は `src/lib/screens.ts` の `getScreens()` だけが決める。トップの各セクションと、ヘッダーの進捗バー・現在の画面名・ナビのリンク先(各ナビ項目に属する最初の画面)はすべてここから作る。ナビ項目そのものは `src/data/site.ts` の `nav`。画面を増やすときはコレクションにエントリを足すだけでよく、ヘッダー側の修正は要らない。
+
 ## products(`src/content/products/*.md`)
 
 スラッグはファイル名(`xnergy-ph.md` → `/products/xnergy-ph/`)。

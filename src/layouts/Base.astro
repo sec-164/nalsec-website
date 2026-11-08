@@ -1,17 +1,39 @@
 ---
 import "../styles/global.css";
 import Logo from "../components/Logo.astro";
+import { site } from "../data/site";
+import { getScreens, navHref } from "../lib/screens";
 
 interface Props {
   title: string;
+  /** トップページだけ true。ヘッダーに進捗バーと現在の画面名を出し、ヒーロー上では透明にする。 */
+  progress?: boolean;
 }
 
-const { title } = Astro.props;
-const nav = [
-  { href: "/#products", label: "製品" },
-  { href: "/#services", label: "サービス" },
-  { href: "/#company", label: "会社情報" },
-];
+const { title, progress = false } = Astro.props;
+// 画面一覧は src/lib/screens.ts が唯一の定義。トップのセクションも同じ関数から作られる。
+const screens = await getScreens();
+const nav = site.nav.map((item) => ({
+  ...item,
+  href: navHref(screens, item.id),
+}));
+const navLabel = new Map(site.nav.map((item) => [item.id, item.label]));
+const segments = screens.map((screen, i) => {
+  const prev = screens[i - 1];
+  return {
+    ...screen,
+    // 同じナビ内でグループ(充電器 → 電池)が変わる所は間隔を広げる
+    groupBreak:
+      !!prev && !!prev.group && !!screen.group && prev.group !== screen.group,
+    // ヘッダー中央に出す文言。グループを持つ画面(製品シリーズ)だけナビ名を前に付ける。ヒーローは空。
+    heading:
+      screen.id === "hero"
+        ? ""
+        : screen.group && screen.nav
+          ? `${navLabel.get(screen.nav)} · ${screen.label}`
+          : screen.label,
+  };
+});
 ---
 
 <!doctype html>
@@ -29,19 +51,64 @@ const nav = [
     <slot name="head" />
   </head>
   <body class="bg-background font-sans text-foreground antialiased">
-    <header class="fixed inset-x-0 top-0 z-50 border-b border-line bg-black/60 backdrop-blur">
-      <div class="mx-auto flex h-14 max-w-[1120px] items-center justify-between gap-6 px-4 md:px-8">
-        <a href="/" class="flex items-center gap-3">
+    <!-- data-scrolled はトップページのヒーロー表示中だけ JS が "false" にする(透明・ロゴ非表示)。JS なしでは常に黒。 -->
+    <header
+      data-site-header
+      data-scrolled="true"
+      class="group/header fixed inset-x-0 top-0 z-50 border-b border-line bg-black/60 backdrop-blur transition-[background-color,backdrop-filter,border-color] duration-300 motion-reduce:transition-none data-[scrolled=false]:border-transparent data-[scrolled=false]:bg-transparent data-[scrolled=false]:backdrop-blur-none"
+    >
+      {/* 進捗バー(見た目はヘッダー下端。DOM 上はナビより前に置き、ヘッダー内の最初の aria-current がバーになるようにする) */}
+      {progress && (
+        <div class="absolute inset-x-0 bottom-0 z-10 translate-y-px">
+          <ol class="mx-auto flex max-w-[1120px] items-end gap-1 px-4 md:px-8">
+            {segments.map((seg) => (
+              <li class:list={["flex-1", seg.groupBreak && "ml-1"]}>
+                <a
+                  href={`#${seg.id}`}
+                  title={seg.label}
+                  data-screen
+                  data-nav={seg.nav ?? ""}
+                  data-heading={seg.heading}
+                  class="group/seg flex h-3 items-end focus-visible:outline-offset-1"
+                >
+                  <span class="sr-only">{seg.label}</span>
+                  <span
+                    aria-hidden="true"
+                    class="relative block h-0.5 w-full overflow-hidden bg-white/25 transition-[height,background-color] duration-200 group-hover/seg:h-[3px] group-focus-visible/seg:h-[3px] group-data-[state=passed]/seg:bg-white/60 group-aria-[current=true]/seg:bg-white/40 motion-reduce:transition-none"
+                  >
+                    <span class="absolute inset-y-0 left-0 hidden w-[calc(var(--p,0)*100%)] bg-white group-aria-[current=true]/seg:block" />
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+      <div class="relative mx-auto flex h-14 max-w-[1120px] items-center justify-between gap-6 px-4 md:px-8">
+        <a
+          href="/"
+          class="flex items-center gap-3 transition-opacity duration-300 group-data-[scrolled=false]/header:pointer-events-none group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none"
+        >
           <Logo class="h-5" />
           <span class="hidden text-xs text-muted sm:inline">
             株式会社NALSEC
           </span>
         </a>
+        {progress && (
+          <p
+            data-current-label
+            class="pointer-events-none absolute top-1/2 left-1/2 hidden max-w-[40%] -translate-x-1/2 -translate-y-1/2 truncate text-xs text-muted md:block"
+          />
+        )}
         <nav aria-label="サイト内">
           <ul class="flex gap-x-5 text-xs font-bold tracking-[0.15em] md:gap-x-8">
             {nav.map((item) => (
               <li>
-                <a href={item.href} class="transition-colors hover:text-muted">
+                <a
+                  href={item.href}
+                  data-nav-link={item.id}
+                  class="relative transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-muted aria-[current=true]:after:opacity-100"
+                >
                   {item.label}
                 </a>
               </li>
@@ -59,5 +126,68 @@ const nav = [
         <p>© NALSEC</p>
       </div>
     </footer>
+    {progress && <script is:inline>
+      // トップページのヘッダー: 進捗バー・現在の画面名・ナビのアクティブ表示・ヒーロー上の透明化。
+      // 画面の一覧はセグメントのリンク(href と data-*)から読む。JS 側に一覧の写しは持たない。
+      (() => {
+        const header = document.querySelector("[data-site-header]");
+        const segs = [...header.querySelectorAll("[data-screen]")];
+        const navs = [...header.querySelectorAll("[data-nav-link]")];
+        const label = header.querySelector("[data-current-label]");
+        // 移動先は各画面の直前にある高さ 0 の目印(sticky でないので offsetTop が本来の位置になる)
+        const sections = segs.map((a) =>
+          document.getElementById(a.getAttribute("href").slice(1)),
+        );
+        if (!segs.length || sections.includes(null)) return;
+        let tops = [];
+        let current = -1;
+        const measure = () => {
+          tops = sections.map((el) => el.offsetTop);
+        };
+        const update = () => {
+          const y = scrollY + innerHeight * 0.5;
+          let i = 0;
+          while (i + 1 < tops.length && tops[i + 1] <= y) i++;
+          const p = Math.min(1, Math.max(0, (scrollY - tops[i]) / innerHeight));
+          segs[i].style.setProperty("--p", p.toFixed(3));
+          if (i === current) return;
+          current = i;
+          segs.forEach((a, k) => {
+            a.dataset.state =
+              k < i ? "passed" : k === i ? "current" : "upcoming";
+            if (k === i) a.setAttribute("aria-current", "true");
+            else a.removeAttribute("aria-current");
+          });
+          const nav = segs[i].dataset.nav;
+          navs.forEach((a) => {
+            if (nav && a.dataset.navLink === nav)
+              a.setAttribute("aria-current", "true");
+            else a.removeAttribute("aria-current");
+          });
+          if (label) label.textContent = segs[i].dataset.heading;
+          header.dataset.scrolled = String(i > 0);
+        };
+        let queued = false;
+        const onScroll = () => {
+          if (queued) return;
+          queued = true;
+          requestAnimationFrame(() => {
+            queued = false;
+            update();
+          });
+        };
+        addEventListener("scroll", onScroll, { passive: true });
+        addEventListener("resize", () => {
+          measure();
+          onScroll();
+        });
+        addEventListener("load", () => {
+          measure();
+          update();
+        });
+        measure();
+        update();
+      })();
+    </script>}
   </body>
 </html>

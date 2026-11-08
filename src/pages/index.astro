@@ -1,5 +1,6 @@
 ---
 // 全画面セクションを sticky で重ねる構成(ヒーロー → 製品シリーズ → サービス → 会社情報)。
+// 画面の並びと id は src/lib/screens.ts の getScreens() が唯一の定義。ヘッダーの進捗バーも同じ一覧から作る。
 // 製品は series コレクション単位で 1 画面。兄弟製品は同じ画面に並べ、highlights で違いだけを示す。
 // 背景は現行サイトの写真を暫定流用(src/data/backgrounds.ts)。動きは CSS のみ、JS なし。
 import Base from "../layouts/Base.astro";
@@ -13,6 +14,7 @@ import {
   seriesBackground,
 } from "../data/backgrounds";
 import { getCollection, getEntry } from "astro:content";
+import { getScreens } from "../lib/screens";
 
 const seriesList = (await getCollection("series")).sort(
   (a, b) => a.data.order - b.data.order,
@@ -20,6 +22,7 @@ const seriesList = (await getCollection("series")).sort(
 const series = await Promise.all(
   seriesList.map(async (s) => ({
     ...s.data,
+    id: s.id,
     bg: seriesBackground(s.id),
     products: await Promise.all(
       s.data.products.map(async (id) => {
@@ -34,9 +37,18 @@ const series = await Promise.all(
     ),
   })),
 );
-const services = (await getCollection("services")).sort(
-  (a, b) => a.data.order - b.data.order,
-);
+const services = await getCollection("services");
+const screens = await getScreens();
+const seriesById = new Map(series.map((s) => [s.id, s]));
+const serviceById = new Map(services.map((s) => [s.id, s]));
+for (const screen of screens) {
+  const known =
+    screen.id === "hero" ||
+    screen.id === "company" ||
+    seriesById.has(screen.id) ||
+    serviceById.has(screen.id);
+  if (!known) throw new Error(`screen "${screen.id}": 描画する内容がない`);
+}
 
 const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 // pt-14 は固定ヘッダーの高さ。本文はその下の残りで縦中央に置く。
@@ -51,155 +63,161 @@ const arrowClass =
 const labelClass = "flex items-center gap-3 text-sm text-muted";
 ---
 
-<Base title="株式会社NALSEC">
-  <Hero stacked />
+<Base title="株式会社NALSEC" progress>
+  {screens.map((screen, i) => {
+    const s = seriesById.get(screen.id);
+    const item = serviceById.get(screen.id);
+    return (
+      <>
+        {/* 移動先の目印(id = 画面 id)。sticky のセクション自体を移動先にすると、貼り付いている間は
+            上へ戻るアンカー移動が効かないので、流れの中に高さ 0 の要素を置く。 */}
+        <div id={screen.id} aria-hidden="true"></div>
+        {screen.id === "hero" && <Hero stacked />}
 
-  {series.map((s, i) => (
-    <section
-      class={sectionClass}
-      style={`z-index:${i + 2}`}
-      id={i === 0 ? "products" : undefined}
-    >
-      <PhotoBackground bg={s.bg} />
-      <div class={`${container} reveal relative w-full py-4 md:py-12`}>
-        <p class={labelClass}>
-          <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
-          {s.categoryLabel}
-        </p>
-        <h2 class="mt-2 text-4xl leading-snug font-bold md:mt-4 lg:text-5xl">
-          {s.title}
-        </h2>
-        <p class="mt-2 text-lg leading-relaxed text-muted md:mt-4">{s.lead}</p>
+        {s && (
+          <section class={sectionClass} style={`z-index:${i + 1}`}>
+            <PhotoBackground bg={s.bg} />
+            <div class={`${container} reveal relative w-full py-4 md:py-12`}>
+              <p class={labelClass}>
+                <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
+                {s.categoryLabel}
+              </p>
+              <h2 class="mt-2 text-4xl leading-snug font-bold md:mt-4 lg:text-5xl">
+                {s.title}
+              </h2>
+              <p class="mt-2 text-lg leading-relaxed text-muted md:mt-4">
+                {s.lead}
+              </p>
 
-        {s.products.length === 2 && (
-          <div class="mt-4 grid items-stretch gap-0 divide-y divide-line overflow-hidden rounded border border-line md:mt-12 md:grid-cols-2 md:divide-x md:divide-y-0">
-            {s.products.map((p) => (
-              <a
-                href={p.href}
-                class={`${panelClass} grid grid-rows-[auto_auto_1fr] content-start md:row-span-3 md:grid-rows-subgrid`}
-              >
-                <h3 class="text-xl leading-snug font-bold md:text-[22px]">
-                  {p.title}
-                </h3>
-                <p class="mt-1 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
-                  {p.highlights.map((line, k) => (
-                    <>
-                      {k > 0 && <br />}
-                      {line}
-                    </>
+              {s.products.length === 2 && (
+                <div class="mt-4 grid items-stretch gap-0 divide-y divide-line overflow-hidden rounded border border-line md:mt-12 md:grid-cols-2 md:divide-x md:divide-y-0">
+                  {s.products.map((p) => (
+                    <a
+                      href={p.href}
+                      class={`${panelClass} grid grid-rows-[auto_auto_1fr] content-start md:row-span-3 md:grid-rows-subgrid`}
+                    >
+                      <h3 class="text-xl leading-snug font-bold md:text-[22px]">
+                        {p.title}
+                      </h3>
+                      <p class="mt-1 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
+                        {p.highlights.map((line, k) => (
+                          <>
+                            {k > 0 && <br />}
+                            {line}
+                          </>
+                        ))}
+                      </p>
+                      <span
+                        class={`${arrowClass} mt-2 justify-self-start md:mt-4 md:self-end`}
+                      >
+                        詳細を見る →
+                      </span>
+                    </a>
                   ))}
+                </div>
+              )}
+
+              {s.products.length >= 3 && (
+                <div class="mt-4 flex flex-col gap-0 divide-y divide-line overflow-hidden rounded border border-line md:mt-12">
+                  {s.products.map((p) => (
+                    <a
+                      href={p.href}
+                      class={`${panelClass} grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 !p-2.5 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_auto] md:items-center md:gap-x-10 md:!p-8`}
+                    >
+                      <h3 class="col-span-2 text-base leading-snug font-bold md:col-span-1 md:text-[22px]">
+                        {p.title}
+                      </h3>
+                      <p class="mt-1 text-sm leading-relaxed md:mt-0 md:text-[17px] md:leading-loose">
+                        {p.highlights.map((line, k) => (
+                          <>
+                            {k > 0 && <br />}
+                            {line}
+                          </>
+                        ))}
+                      </p>
+                      <span class={`${arrowClass} self-end md:self-auto`}>
+                        詳細を見る →
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {s.products.length === 1 && (
+                <div class="mt-6 grid items-stretch gap-0 md:mt-12 md:grid-cols-2">
+                  {s.products.map((p) => (
+                    <a
+                      href={p.href}
+                      class={`${panelClass} flex flex-col rounded border border-line`}
+                    >
+                      <h3 class="text-xl leading-snug font-bold md:text-[22px]">
+                        {p.title}
+                      </h3>
+                      <p class="mt-1 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
+                        {p.highlights.map((line, k) => (
+                          <>
+                            {k > 0 && <br />}
+                            {line}
+                          </>
+                        ))}
+                      </p>
+                      <span class={`${arrowClass} mt-2 self-start md:mt-auto`}>
+                        詳細を見る →
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {item && (
+          <section class={sectionClass} style={`z-index:${i + 1}`}>
+            <PhotoBackground bg={serviceBackground} />
+            <div class={`${container} reveal relative w-full py-12 md:py-16`}>
+              <div class="max-w-3xl">
+                <p class={labelClass}>
+                  <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
+                  サービス
                 </p>
-                <span
-                  class={`${arrowClass} mt-2 justify-self-start md:mt-4 md:self-end`}
+                <a
+                  href={`/services/${item.id}/`}
+                  class={`${panelClass} mt-4 flex flex-col rounded border border-line`}
                 >
-                  詳細を見る →
-                </span>
-              </a>
-            ))}
-          </div>
+                  <h2 class="text-4xl leading-snug font-bold lg:text-5xl">
+                    {item.data.title}
+                  </h2>
+                  <p class="mt-6 text-lg leading-loose">
+                    {item.data.summary
+                      .trim()
+                      .split("\n")
+                      .map((line, j) => (
+                        <>
+                          {j > 0 && <br />}
+                          {line}
+                        </>
+                      ))}
+                  </p>
+                  <span class={`${arrowClass} mt-6 self-start`}>
+                    詳細を見る →
+                  </span>
+                </a>
+              </div>
+            </div>
+          </section>
         )}
 
-        {s.products.length >= 3 && (
-          <div class="mt-4 flex flex-col gap-0 divide-y divide-line overflow-hidden rounded border border-line md:mt-12">
-            {s.products.map((p) => (
-              <a
-                href={p.href}
-                class={`${panelClass} grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 !p-2.5 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_auto] md:items-center md:gap-x-10 md:!p-8`}
-              >
-                <h3 class="col-span-2 text-base leading-snug font-bold md:col-span-1 md:text-[22px]">
-                  {p.title}
-                </h3>
-                <p class="mt-1 text-sm leading-relaxed md:mt-0 md:text-[17px] md:leading-loose">
-                  {p.highlights.map((line, k) => (
-                    <>
-                      {k > 0 && <br />}
-                      {line}
-                    </>
-                  ))}
-                </p>
-                <span class={`${arrowClass} self-end md:self-auto`}>
-                  詳細を見る →
-                </span>
-              </a>
-            ))}
-          </div>
+        {screen.id === "company" && (
+          <section class={sectionClass} style={`z-index:${i + 1}`}>
+            <PhotoBackground bg={heroBackground} heavy />
+            <div class={`${container} reveal relative w-full py-4`}>
+              <CompanyInfo embedded />
+              <TechBand embedded />
+            </div>
+          </section>
         )}
-
-        {s.products.length === 1 && (
-          <div class="mt-6 grid items-stretch gap-0 md:mt-12 md:grid-cols-2">
-            {s.products.map((p) => (
-              <a
-                href={p.href}
-                class={`${panelClass} flex flex-col rounded border border-line`}
-              >
-                <h3 class="text-xl leading-snug font-bold md:text-[22px]">
-                  {p.title}
-                </h3>
-                <p class="mt-1 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
-                  {p.highlights.map((line, k) => (
-                    <>
-                      {k > 0 && <br />}
-                      {line}
-                    </>
-                  ))}
-                </p>
-                <span class={`${arrowClass} mt-2 self-start md:mt-auto`}>
-                  詳細を見る →
-                </span>
-              </a>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  ))}
-
-  {services.map((item, i) => (
-    <section
-      class={sectionClass}
-      style={`z-index:${series.length + i + 2}`}
-      id={i === 0 ? "services" : undefined}
-    >
-      <PhotoBackground bg={serviceBackground} />
-      <div class={`${container} reveal relative w-full py-12 md:py-16`}>
-        <div class="max-w-3xl">
-          <p class={labelClass}>
-            <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
-            サービス
-          </p>
-          <a
-            href={`/services/${item.id}/`}
-            class={`${panelClass} mt-4 flex flex-col rounded border border-line`}
-          >
-            <h2 class="text-4xl leading-snug font-bold lg:text-5xl">
-              {item.data.title}
-            </h2>
-            <p class="mt-6 text-lg leading-loose">
-              {item.data.summary
-                .trim()
-                .split("\n")
-                .map((line, j) => (
-                  <>
-                    {j > 0 && <br />}
-                    {line}
-                  </>
-                ))}
-            </p>
-            <span class={`${arrowClass} mt-6 self-start`}>詳細を見る →</span>
-          </a>
-        </div>
-      </div>
-    </section>
-  ))}
-
-  <section
-    class={sectionClass}
-    style={`z-index:${series.length + services.length + 2}`}
-  >
-    <PhotoBackground bg={heroBackground} heavy />
-    <div class={`${container} reveal relative w-full py-4`}>
-      <CompanyInfo embedded />
-      <TechBand embedded />
-    </div>
-  </section>
+      </>
+    );
+  })}
 </Base>

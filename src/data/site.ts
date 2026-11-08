@@ -6,6 +6,8 @@ export interface Site {
   phone: string;
   techSiteUrl: string;
   techSiteLabel: string;
+  /** ヘッダーのナビ。リンク先は src/lib/screens.ts の画面一覧から導く(各 id に属する最初の画面)。 */
+  nav: { id: "products" | "services" | "company"; label: string }[];
 }
 
 export const site: Site = {
@@ -24,4 +26,9 @@ export const site: Site = {
   phone: "03-5341-4799",
   techSiteUrl: "https://tech.nalsec.com/",
   techSiteLabel: "バッテリー・電気の技術マガジンサイトをリリース",
+  nav: [
+    { id: "products", label: "製品" },
+    { id: "services", label: "サービス" },
+    { id: "company", label: "会社情報" },
+  ],
 };
