@@ -1,11 +1,18 @@
 ---
 import { site } from "../data/site";
 
+const { stacked = false } = Astro.props;
 const taglineLines = site.tagline.split("\n");
 const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 ---
 
-<section class="flex min-h-svh items-center">
+<section
+  class={
+    stacked
+      ? "sticky top-0 z-[1] flex h-svh items-center overflow-hidden"
+      : "flex min-h-svh items-center"
+  }
+>
   <div class={`${container} w-full py-16`}>
     <h1 class="text-5xl font-bold tracking-wide lg:text-6xl">NALSEC</h1>
     <div class="mt-6 w-24 border-t-2 border-foreground"></div>

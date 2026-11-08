@@ -1,12 +1,20 @@
 ---
 import { site } from "../data/site";
 
+const { embedded = false } = Astro.props;
+const Tag = embedded ? "div" : "section";
 const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 ---
 
-<section class="border-t border-line bg-surface">
+<Tag
+  class={
+    embedded
+      ? "mt-8 border-t border-line md:mt-12"
+      : "border-t border-line bg-surface"
+  }
+>
   <div
-    class={`${container} flex flex-col gap-4 py-12 md:flex-row md:items-center md:justify-between`}
+    class={`${embedded ? "" : container} flex flex-col ${embedded ? "gap-2" : "gap-4"} md:flex-row md:items-center md:justify-between ${embedded ? "pt-4 md:pt-6" : "py-12"}`}
   >
     <h2 class="text-sm font-bold tracking-wider">技術マガジン</h2>
     <p>
@@ -18,4 +26,4 @@ const container = "mx-auto max-w-[1120px] px-4 md:px-8";
       </a>
     </p>
   </div>
-</section>
+</Tag>

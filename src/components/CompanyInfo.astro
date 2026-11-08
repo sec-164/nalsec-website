@@ -1,16 +1,30 @@
 ---
 import { site } from "../data/site";
 
+const { embedded = false } = Astro.props;
+const Tag = embedded ? "div" : "section";
 const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 const section = "py-16 md:py-24";
 ---
 
-<section id="company" class={`border-t border-line ${section}`}>
-  <div class={container}>
+<Tag id="company" class={embedded ? "" : `border-t border-line ${section}`}>
+  <div class={embedded ? "" : container}>
     <h2 class="text-4xl font-bold lg:text-5xl">会社情報</h2>
     <div class="mt-6 w-24 border-t-2 border-foreground"></div>
-    <div class="mt-16 grid gap-12 md:grid-cols-2">
-      <dl class="space-y-6 leading-loose">
+    <div
+      class={
+        embedded
+          ? "mt-8 grid gap-6 md:mt-12 md:grid-cols-2 md:gap-12"
+          : "mt-16 grid gap-12 md:grid-cols-2"
+      }
+    >
+      <dl
+        class={
+          embedded
+            ? "space-y-3 leading-relaxed md:space-y-6 md:leading-loose"
+            : "space-y-6 leading-loose"
+        }
+      >
         <div>
           <dt class="text-sm text-muted">会社名</dt>
           <dd>{site.name}</dd>
@@ -32,10 +46,18 @@ const section = "py-16 md:py-24";
         <h3 class="text-sm text-muted">事業内容</h3>
         <ul class="mt-2 border-t border-line">
           {site.businessLines.map((line) => (
-            <li class="border-b border-line py-4">{line}</li>
+            <li
+              class={
+                embedded
+                  ? "border-b border-line py-2 md:py-4"
+                  : "border-b border-line py-4"
+              }
+            >
+              {line}
+            </li>
           ))}
         </ul>
       </div>
     </div>
   </div>
-</section>
+</Tag>
