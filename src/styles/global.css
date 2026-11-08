@@ -28,60 +28,104 @@
   transition: none !important;
 }
 
-/* 製品・サービスページの Markdown 本文 */
+/* 製品・サービスページの Markdown 本文(白地・黒文字。使うのは products/services の詳細ページだけ) */
 @layer components {
   .content {
-    line-height: 2;
+    font-size: 1rem;
+    line-height: 1.9;
   }
-  .content > * + * {
-    margin-top: 1.5rem;
+  .content p {
+    margin-bottom: --spacing(5);
   }
+  /* 見出しの下に黒の短い線(2rem × 2px)を置く */
   .content h2 {
-    margin-top: 4rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-line);
+    margin-top: --spacing(12);
+    margin-bottom: --spacing(5);
     font-size: 1.5rem;
     line-height: 1.4;
     font-weight: 700;
   }
+  .content h2::after {
+    content: "";
+    display: block;
+    width: 2rem;
+    height: 2px;
+    margin-top: --spacing(3);
+    background: var(--color-neutral-900);
+  }
   .content h3 {
-    margin-top: 2.5rem;
+    margin-top: --spacing(8);
+    margin-bottom: --spacing(3);
     font-size: 1.125rem;
     line-height: 1.5;
     font-weight: 700;
+    color: var(--color-neutral-700);
   }
-  .content h2:first-child {
+  .content > :first-child {
     margin-top: 0;
   }
   .content ul {
-    padding-left: 1.5rem;
+    margin-bottom: --spacing(5);
+    padding-left: --spacing(5);
     list-style: disc;
   }
-  .content li + li {
-    margin-top: 0.5rem;
+  .content li {
+    margin-bottom: --spacing(1.5);
+  }
+  .content strong {
+    font-weight: 700;
   }
   .content a {
     text-decoration: underline;
     text-underline-offset: 4px;
+    transition: color 0.15s;
+  }
+  .content a:hover {
+    color: #000;
+  }
+  /* 表は本文幅に収め、はみ出す分は枠の中で横スクロール(枠は rehype-table-wrap が付ける) */
+  .content .table-wrap {
+    margin-bottom: --spacing(5);
+    overflow-x: auto;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-md);
   }
   .content table {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
+    width: 100%;
     border-collapse: collapse;
+    font-size: 0.9375rem;
     line-height: 1.6;
   }
   .content th,
   .content td {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--color-line);
+    padding: --spacing(2) --spacing(3);
     text-align: left;
     vertical-align: top;
   }
   .content th {
-    background: var(--color-surface);
-    font-weight: 700;
+    border-bottom: 1px solid var(--color-neutral-300);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-800);
+    font-weight: 600;
     white-space: nowrap;
+  }
+  .content td {
+    border-bottom: 1px solid var(--color-neutral-200);
+  }
+  .content tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .content td:first-child {
+    white-space: nowrap;
+  }
+  .content tbody tr:nth-child(even) td {
+    background: var(--color-neutral-50);
+  }
+  /* 表の直後の段落は注記として小さく淡く */
+  .content .table-wrap + p {
+    margin-top: --spacing(-2);
+    font-size: 0.875rem;
+    color: var(--color-neutral-600);
   }
 }
 
