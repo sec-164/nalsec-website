@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* 現行サイトから引き継いだフォントスタック。
+     Web フォント本体(Google Fonts または Astro の Fonts API)の読み込みはデザイン工程で追加する。 */
   --font-sans: "Montserrat", "M PLUS 1p", system-ui, sans-serif;
 }
