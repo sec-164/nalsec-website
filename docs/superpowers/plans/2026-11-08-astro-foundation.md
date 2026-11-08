@@ -152,7 +152,8 @@ Expected: バージョン番号が出る(`12.18.0` でなくてもよい。`pack
     "prettier-plugin-astro": "^1.1.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.5",
-    "typescript": "^6.0.0"
+    "typescript": "^6.0.0",
+    "wrangler": "^4.158.0"
   }
 }
 ```
@@ -250,6 +251,8 @@ export default defineConfig({
 @import "tailwindcss";
 
 @theme {
+  /* 現行サイトから引き継いだフォントスタック。
+     Web フォント本体(Google Fonts または Astro の Fonts API)の読み込みはデザイン工程で追加する。 */
   --font-sans: "Montserrat", "M PLUS 1p", system-ui, sans-serif;
 }
 ```
@@ -275,7 +278,7 @@ const { title } = Astro.props;
     <title>{title}</title>
     <slot name="head" />
   </head>
-  <body class="bg-black font-sans text-white">
+  <body class="font-sans">
     <slot />
   </body>
 </html>
@@ -290,7 +293,7 @@ import Base from "../layouts/Base.astro";
 
 <Base title="株式会社NALSEC | リニューアル準備中">
   <meta slot="head" name="robots" content="noindex, nofollow" />
-  <main class="flex min-h-svh items-center justify-center p-4">
+  <main class="flex min-h-svh items-center justify-center bg-black p-4 text-white">
     <div class="max-w-2xl text-center">
       <h1 class="text-5xl font-normal tracking-[0.15em] sm:text-7xl">NALSEC</h1>
       <hr class="mx-auto my-6 w-24 border-0 border-t-2 border-white" />
@@ -389,6 +392,10 @@ dist/
 .astro/
 pnpm-lock.yaml
 public/
+# 本番用ワークフロー。リニューアル完了まで無変更に保つため整形対象外
+.github/workflows/nextjs.yml
+# Superpowers の作業ファイル(git 管理外)
+.superpowers/
 ```
 
 - [x] **Step 3: 整形チェックを実行して差分の有無を見る**
@@ -446,9 +453,10 @@ git mv .github/workflows/preview.yml .github/workflows/site.yml
 # 本番 (GitHub Pages, nextjs.yml) には一切触れない。
 #
 # - main 以外のブランチへの push : 型チェック・整形チェック・ビルド
-# - renewal への push / 手動実行  : 上記に加えて Cloudflare Pages へ配信
+# - renewal への push / 手動実行(workflow_dispatch) : 上記に加えて Cloudflare Pages へ配信
 #     renewal  -> https://nalsec-renewal.pages.dev/
-#     その他   -> https://<branch>.nalsec-renewal.pages.dev/
+#     その他   -> https://<branch>.nalsec-renewal.pages.dev/ (workflow_dispatch で手動実行した場合のみ。
+#                 renewal 以外への push は検証だけで配信しない)
 #
 # 必要な Secrets: CLOUDFLARE_API_TOKEN (Account / Cloudflare Pages / Edit), CLOUDFLARE_ACCOUNT_ID
 name: Site (check / build / preview)
@@ -507,7 +515,7 @@ jobs:
           case "$status" in
             200) echo "Project ${PAGES_PROJECT} already exists." ;;
             404) echo "Creating project ${PAGES_PROJECT}."
-                 pnpm dlx wrangler@4 pages project create "${PAGES_PROJECT}" \
+                 pnpm exec wrangler pages project create "${PAGES_PROJECT}" \
                    --production-branch "${PAGES_PRODUCTION_BRANCH}" ;;
             *)   echo "Unexpected response ${status} from Cloudflare API." >&2; exit 1 ;;
           esac
@@ -519,24 +527,24 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          pnpm dlx wrangler@4 pages deploy "${OUTPUT_DIR}" \
+          pnpm exec wrangler pages deploy "${OUTPUT_DIR}" \
             --project-name "${PAGES_PROJECT}" \
             --branch "${GITHUB_REF_NAME}" \
             --commit-hash "${GITHUB_SHA}" \
             --commit-dirty=false \
             --commit-message "${GITHUB_REF_NAME}@${GITHUB_SHA::7}" \
             | tee deploy.log
-          url=$(grep -oE 'https://[a-z0-9.-]+\.pages\.dev' deploy.log | tail -n 1 || true)
+          deploy_url=$(grep -oE 'Deployment complete.*https://[a-z0-9.-]+\.pages\.dev' deploy.log | grep -oE 'https://[a-z0-9.-]+\.pages\.dev' | tail -n 1 || true)
+          alias_url=$(grep -oE 'alias URL: https://[a-z0-9.-]+\.pages\.dev' deploy.log | grep -oE 'https://[a-z0-9.-]+\.pages\.dev' | tail -n 1 || true)
           {
             echo "## Cloudflare Pages preview"
             echo
             echo "- Branch: \`${GITHUB_REF_NAME}\`"
-            echo "- Deployment URL: ${url:-unknown}"
+            echo "- Deployment URL: ${deploy_url:-unknown}"
             if [ "${GITHUB_REF_NAME}" = "${PAGES_PRODUCTION_BRANCH}" ]; then
               echo "- Stable URL: https://${PAGES_PROJECT}.pages.dev/"
             else
-              alias=$(echo "${GITHUB_REF_NAME}" | tr '/_.' '---' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
-              echo "- Branch alias: https://${alias}.${PAGES_PROJECT}.pages.dev/"
+              echo "- Branch alias: ${alias_url:-unknown}"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 ```

@@ -26,7 +26,7 @@ nalsec.com リニューアルの土台として、Astro ベースの開発・ビ
 
 ### 残すもの
 
-- `.github/workflows/nextjs.yml`: 本番用。`main` への push でしか動かないため `renewal` 上では無害。無変更。
+- `.github/workflows/nextjs.yml`: 本番用。`main` への push、`workflow_dispatch`、`repository_dispatch`(`update_microcms`。microCMS の webhook)で起動する。`renewal` からの実行は、`github-pages` environment のブランチ制限が `main` のみを許可しているため本番に到達しない。無変更に保つため `.prettierignore` で Prettier の対象外にしている。
 - `public/CNAME`(公開時に GitHub Pages で必要)、`public/.nojekyll`。
 
 ### 新規に作るもの
@@ -41,6 +41,7 @@ src/layouts/Base.astro       (lang="ja"、charset、viewport、title、global.cs
 src/pages/index.astro        (準備中ページ。noindex の meta はこのページだけに置く)
 src/styles/global.css        (@import "tailwindcss" と @theme)
 .github/workflows/site.yml
+pnpm-workspace.yaml          (@emnapi/runtime の override。理由と削除条件はファイル内コメント)
 ```
 
 ## ツールチェーン
@@ -80,7 +81,7 @@ src/styles/global.css        (@import "tailwindcss" と @theme)
 - トリガー: `main` 以外の全ブランチへの push(`branches: ["**", "!main"]`)と `workflow_dispatch`。
 - 共通ステップ: `actions/checkout` → `pnpm/action-setup@v6`(`version` を省略し `packageManager` から読む)→ `pnpm install --frozen-lockfile` → `pnpm check` → `pnpm format:check` → `pnpm build`。
 - `actions/setup-node` は使わない。Node は `devEngines.runtime` に従って pnpm が取得する(runner 既存の Node は pnpm 自身の起動にだけ使われる)。
-- 配信ステップ(`github.ref_name == 'renewal' || github.event_name == 'workflow_dispatch'` のときだけ): Pages プロジェクト `nalsec-renewal` の存在確認(無ければ production branch `renewal` で作成)→ `wrangler pages deploy dist --branch <ブランチ名>` → URL を Step Summary に出力。既存 `preview.yml` のロジックを流用する。
+- 配信ステップ(`github.ref_name == 'renewal' || github.event_name == 'workflow_dispatch'` のときだけ): Pages プロジェクト `nalsec-renewal` の存在確認(無ければ production branch `renewal` で作成)→ `pnpm exec wrangler pages deploy dist --branch <ブランチ名>` → URL を Step Summary に出力。既存 `preview.yml` のロジックを流用する。`wrangler` は devDependency として固定し、`pnpm dlx` ではなく `pnpm exec` で実行する(workerd のビルドスクリプトだけを `pnpm-workspace.yaml` の `allowBuilds` で許可している)。
 - Secrets は既存の `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID` をそのまま使う。
 - `concurrency` は `site-${{ github.ref }}` で同一ブランチの多重実行を打ち切る。
 
@@ -96,6 +97,16 @@ src/styles/global.css        (@import "tailwindcss" と @theme)
 2. `renewal` へ push 後: Actions の run が成功し Summary に Deployment URL が出る。
 3. https://nalsec-renewal.pages.dev/ が Astro の出力に置き換わっている(HTML に Astro 生成のスコープ付き属性が含まれる)。`X-Robots-Tag: noindex, nofollow` が付いている。
 4. https://nalsec.com/ の ETag / Last-Modified が変わっていない。
+
+## 公開時のチェックリスト
+
+- `public/_headers` を削除する。
+- `src/pages/index.astro` の noindex meta(準備中ページ自体)を削除する。
+- `nextjs.yml` を Astro ビルドの GitHub Pages 配信に差し替え、`.prettierignore` の該当行を消す。
+- microCMS の `update_microcms` webhook を無効化する。
+- `public/CNAME` と `.nojekyll` は残す。
+- 本番を Cloudflare に移す場合は `_headers` が本番を noindex にしてしまうので、必ず先に消す。
+- `renewal` を `main` に取り込んだ後、Pages プロジェクト `nalsec-renewal` と API トークンを削除する。
 
 ## スコープ外
 
