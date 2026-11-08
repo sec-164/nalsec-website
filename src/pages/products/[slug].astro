@@ -1,5 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
+import PageBand from "../../components/PageBand.astro";
+import { seriesBackground } from "../../data/backgrounds";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -13,29 +15,29 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
+const series = (await getCollection("series")).find((s) =>
+  s.data.products.includes(entry.id),
+);
+const bg = seriesBackground(series?.id ?? "");
 ---
 
 <Base title={`${d.title} | 株式会社NALSEC`}>
-  <article class="mx-auto max-w-[1120px] px-4 py-16 md:px-8 md:py-24">
-    <h1 class="text-3xl leading-tight font-bold md:text-5xl">{d.title}</h1>
-    <div class="mt-6 w-24 border-t-2 border-foreground"></div>
-    <p class="mt-8 leading-loose text-muted">
-      {d.summary
-        .trim()
-        .split("\n")
-        .map((line, i) => (
-          <>
-            {i > 0 && <br />}
-            {line}
-          </>
-        ))}
-    </p>
-    <div class="content mt-16 max-w-3xl">
+  <PageBand
+    bg={bg}
+    label={d.categoryLabel}
+    title={d.title}
+    summary={d.summary}
+  />
+  <article class="mx-auto max-w-[1120px] px-4 py-12 md:px-8 md:py-20">
+    <div class="content max-w-3xl">
       <Content />
     </div>
 
-    <p class="mt-16 border-t border-line pt-8 text-sm">
-      <a href="/" class="hover:text-muted">
+    <p class="mt-16 border-t border-line pt-8">
+      <a
+        href="/"
+        class="inline-block rounded-full border border-white/40 px-4 py-1.5 text-sm transition-colors hover:bg-white hover:text-black"
+      >
         ← トップへ戻る
       </a>
     </p>

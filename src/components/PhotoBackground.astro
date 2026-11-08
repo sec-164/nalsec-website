@@ -1,0 +1,32 @@
+---
+// 全面の背景写真 + 縦方向の暗幕(現行サイトの from-black/40 via-black/60 を踏襲)。装飾なので alt="" 。
+import { Image } from "astro:assets";
+import type { Background } from "../data/backgrounds";
+
+interface Props {
+  bg: Background;
+  eager?: boolean;
+  heavy?: boolean;
+}
+
+const { bg, eager = false, heavy = false } = Astro.props;
+---
+
+<div class="absolute inset-0" aria-hidden="true">
+  <Image
+    src={bg.src}
+    alt=""
+    widths={[768, 1280, 1920]}
+    sizes="100vw"
+    loading={eager ? "eager" : "lazy"}
+    fetchpriority={eager ? "high" : undefined}
+    class="absolute inset-0 h-full w-full object-cover"
+  />
+  {bg.bright && <div class="absolute inset-0 bg-black/40" />}
+  <div
+    class:list={[
+      "absolute inset-0 bg-linear-to-b from-black/40 via-black/60",
+      heavy ? "to-black/80" : "to-black/70",
+    ]}
+  ></div>
+</div>

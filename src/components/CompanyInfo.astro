@@ -1,5 +1,6 @@
 ---
 import { site } from "../data/site";
+import Logo from "./Logo.astro";
 
 const { embedded = false } = Astro.props;
 const Tag = embedded ? "div" : "section";
@@ -14,7 +15,7 @@ const section = "py-16 md:py-24";
     <div
       class={
         embedded
-          ? "mt-8 grid gap-6 md:mt-12 md:grid-cols-2 md:gap-12"
+          ? "mt-6 grid gap-5 md:mt-12 md:grid-cols-2 md:gap-12"
           : "mt-16 grid gap-12 md:grid-cols-2"
       }
     >
@@ -27,7 +28,10 @@ const section = "py-16 md:py-24";
       >
         <div>
           <dt class="text-sm text-muted">会社名</dt>
-          <dd>{site.name}</dd>
+          <dd class="flex items-center gap-3">
+            <Logo class="h-3.5" decorative />
+            {site.name}
+          </dd>
         </div>
         <div>
           <dt class="text-sm text-muted">所在地</dt>

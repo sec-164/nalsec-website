@@ -1,15 +1,24 @@
 ---
 import Base from "../layouts/Base.astro";
+import PhotoBackground from "../components/PhotoBackground.astro";
+import { heroBackground } from "../data/backgrounds";
 ---
 
 <Base title="ページが見つかりません | 株式会社NALSEC">
-  <div class="mx-auto flex min-h-[60svh] max-w-[1120px] flex-col items-center justify-center px-4 py-24 text-center md:px-8">
-    <p class="text-5xl font-bold tracking-wide lg:text-6xl">404</p>
-    <h1 class="mt-6 text-xl font-bold">ページが見つかりません</h1>
-    <p class="mt-8 text-sm">
-      <a href="/" class="underline underline-offset-4 hover:text-muted">
-        トップへ戻る
-      </a>
-    </p>
-  </div>
+  <section class="relative flex min-h-svh items-center justify-center overflow-hidden px-4 pt-14 text-center">
+    <PhotoBackground bg={heroBackground} eager heavy />
+    <div class="hero-in relative py-24">
+      <p class="text-5xl font-bold tracking-wide lg:text-6xl">404</p>
+      <div class="mx-auto mt-6 w-24 border-t-2 border-foreground"></div>
+      <h1 class="mt-6 text-xl font-bold">ページが見つかりません</h1>
+      <p class="mt-8">
+        <a
+          href="/"
+          class="inline-block rounded-full border border-white/40 px-4 py-1.5 text-sm transition-colors hover:bg-white hover:text-black"
+        >
+          トップへ戻る
+        </a>
+      </p>
+    </div>
+  </section>
 </Base>

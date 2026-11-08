@@ -1,5 +1,7 @@
 ---
+import { Image } from "astro:assets";
 import { site } from "../data/site";
+import techLogo from "../assets/legacy/technalsec.svg";
 
 const { embedded = false } = Astro.props;
 const Tag = embedded ? "div" : "section";
@@ -14,16 +16,23 @@ const container = "mx-auto max-w-[1120px] px-4 md:px-8";
   }
 >
   <div
-    class={`${embedded ? "" : container} flex flex-col ${embedded ? "gap-2" : "gap-4"} md:flex-row md:items-center md:justify-between ${embedded ? "pt-4 md:pt-6" : "py-12"}`}
+    class={`${embedded ? "" : container} flex flex-col ${embedded ? "gap-3" : "gap-4"} md:flex-row md:items-center md:justify-between ${embedded ? "pt-4 md:pt-6" : "py-12"}`}
   >
     <h2 class="text-sm font-bold tracking-wider">技術マガジン</h2>
-    <p>
-      <a
-        href={site.techSiteUrl}
-        class="underline underline-offset-4 hover:text-muted"
-      >
-        {site.techSiteLabel} →
-      </a>
-    </p>
+    <a
+      href={site.techSiteUrl}
+      class="group flex items-center gap-4 text-sm hover:text-muted"
+    >
+      <!-- ロゴは黒文字を含むので、現行サイトと同じく白い面に載せる -->
+      <span class="rounded-md bg-white px-3 py-1.5">
+        <Image
+          src={techLogo}
+          alt="Tech.NALSEC"
+          height={28}
+          class="h-7 w-auto"
+        />
+      </span>
+      <span class="underline underline-offset-4">{site.techSiteLabel} →</span>
+    </a>
   </div>
 </Tag>

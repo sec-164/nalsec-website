@@ -1,5 +1,8 @@
 ---
 import { site } from "../data/site";
+import { heroBackground } from "../data/backgrounds";
+import Logo from "./Logo.astro";
+import PhotoBackground from "./PhotoBackground.astro";
 
 const { stacked = false } = Astro.props;
 const taglineLines = site.tagline.split("\n");
@@ -7,22 +10,34 @@ const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 ---
 
 <section
-  class={
-    stacked
-      ? "sticky top-0 z-[1] flex h-svh items-center overflow-hidden"
-      : "flex min-h-svh items-center"
-  }
+  class:list={[
+    "relative flex items-center overflow-hidden pt-14",
+    stacked ? "sticky top-0 z-[1] h-svh" : "min-h-svh",
+  ]}
 >
-  <div class={`${container} w-full py-16`}>
-    <h1 class="text-5xl font-bold tracking-wide lg:text-6xl">NALSEC</h1>
-    <div class="mt-6 w-24 border-t-2 border-foreground"></div>
-    <p class="mt-8 leading-loose">
-      {taglineLines.map((line, i) => (
-        <>
-          {i > 0 && <br />}
-          {line}
-        </>
-      ))}
-    </p>
+  <PhotoBackground bg={heroBackground} eager />
+  <div class={`${container} relative w-full py-12 md:py-16`}>
+    <div class="hero-in">
+      <h1>
+        <Logo class="h-14 md:h-20" decorative />
+        <span class="sr-only">{site.name}</span>
+      </h1>
+      <div class="mt-6 w-24 border-t-2 border-foreground md:mt-8"></div>
+      <p class="mt-8 text-lg leading-loose md:text-xl">
+        {taglineLines.map((line, i) => (
+          <>
+            {i > 0 && <br />}
+            {line}
+          </>
+        ))}
+      </p>
+    </div>
+  </div>
+  <div
+    class="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
+    aria-hidden="true"
+  >
+    <span class="text-[10px] tracking-[0.3em] text-muted">SCROLL</span>
+    <span class="h-10 w-px bg-white/60"></span>
   </div>
 </section>

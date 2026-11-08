@@ -68,3 +68,44 @@
     white-space: nowrap;
   }
 }
+
+/* フォーカスリングは白(アクセント色は持たない) */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 3px;
+  }
+}
+
+/* 動き: ヒーローは読み込み時に 1 回だけフェードイン、各画面の本文はスクロール連動で下から浮かぶ。
+   それ以外は動かさない。動きを減らす設定では何もしない。 */
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-in {
+    animation: fadein 0.6s ease-out both;
+  }
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: fade-up linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 50%;
+    }
+  }
+}

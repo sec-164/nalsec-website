@@ -1,0 +1,39 @@
+---
+// 製品・サービス詳細ページ上部の写真帯(約 40svh)。pt-14 は固定ヘッダーの高さ。
+import PhotoBackground from "./PhotoBackground.astro";
+import type { Background } from "../data/backgrounds";
+
+interface Props {
+  bg: Background;
+  label: string;
+  title: string;
+  summary: string;
+}
+
+const { bg, label, title, summary } = Astro.props;
+---
+
+<header class="relative flex min-h-[40svh] items-end overflow-hidden border-b border-line pt-14">
+  <PhotoBackground bg={bg} eager />
+  <div class="hero-in relative mx-auto w-full max-w-[1120px] px-4 pt-12 pb-10 md:px-8 md:pt-16 md:pb-14">
+    <p class="flex items-center gap-3 text-sm text-muted">
+      <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
+      {label}
+    </p>
+    <h1 class="mt-3 text-3xl leading-tight font-bold md:mt-4 md:text-5xl">
+      {title}
+    </h1>
+    <div class="mt-6 w-24 border-t-2 border-foreground"></div>
+    <p class="mt-6 max-w-3xl leading-loose md:text-[17px]">
+      {summary
+        .trim()
+        .split("\n")
+        .map((line, i) => (
+          <>
+            {i > 0 && <br />}
+            {line}
+          </>
+        ))}
+    </p>
+  </div>
+</header>
