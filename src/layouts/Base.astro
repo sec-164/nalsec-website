@@ -88,15 +88,13 @@ const navGroups = nav.map((item) => {
       <div class="relative mx-auto flex h-14 max-w-[1120px] items-center justify-between gap-6 px-4 md:px-8">
         <a
           href="/"
-          class="flex items-center gap-3 transition-opacity duration-300 group-data-[scrolled=false]/header:pointer-events-none group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none"
+          aria-label="株式会社NALSEC トップへ"
+          class="flex items-center transition-opacity duration-300 group-data-[scrolled=false]/header:pointer-events-none group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none"
         >
-          <Logo class="h-5" />
-          <span class="hidden text-xs text-muted sm:inline">
-            株式会社NALSEC
-          </span>
+          <Logo class="h-5" decorative />
         </a>
         {/*
-          ナビはロゴの右の幅全部を「窓」にして横だけクリップする。
+          ナビは右端に固定した幅の決まった「窓」にして横だけクリップする(窓の中で現在の項目を中央に)。
           JS なし(トップ以外)では行を ml-auto で右寄せ。トップでは JS が data-js を付け、
           --nav-x(translateX)で現在の項目を窓の中央へ、ヒーローでは右寄せ位置へ動かす。
           はみ出している時だけ data-clipped を付けて両端をフェードする。
@@ -107,7 +105,7 @@ const navGroups = nav.map((item) => {
           aria-label="サイト内"
           data-site-nav
           data-nav-viewport
-          class="group/vp min-w-0 flex-1 overflow-x-clip overflow-y-visible py-2 data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_5%,#000_95%,transparent)] md:data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)]"
+          class="group/vp ml-auto w-[min(100%,60vw)] min-w-0 overflow-x-clip md:w-[min(100%,36rem)] overflow-y-visible py-2 data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_5%,#000_95%,transparent)] md:data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)]"
         >
           <ul class="ml-auto flex w-max items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap transition-transform duration-300 ease-[ease] group-data-[js]/vp:ml-0 group-data-[js]/vp:[transform:translateX(var(--nav-x,0px))] motion-reduce:transition-none md:gap-x-8">
             {navGroups.map((item) => (
