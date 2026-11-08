@@ -1,34 +1,17 @@
-# Logs
-logs
+# 依存とビルド成果物
+node_modules/
+dist/
+.astro/
+
+# ログ
 *.log
-.npm
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-jspm_packages
-dist
-dist-ssr
-*.local
+# 環境変数
+.env
+.env.*
+!.env.example
 
-.next
-.dist
-
-# Editor directories and files
-.vscode
-.idea
+# OS / エディタ
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# dotenv files
-.env*.local
-
-deploy_key
-deploy_key.pub
+.vscode/
+.idea/

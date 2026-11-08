@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", "M PLUS 1p", system-ui, sans-serif;
+}
