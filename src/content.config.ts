@@ -12,10 +12,7 @@ const products = defineCollection({
     models: z.array(z.string()),
     applications: z.array(z.string()),
     summary: z.string(),
-    specs: z.array(z.object({ label: z.string(), value: z.string() })),
     catalog: z.string().optional(),
-    sources: z.array(z.string()),
-    questions: z.array(z.string()),
     order: z.number(),
   }),
 });
@@ -26,8 +23,6 @@ const services = defineCollection({
     title: z.string(),
     summary: z.string(),
     targets: z.array(z.string()),
-    sources: z.array(z.string()),
-    questions: z.array(z.string()),
     order: z.number(),
   }),
 });

@@ -29,11 +29,7 @@ const taglineLines = site.tagline.split("\n");
       <h3>
         <a href={`/products/${p.id}/`}>{p.data.title}</a>
       </h3>
-      <p>
-        メーカー: {p.data.manufacturer} / 分類: {p.data.categoryLabel}
-      </p>
       <p>{p.data.summary}</p>
-      <p>用途: {p.data.applications.join("、")}</p>
     </section>
   ))}
 
@@ -44,7 +40,6 @@ const taglineLines = site.tagline.split("\n");
         <a href={`/services/${s.id}/`}>{s.data.title}</a>
       </h3>
       <p>{s.data.summary}</p>
-      <p>対象: {s.data.targets.join("、")}</p>
     </section>
   ))}
 
@@ -63,14 +58,4 @@ const taglineLines = site.tagline.split("\n");
   <p>
     <a href={site.techSiteUrl}>{site.techSiteLabel}</a>
   </p>
-
-  <h2>お問い合わせ</h2>
-  <p>{site.contactNote}</p>
-
-  <h2>このプレビューについての確認事項</h2>
-  <ul>
-    {site.taglineQuestions.map((q) => (
-      <li>{q}</li>
-    ))}
-  </ul>
 </Base>
