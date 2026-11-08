@@ -1,0 +1,21 @@
+---
+import { site } from "../data/site";
+
+const taglineLines = site.tagline.split("\n");
+const container = "mx-auto max-w-[1120px] px-4 md:px-8";
+---
+
+<section class="flex min-h-svh items-center">
+  <div class={`${container} w-full py-16`}>
+    <h1 class="text-5xl font-bold tracking-wide lg:text-6xl">NALSEC</h1>
+    <div class="mt-6 w-24 border-t-2 border-foreground"></div>
+    <p class="mt-8 leading-loose">
+      {taglineLines.map((line, i) => (
+        <>
+          {i > 0 && <br />}
+          {line}
+        </>
+      ))}
+    </p>
+  </div>
+</section>

@@ -1,6 +1,9 @@
 ---
 import Base from "../layouts/Base.astro";
 import Card from "../components/Card.astro";
+import Hero from "../components/Hero.astro";
+import CompanyInfo from "../components/CompanyInfo.astro";
+import TechBand from "../components/TechBand.astro";
 import { getCollection } from "astro:content";
 import { site } from "../data/site";
 
@@ -11,26 +14,12 @@ const categoryLabels = ["充電器", "電池"];
 const services = (await getCollection("services")).sort(
   (a, b) => a.data.order - b.data.order,
 );
-const taglineLines = site.tagline.split("\n");
 const container = "mx-auto max-w-[1120px] px-4 md:px-8";
 const section = "py-16 md:py-24";
 ---
 
 <Base title={site.name}>
-  <section class="flex min-h-svh items-center">
-    <div class={`${container} w-full py-16`}>
-      <h1 class="text-5xl font-bold tracking-wide lg:text-6xl">NALSEC</h1>
-      <div class="mt-6 w-24 border-t-2 border-foreground"></div>
-      <p class="mt-8 leading-loose">
-        {taglineLines.map((line, i) => (
-          <>
-            {i > 0 && <br />}
-            {line}
-          </>
-        ))}
-      </p>
-    </div>
-  </section>
+  <Hero />
 
   <section id="products" class={`border-t border-line ${section}`}>
     <div class={container}>
@@ -72,54 +61,7 @@ const section = "py-16 md:py-24";
     </div>
   </section>
 
-  <section id="company" class={`border-t border-line ${section}`}>
-    <div class={container}>
-      <h2 class="text-4xl font-bold lg:text-5xl">会社情報</h2>
-      <div class="mt-6 w-24 border-t-2 border-foreground"></div>
-      <div class="mt-16 grid gap-12 md:grid-cols-2">
-        <dl class="space-y-6 leading-loose">
-          <div>
-            <dt class="text-sm text-muted">会社名</dt>
-            <dd>{site.name}</dd>
-          </div>
-          <div>
-            <dt class="text-sm text-muted">所在地</dt>
-            <dd>
-              {site.address.postalCode}
-              <br />
-              {site.address.text}
-            </dd>
-          </div>
-          <div>
-            <dt class="text-sm text-muted">電話</dt>
-            <dd>{site.phone}</dd>
-          </div>
-        </dl>
-        <div>
-          <h3 class="text-sm text-muted">事業内容</h3>
-          <ul class="mt-2 border-t border-line">
-            {site.businessLines.map((line) => (
-              <li class="border-b border-line py-4">{line}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
+  <CompanyInfo />
 
-  <section class="border-t border-line bg-surface">
-    <div
-      class={`${container} flex flex-col gap-4 py-12 md:flex-row md:items-center md:justify-between`}
-    >
-      <h2 class="text-sm font-bold tracking-wider">技術マガジン</h2>
-      <p>
-        <a
-          href={site.techSiteUrl}
-          class="underline underline-offset-4 hover:text-muted"
-        >
-          {site.techSiteLabel} →
-        </a>
-      </p>
-    </div>
-  </section>
+  <TechBand />
 </Base>
