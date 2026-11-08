@@ -55,18 +55,18 @@
 
 - Produces: 直下に Astro を置ける空いた状態。`public/` は `CNAME` と `.nojekyll` のみ。
 
-- [ ] **Step 1: 現在のブランチと状態を確認する**
+- [x] **Step 1: 現在のブランチと状態を確認する**
 
 Run: `git status -sb && git branch --show-current`
 Expected: `## renewal...origin/renewal [ahead 1]`(または同期済み)で、未コミットの変更なし。ブランチ名 `renewal`。
 
-- [ ] **Step 2: 旧ファイルを git rm する**
+- [x] **Step 2: 旧ファイルを git rm する**
 
 ```bash
 git rm -r -q src next.config.js next-env.d.ts tailwind.config.js postcss.config.js prettier.config.js .eslintrc.json tsconfig.json package.json pnpm-lock.yaml public/TechNalsec.svg site
 ```
 
-- [ ] **Step 3: 残ったファイルを確認する**
+- [x] **Step 3: 残ったファイルを確認する**
 
 Run: `git ls-files`
 Expected: 次の 7 件だけが残る。
@@ -81,7 +81,7 @@ public/.nojekyll
 public/CNAME
 ```
 
-- [ ] **Step 4: コミット**
+- [x] **Step 4: コミット**
 
 ```bash
 git commit -q -m "$(cat <<'EOF'
@@ -109,17 +109,17 @@ EOF
 
 - Produces: scripts `dev` / `build` / `preview` / `check` / `format` / `format:check`。依存: `astro`、`@tailwindcss/vite`、`tailwindcss`、`@astrojs/check`、`typescript`、`prettier`、`prettier-plugin-astro`、`prettier-plugin-tailwindcss`。
 
-- [ ] **Step 1: ローカルに standalone の pnpm を導入する(未導入の場合のみ)**
+- [x] **Step 1: ローカルに standalone の pnpm を導入する(未導入の場合のみ)**
 
 Run: `ls ~/Library/pnpm/bin/pnpm 2>/dev/null || curl -fsSL https://get.pnpm.io/install.sh | sh -`
 Expected: `~/Library/pnpm/bin/pnpm` が存在する。インストーラは `~/.zshrc` に `PNPM_HOME` と PATH の設定を追記する(ユーザーには報告する)。
 
-- [ ] **Step 2: pnpm が動くことを確認する**
+- [x] **Step 2: pnpm が動くことを確認する**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm --version`
 Expected: バージョン番号が出る(`12.18.0` でなくてもよい。`packageManager` により次ステップ以降で自動的に 12.18.0 へ切り替わる)。
 
-- [ ] **Step 3: `package.json` を書く**
+- [x] **Step 3: `package.json` を書く**
 
 ```json
 {
@@ -157,17 +157,17 @@ Expected: バージョン番号が出る(`12.18.0` でなくてもよい。`pack
 }
 ```
 
-- [ ] **Step 4: 依存をインストールしてロックファイルを作る**
+- [x] **Step 4: 依存をインストールしてロックファイルを作る**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm install`
 Expected: エラーなく終了し `pnpm-lock.yaml` と `node_modules/` ができる。`devEngines.runtime` により pnpm が Node 24.x を取得する旨のログが出ることがある。
 
-- [ ] **Step 5: 固定が効いていることを確認する**
+- [x] **Step 5: 固定が効いていることを確認する**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm --version && pnpm exec node --version && pnpm exec astro --version`
 Expected: `12.18.0`、`v24.x.x`、`astro  v7.4.x`。
 
-- [ ] **Step 6: コミット**
+- [x] **Step 6: コミット**
 
 ```bash
 git add package.json pnpm-lock.yaml
@@ -196,7 +196,7 @@ EOF
 - Consumes: Task 2 の scripts `check`、`build`、`preview`。
 - Produces: `Base.astro` の Props `{ title: string }` と名前付きスロット `head`。ビルド出力 `dist/`(Task 5 の配信元)。
 
-- [ ] **Step 1: `.gitignore` を書き換える**
+- [x] **Step 1: `.gitignore` を書き換える**
 
 ```gitignore
 # 依存とビルド成果物
@@ -218,7 +218,7 @@ dist/
 .idea/
 ```
 
-- [ ] **Step 2: `astro.config.mjs` を書く**
+- [x] **Step 2: `astro.config.mjs` を書く**
 
 ```js
 // @ts-check
@@ -234,7 +234,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: `tsconfig.json` を書く**
+- [x] **Step 3: `tsconfig.json` を書く**
 
 ```json
 {
@@ -244,7 +244,7 @@ export default defineConfig({
 }
 ```
 
-- [ ] **Step 4: `src/styles/global.css` を書く**
+- [x] **Step 4: `src/styles/global.css` を書く**
 
 ```css
 @import "tailwindcss";
@@ -254,7 +254,7 @@ export default defineConfig({
 }
 ```
 
-- [ ] **Step 5: `src/layouts/Base.astro` を書く**
+- [x] **Step 5: `src/layouts/Base.astro` を書く**
 
 ```astro
 ---
@@ -281,7 +281,7 @@ const { title } = Astro.props;
 </html>
 ```
 
-- [ ] **Step 6: `src/pages/index.astro` を書く**
+- [x] **Step 6: `src/pages/index.astro` を書く**
 
 ```astro
 ---
@@ -310,29 +310,29 @@ import Base from "../layouts/Base.astro";
 </Base>
 ```
 
-- [ ] **Step 7: `public/_headers` を書く**
+- [x] **Step 7: `public/_headers` を書く**
 
 ```
 /*
   X-Robots-Tag: noindex, nofollow
 ```
 
-- [ ] **Step 8: 型チェックを通す**
+- [x] **Step 8: 型チェックを通す**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm check`
 Expected: 最終行が `Result (N files): 0 errors 0 warnings 0 hints` の形で終了コード 0。`.astro/` ディレクトリが生成される(gitignore 済み)。
 
-- [ ] **Step 9: ビルドを通す**
+- [x] **Step 9: ビルドを通す**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm build && ls dist && grep -c 'noindex' dist/index.html && test -f dist/_headers && test -f dist/CNAME`
 Expected: ビルド成功。`dist/` に `index.html`、`_headers`、`CNAME`、`.nojekyll`、`_astro/` がある。`grep` は `1` 以上を出力。
 
-- [ ] **Step 10: 表示を確認する**
+- [x] **Step 10: 表示を確認する**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm preview --port 4321` をバックグラウンドで起動し、アプリ内ブラウザで `http://localhost:4321/` を開いてスクリーンショットを確認する。
 Expected: 黒背景に白文字で「NALSEC」、白い横線、「サイトリニューアル準備中です。…」が中央に表示される。確認後にプロセスを止める。
 
-- [ ] **Step 11: コミット**
+- [x] **Step 11: コミット**
 
 ```bash
 git add .gitignore astro.config.mjs tsconfig.json src public/_headers
@@ -362,7 +362,7 @@ EOF
 - Consumes: Task 2 の scripts `format`、`format:check`。Task 3 の `src/styles/global.css`(Tailwind のクラス順の解決に使う)。
 - Produces: `pnpm format:check` が終了コード 0 で通る状態(Task 5 の CI 前提)。
 
-- [ ] **Step 1: `.prettierrc` を書く**
+- [x] **Step 1: `.prettierrc` を書く**
 
 `prettier-plugin-tailwindcss` は他のプラグインより後ろに置く必要がある。
 
@@ -381,7 +381,7 @@ EOF
 }
 ```
 
-- [ ] **Step 2: `.prettierignore` を書く**
+- [x] **Step 2: `.prettierignore` を書く**
 
 ```
 node_modules/
@@ -391,22 +391,22 @@ pnpm-lock.yaml
 public/
 ```
 
-- [ ] **Step 3: 整形チェックを実行して差分の有無を見る**
+- [x] **Step 3: 整形チェックを実行して差分の有無を見る**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm format:check; echo "exit=$?"`
 Expected: 対象は `astro.config.mjs`、`tsconfig.json`、`package.json`、`.prettierrc`、`src/**`、`docs/**/*.md`。Task 3 で書いたファイルに整形差分があれば `[warn]` で列挙され exit=1。
 
-- [ ] **Step 4: 整形を適用する**
+- [x] **Step 4: 整形を適用する**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm format`
 Expected: 各ファイル名と所要時間が出て終了。
 
-- [ ] **Step 5: チェックが通ることを確認する**
+- [x] **Step 5: チェックが通ることを確認する**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm format:check && pnpm check && pnpm build`
 Expected: `All matched files use Prettier code style!`、型チェック 0 errors、ビルド成功。
 
-- [ ] **Step 6: コミット**
+- [x] **Step 6: コミット**
 
 ```bash
 git add -A
@@ -433,13 +433,13 @@ EOF
 - Consumes: Task 2 の `packageManager`(`pnpm/action-setup` が読む)、scripts `check` / `format:check` / `build`。Task 3 のビルド出力 `dist/`。既存 Secrets `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`。
 - Produces: `main` 以外への push で検証、`renewal` への push と手動実行でプレビュー配信。
 
-- [ ] **Step 1: 改名する**
+- [x] **Step 1: 改名する**
 
 ```bash
 git mv .github/workflows/preview.yml .github/workflows/site.yml
 ```
 
-- [ ] **Step 2: `.github/workflows/site.yml` を全文置き換える**
+- [x] **Step 2: `.github/workflows/site.yml` を全文置き換える**
 
 ```yaml
 # リニューアル用サイトの検証とプレビュー配信。
@@ -541,12 +541,12 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 ```
 
-- [ ] **Step 3: YAML として読めることと整形を確認する**
+- [x] **Step 3: YAML として読めることと整形を確認する**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm exec prettier --check .github/workflows/site.yml || pnpm exec prettier --write .github/workflows/site.yml`
 Expected: Prettier が YAML をパースできる(構文エラーなら失敗する)。差分があれば整形され、再度 `pnpm format:check` が通る。
 
-- [ ] **Step 4: コミット**
+- [x] **Step 4: コミット**
 
 ```bash
 git add .github/workflows
@@ -562,12 +562,12 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: push する**
+- [x] **Step 5: push する**
 
 Run: `git push origin renewal`
 Expected: `origin/renewal` が更新される。
 
-- [ ] **Step 6: Actions の完了を待つ**
+- [x] **Step 6: Actions の完了を待つ**
 
 Run(バックグラウンド、最大 10 分):
 
@@ -585,7 +585,7 @@ done
 
 Expected: `completed success Site (check / build / preview) https://github.com/sec-164/nalsec-website/actions/runs/<id>`。失敗していたら `gh run view <id> --log-failed -R sec-164/nalsec-website` でログを読み、原因(pnpm の版取得、Node 取得、check/format/build の失敗、wrangler の認証)を特定して直す。
 
-- [ ] **Step 7: 配信結果と本番の不変を確認する**
+- [x] **Step 7: 配信結果と本番の不変を確認する**
 
 ```bash
 echo "=== preview"; curl -sSI https://nalsec-renewal.pages.dev/ | grep -iE '^(HTTP|x-robots-tag)'
@@ -606,16 +606,16 @@ Expected:
 
 - Modify: `docs/superpowers/plans/2026-11-08-astro-foundation.md`(チェックボックスの更新)
 
-- [ ] **Step 1: 全スクリプトを通しで実行する**
+- [x] **Step 1: 全スクリプトを通しで実行する**
 
 Run: `export PNPM_HOME="$HOME/Library/pnpm"; export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"; pnpm check && pnpm format:check && pnpm build`
 Expected: すべて成功。
 
-- [ ] **Step 2: 作業ツリーがクリーンで push 済みであることを確認する**
+- [x] **Step 2: 作業ツリーがクリーンで push 済みであることを確認する**
 
 Run: `git status -sb && git log --oneline origin/main..renewal`
 Expected: `## renewal...origin/renewal`(ahead/behind なし)。`renewal` 固有のコミットが並ぶ。
 
-- [ ] **Step 3: ユーザーへ報告する**
+- [x] **Step 3: ユーザーへ報告する**
 
 報告に含めること: プレビュー URL、Actions run の URL、ローカルで `~/.zshrc` が変更されたこと(pnpm インストーラ)、`workflow_dispatch` は `site.yml` が `main` に入るまで GitHub の画面からは実行できないこと、次の相談事項(サイト構成)。
