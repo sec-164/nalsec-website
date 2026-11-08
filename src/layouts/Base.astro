@@ -140,16 +140,32 @@ const segments = screens.map((screen, i) => {
         );
         if (!segs.length || sections.includes(null)) return;
         let tops = [];
+        let spans = [];
         let current = -1;
         const measure = () => {
           tops = sections.map((el) => el.offsetTop);
+          // 各画面の長さ = 次の目印までの距離(ちょうど 1 画面分)。最後の画面は積み重ねの終わり
+          // (フッターの上端。ページ末尾でスクロールが止まるならそこ)までの距離。
+          const footer = document.querySelector("body > footer");
+          const end = Math.min(
+            footer ? footer.offsetTop : Infinity,
+            document.documentElement.scrollHeight - innerHeight,
+          );
+          const n = tops.length;
+          spans = tops.map((t, k) =>
+            Math.max(1, (k + 1 < n ? tops[k + 1] : end) - t),
+          );
         };
         const update = () => {
-          const y = scrollY + innerHeight * 0.5;
+          // i = 先頭が画面上端に届いた最後の画面。p = その画面内の進み具合(0→1 で線形、次の画面の開始は 0)。
           let i = 0;
-          while (i + 1 < tops.length && tops[i + 1] <= y) i++;
-          const p = Math.min(1, Math.max(0, (scrollY - tops[i]) / innerHeight));
+          while (i + 1 < tops.length && tops[i + 1] <= scrollY) i++;
+          const p = Math.min(1, Math.max(0, (scrollY - tops[i]) / spans[i]));
+          const global = (i + p) / Math.max(1, tops.length - 1);
           segs[i].style.setProperty("--p", p.toFixed(3));
+          header.dataset.index = String(i);
+          header.dataset.progress = p.toFixed(3);
+          header.dataset.global = global.toFixed(3);
           if (i === current) return;
           current = i;
           segs.forEach((a, k) => {
