@@ -95,7 +95,7 @@ const navGroups = nav.map((item) => {
             株式会社NALSEC
           </span>
         </a>
-        {/* data-active-group(現在のナビ id)は JS が付ける。子の展開は md 以上だけ。 */}
+        {/* data-active-group(現在のナビ id)は JS が付ける。子の展開は全デバイス共通。下線(after:)が行ボックスの外に出るので、折りたたみ側は横だけクリップする。 */}
         <nav aria-label="サイト内" data-site-nav>
           <ul class="flex items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap md:gap-x-8">
             {navGroups.map((item) => (
@@ -112,9 +112,9 @@ const navGroups = nav.map((item) => {
                     data-group={item.id}
                     inert
                     aria-hidden="true"
-                    class="invisible hidden grid-cols-[0fr] transition-[grid-template-columns,visibility] duration-300 ease-in-out data-[open]:visible data-[open]:grid-cols-[1fr] motion-reduce:transition-none md:grid"
+                    class="invisible grid grid-cols-[0fr] transition-[grid-template-columns,visibility] duration-300 ease-in-out data-[open]:visible data-[open]:grid-cols-[1fr] motion-reduce:transition-none"
                   >
-                    <div class="min-w-0 overflow-hidden">
+                    <div class="min-w-0 overflow-x-clip overflow-y-visible">
                       <ul class="flex items-baseline gap-x-6 pl-8 font-normal tracking-[0.1em]">
                         {item.children.map((child) => (
                           <li>
