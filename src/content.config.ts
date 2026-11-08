@@ -22,6 +22,7 @@ const services = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/services" }),
   schema: z.object({
     title: z.string(),
+    short: z.string().optional(),
     summary: z.string(),
     targets: z.array(z.string()),
     order: z.number(),
@@ -32,6 +33,7 @@ const series = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/series" }),
   schema: z.object({
     title: z.string(),
+    short: z.string().optional(),
     manufacturer: z.string(),
     category: z.enum(["charger", "battery"]),
     categoryLabel: z.string(),

@@ -1,5 +1,6 @@
 ---
 title: Electrovaya リチウムイオン電池
+short: Electrovaya
 manufacturer: Electrovaya
 category: battery
 categoryLabel: 電池

@@ -1,5 +1,6 @@
 ---
 title: BSLBATT LFP バッテリー
+short: BSLBATT
 manufacturer: BSLBATT
 category: battery
 categoryLabel: 電池

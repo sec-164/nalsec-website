@@ -1,5 +1,6 @@
 ---
 title: VITZROCELL 一次電池
+short: VITZROCELL
 manufacturer: VITZROCELL
 category: battery
 categoryLabel: 電池

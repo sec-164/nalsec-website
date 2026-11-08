@@ -1,5 +1,6 @@
 ---
 title: PBM 産業用充電器
+short: PBM
 manufacturer: PBM(Sunlight Group)
 category: charger
 categoryLabel: 充電器

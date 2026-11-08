@@ -8,6 +8,8 @@ export type NavId = (typeof site.nav)[number]["id"];
 export type Screen = {
   id: string;
   label: string;
+  /** ヘッダーの見出し帯に出す短い名前(series / services の short。なければ title) */
+  short: string;
   nav: NavId | null;
   group: string | null;
 };
@@ -21,20 +23,28 @@ export async function getScreens(): Promise<Screen[]> {
     (a, b) => a.data.order - b.data.order,
   );
   return [
-    { id: "hero", label: "トップ", nav: null, group: null },
+    { id: "hero", label: "トップ", short: "トップ", nav: null, group: null },
     ...series.map((s) => ({
       id: s.id,
       label: s.data.title,
+      short: s.data.short ?? s.data.title,
       nav: "products" as const,
       group: s.data.categoryLabel,
     })),
     ...services.map((s) => ({
       id: s.id,
       label: s.data.title,
+      short: s.data.short ?? s.data.title,
       nav: "services" as const,
       group: null,
     })),
-    { id: "company", label: "会社情報", nav: "company", group: null },
+    {
+      id: "company",
+      label: "会社情報",
+      short: "会社情報",
+      nav: "company",
+      group: null,
+    },
   ];
 }
 

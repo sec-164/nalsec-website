@@ -6,7 +6,7 @@ import { getScreens, navHref } from "../lib/screens";
 
 interface Props {
   title: string;
-  /** トップページだけ true。ヘッダーに進捗バーと現在の画面名を出し、ヒーロー上では透明にする。 */
+  /** トップページだけ true。ヘッダーに進捗バーと見出し帯を出し、ヒーロー上では透明にする。 */
   progress?: boolean;
 }
 
@@ -17,7 +17,6 @@ const nav = site.nav.map((item) => ({
   ...item,
   href: navHref(screens, item.id),
 }));
-const navLabel = new Map(site.nav.map((item) => [item.id, item.label]));
 const segments = screens.map((screen, i) => {
   const prev = screens[i - 1];
   return {
@@ -25,14 +24,23 @@ const segments = screens.map((screen, i) => {
     // 同じナビ内でグループ(充電器 → 電池)が変わる所は間隔を広げる
     groupBreak:
       !!prev && !!prev.group && !!screen.group && prev.group !== screen.group,
-    // ヘッダー中央に出す文言。グループを持つ画面(製品シリーズ)だけナビ名を前に付ける。ヒーローは空。
-    heading:
-      screen.id === "hero"
-        ? ""
-        : screen.group && screen.nav
-          ? `${navLabel.get(screen.nav)} · ${screen.label}`
-          : screen.label,
   };
+});
+// ヘッダー中央の見出し帯: ナビ順に「ナビ名(グループ見出し) → 属する画面の短い名前」。
+// 画面が 1 つだけのナビはその画面の名前だけ(見出しを重ねない)。ヒーローは出さない。
+type StripItem =
+  | { kind: "group"; label: string }
+  | { kind: "screen"; id: string; label: string };
+const strip: StripItem[] = site.nav.flatMap((item) => {
+  const own = screens.filter((s) => s.nav === item.id);
+  const items: StripItem[] = own.map((s) => ({
+    kind: "screen",
+    id: s.id,
+    label: s.short,
+  }));
+  return own.length > 1
+    ? [{ kind: "group", label: item.label } as StripItem, ...items]
+    : items;
 });
 ---
 
@@ -68,7 +76,6 @@ const segments = screens.map((screen, i) => {
                   title={seg.label}
                   data-screen
                   data-nav={seg.nav ?? ""}
-                  data-heading={seg.heading}
                   class="group/seg flex h-3 items-end focus-visible:outline-offset-1"
                 >
                   <span class="sr-only">{seg.label}</span>
@@ -95,10 +102,31 @@ const segments = screens.map((screen, i) => {
           </span>
         </a>
         {progress && (
-          <p
-            data-current-label
-            class="pointer-events-none absolute top-1/2 left-1/2 hidden max-w-[40%] -translate-x-1/2 -translate-y-1/2 truncate text-xs text-muted md:block"
-          />
+          <div
+            data-strip
+            class="absolute top-1/2 left-1/2 hidden w-[40%] -translate-x-1/2 -translate-y-1/2 overflow-hidden py-1.5 transition-opacity duration-300 [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)] group-data-[scrolled=false]/header:invisible group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none md:block lg:w-1/2"
+          >
+            <div
+              data-strip-row
+              class="flex w-max items-baseline gap-6 whitespace-nowrap text-[13px] text-muted transition-transform duration-300 ease-in-out motion-reduce:transition-none"
+            >
+              {strip.map((item) =>
+                item.kind === "group" ? (
+                  <span class="text-[11px] tracking-[0.15em] opacity-60">
+                    {item.label}
+                  </span>
+                ) : (
+                  <a
+                    href={`#${item.id}`}
+                    data-strip-item={item.id}
+                    class="relative transition-colors after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-white after:opacity-0 hover:text-foreground aria-[current=true]:text-white aria-[current=true]:after:opacity-100"
+                  >
+                    {item.label}
+                  </a>
+                ),
+              )}
+            </div>
+          </div>
         )}
         <nav aria-label="サイト内">
           <ul class="flex gap-x-5 text-xs font-bold tracking-[0.15em] md:gap-x-8">
@@ -127,13 +155,36 @@ const segments = screens.map((screen, i) => {
       </div>
     </footer>
     {progress && <script is:inline>
-      // トップページのヘッダー: 進捗バー・現在の画面名・ナビのアクティブ表示・ヒーロー上の透明化。
+      // トップページのヘッダー: 進捗バー・見出し帯・ナビのアクティブ表示・ヒーロー上の透明化。
       // 画面の一覧はセグメントのリンク(href と data-*)から読む。JS 側に一覧の写しは持たない。
       (() => {
         const header = document.querySelector("[data-site-header]");
         const segs = [...header.querySelectorAll("[data-screen]")];
         const navs = [...header.querySelectorAll("[data-nav-link]")];
-        const label = header.querySelector("[data-current-label]");
+        // 見出し帯: 現在の画面の項目を帯の中央に寄せる(data-index が変わった時と、寸法が変わった時に測り直す)
+        const strip = header.querySelector("[data-strip]");
+        const row = strip && strip.querySelector("[data-strip-row]");
+        const stripItems = row
+          ? new Map(
+              [...row.querySelectorAll("[data-strip-item]")].map((a) => [
+                a.dataset.stripItem,
+                a,
+              ]),
+            )
+          : new Map();
+        const placeStrip = () => {
+          if (!row || current < 0) return;
+          const id = segs[current].getAttribute("href").slice(1);
+          const cur = stripItems.get(id);
+          stripItems.forEach((a) => {
+            if (a === cur) a.setAttribute("aria-current", "true");
+            else a.removeAttribute("aria-current");
+          });
+          if (!cur) return;
+          const x =
+            strip.clientWidth / 2 - (cur.offsetLeft + cur.offsetWidth / 2);
+          row.style.transform = `translateX(${x.toFixed(1)}px)`;
+        };
         // 移動先は各画面の直前にある高さ 0 の目印(sticky でないので offsetTop が本来の位置になる)
         const sections = segs.map((a) =>
           document.getElementById(a.getAttribute("href").slice(1)),
@@ -180,7 +231,7 @@ const segments = screens.map((screen, i) => {
               a.setAttribute("aria-current", "true");
             else a.removeAttribute("aria-current");
           });
-          if (label) label.textContent = segs[i].dataset.heading;
+          placeStrip();
           header.dataset.scrolled = String(i > 0);
         };
         let queued = false;
@@ -196,10 +247,13 @@ const segments = screens.map((screen, i) => {
         addEventListener("resize", () => {
           measure();
           onScroll();
+          placeStrip();
         });
+        if (document.fonts) document.fonts.ready.then(placeStrip);
         addEventListener("load", () => {
           measure();
           update();
+          placeStrip();
         });
         measure();
         update();
