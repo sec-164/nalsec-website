@@ -27,30 +27,32 @@
 
 ## ファイル構成
 
-| パス | 責務 |
-|---|---|
-| `package.json` | 依存、scripts、pnpm/Node のバージョン固定 |
-| `pnpm-lock.yaml` | ロックファイル(pnpm が生成) |
-| `astro.config.mjs` | Astro 設定(site、trailingSlash、Tailwind Vite プラグイン) |
-| `tsconfig.json` | `astro/tsconfigs/strict` を継承 |
-| `.prettierrc` / `.prettierignore` | 整形設定 |
-| `.gitignore` | `node_modules/`、`dist/`、`.astro/` 等 |
-| `public/_headers` | Cloudflare Pages 用ヘッダー(noindex) |
-| `public/CNAME`、`public/.nojekyll` | 既存。無変更 |
-| `src/styles/global.css` | Tailwind の読み込みと `@theme` |
-| `src/layouts/Base.astro` | HTML 骨格(lang、meta、title、head スロット、global.css) |
-| `src/pages/index.astro` | 準備中ページ(noindex meta 付き) |
-| `.github/workflows/site.yml` | 検証 + プレビュー配信ワークフロー |
+| パス                               | 責務                                                      |
+| ---------------------------------- | --------------------------------------------------------- |
+| `package.json`                     | 依存、scripts、pnpm/Node のバージョン固定                 |
+| `pnpm-lock.yaml`                   | ロックファイル(pnpm が生成)                               |
+| `astro.config.mjs`                 | Astro 設定(site、trailingSlash、Tailwind Vite プラグイン) |
+| `tsconfig.json`                    | `astro/tsconfigs/strict` を継承                           |
+| `.prettierrc` / `.prettierignore`  | 整形設定                                                  |
+| `.gitignore`                       | `node_modules/`、`dist/`、`.astro/` 等                    |
+| `public/_headers`                  | Cloudflare Pages 用ヘッダー(noindex)                      |
+| `public/CNAME`、`public/.nojekyll` | 既存。無変更                                              |
+| `src/styles/global.css`            | Tailwind の読み込みと `@theme`                            |
+| `src/layouts/Base.astro`           | HTML 骨格(lang、meta、title、head スロット、global.css)   |
+| `src/pages/index.astro`            | 準備中ページ(noindex meta 付き)                           |
+| `.github/workflows/site.yml`       | 検証 + プレビュー配信ワークフロー                         |
 
 ---
 
 ### Task 1: 旧 Next.js コードと旧プレビュー配信物の削除
 
 **Files:**
+
 - Delete: `src/`(全ファイル)、`next.config.js`、`next-env.d.ts`、`tailwind.config.js`、`postcss.config.js`、`prettier.config.js`、`.eslintrc.json`、`tsconfig.json`、`package.json`、`pnpm-lock.yaml`、`public/TechNalsec.svg`、`site/_headers`、`site/index.html`
 - Keep: `.editorconfig`、`.gitignore`(Task 3 で書き換え)、`public/CNAME`、`public/.nojekyll`、`.github/workflows/nextjs.yml`、`.github/workflows/preview.yml`(Task 5 で改名)、`docs/`
 
 **Interfaces:**
+
 - Produces: 直下に Astro を置ける空いた状態。`public/` は `CNAME` と `.nojekyll` のみ。
 
 - [ ] **Step 1: 現在のブランチと状態を確認する**
@@ -99,10 +101,12 @@ EOF
 ### Task 2: pnpm の導入と `package.json` の作成
 
 **Files:**
+
 - Create: `package.json`
 - Create(pnpm が生成): `pnpm-lock.yaml`
 
 **Interfaces:**
+
 - Produces: scripts `dev` / `build` / `preview` / `check` / `format` / `format:check`。依存: `astro`、`@tailwindcss/vite`、`tailwindcss`、`@astrojs/check`、`typescript`、`prettier`、`prettier-plugin-astro`、`prettier-plugin-tailwindcss`。
 
 - [ ] **Step 1: ローカルに standalone の pnpm を導入する(未導入の場合のみ)**
@@ -183,10 +187,12 @@ EOF
 ### Task 3: Astro プロジェクトの最小構成(設定・レイアウト・準備中ページ)
 
 **Files:**
+
 - Create: `astro.config.mjs`、`tsconfig.json`、`src/styles/global.css`、`src/layouts/Base.astro`、`src/pages/index.astro`、`public/_headers`
 - Modify: `.gitignore`(全文置き換え)
 
 **Interfaces:**
+
 - Consumes: Task 2 の scripts `check`、`build`、`preview`。
 - Produces: `Base.astro` の Props `{ title: string }` と名前付きスロット `head`。ビルド出力 `dist/`(Task 5 の配信元)。
 
@@ -289,11 +295,15 @@ import Base from "../layouts/Base.astro";
       <h1 class="text-5xl font-normal tracking-[0.15em] sm:text-7xl">NALSEC</h1>
       <hr class="mx-auto my-6 w-24 border-0 border-t-2 border-white" />
       <p class="leading-loose">
-        サイトリニューアル準備中です。<br />
+        サイトリニューアル準備中です。
+        <br />
         このページは確認用のプレビューであり、公開サイトではありません。
       </p>
       <p class="mt-8 text-sm opacity-60">
-        公開サイト: <a href="https://nalsec.com/" class="underline">nalsec.com</a>
+        公開サイト:{" "}
+        <a href="https://nalsec.com/" class="underline">
+          nalsec.com
+        </a>
       </p>
     </div>
   </main>
@@ -344,9 +354,11 @@ EOF
 ### Task 4: Prettier の設定と整形
 
 **Files:**
+
 - Create: `.prettierrc`、`.prettierignore`
 
 **Interfaces:**
+
 - Consumes: Task 2 の scripts `format`、`format:check`。Task 3 の `src/styles/global.css`(Tailwind のクラス順の解決に使う)。
 - Produces: `pnpm format:check` が終了コード 0 で通る状態(Task 5 の CI 前提)。
 
@@ -413,9 +425,11 @@ EOF
 ### Task 5: 検証 + プレビュー配信ワークフロー `site.yml`
 
 **Files:**
+
 - Rename: `.github/workflows/preview.yml` → `.github/workflows/site.yml`(内容は全文置き換え)
 
 **Interfaces:**
+
 - Consumes: Task 2 の `packageManager`(`pnpm/action-setup` が読む)、scripts `check` / `format:check` / `build`。Task 3 のビルド出力 `dist/`。既存 Secrets `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`。
 - Produces: `main` 以外への push で検証、`renewal` への push と手動実行でプレビュー配信。
 
@@ -580,6 +594,7 @@ echo "=== production"; curl -sSI https://nalsec.com/ | grep -iE '^(HTTP|etag|las
 ```
 
 Expected:
+
 - preview: `HTTP/2 200`、`x-robots-tag: noindex, nofollow`、`<title>株式会社NALSEC | リニューアル準備中</title>`、`/_astro/...css` への参照(Astro の出力である証拠)。
 - production: `HTTP/2 200`、`etag: "696f149f-3baa5"`、`last-modified: Tue, 20 Jan 2026 05:37:35 GMT`(push 前と同じ)。
 
@@ -588,6 +603,7 @@ Expected:
 ### Task 6: 計画・スペックの整合と最終確認
 
 **Files:**
+
 - Modify: `docs/superpowers/plans/2026-11-08-astro-foundation.md`(チェックボックスの更新)
 
 - [ ] **Step 1: 全スクリプトを通しで実行する**

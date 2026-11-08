@@ -45,13 +45,13 @@ src/styles/global.css        (@import "tailwindcss" と @theme)
 
 ## ツールチェーン
 
-| 役割 | 採用 | 備考 |
-|---|---|---|
-| フレームワーク | Astro 7.x | `output` は既定の static。`site: "https://nalsec.com"`、`trailingSlash: "always"`(現行 URL 形式 `/services/{slug}/` を維持できるようにする)。Node ≥ 22.23.4 が必要 |
-| CSS | Tailwind 4.x を `@tailwindcss/vite` で導入 | 設定は `src/styles/global.css` の `@theme` のみ |
-| 整形 | Prettier 3.x + prettier-plugin-astro + prettier-plugin-tailwindcss | `.prettierrc` の `tailwindStylesheet` に `./src/styles/global.css` を指定し、v4 のクラス順を解決する |
-| 型チェック | `astro check`(`@astrojs/check` + `typescript`) | strict |
-| パッケージ管理 | pnpm 12.x | 下記「バージョン固定」 |
+| 役割           | 採用                                                               | 備考                                                                                                                                                               |
+| -------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| フレームワーク | Astro 7.x                                                          | `output` は既定の static。`site: "https://nalsec.com"`、`trailingSlash: "always"`(現行 URL 形式 `/services/{slug}/` を維持できるようにする)。Node ≥ 22.23.4 が必要 |
+| CSS            | Tailwind 4.x を `@tailwindcss/vite` で導入                         | 設定は `src/styles/global.css` の `@theme` のみ                                                                                                                    |
+| 整形           | Prettier 3.x + prettier-plugin-astro + prettier-plugin-tailwindcss | `.prettierrc` の `tailwindStylesheet` に `./src/styles/global.css` を指定し、v4 のクラス順を解決する                                                               |
+| 型チェック     | `astro check`(`@astrojs/check` + `typescript`)                     | strict                                                                                                                                                             |
+| パッケージ管理 | pnpm 12.x                                                          | 下記「バージョン固定」                                                                                                                                             |
 
 ### バージョン固定(mise に依存しない)
 
@@ -64,13 +64,13 @@ src/styles/global.css        (@import "tailwindcss" と @theme)
 
 ### scripts
 
-| script | 内容 |
-|---|---|
-| `dev` | `astro dev` |
-| `build` | `astro build` |
-| `preview` | `astro preview` |
-| `check` | `astro check` |
-| `format` | `prettier --write .` |
+| script         | 内容                 |
+| -------------- | -------------------- |
+| `dev`          | `astro dev`          |
+| `build`        | `astro build`        |
+| `preview`      | `astro preview`      |
+| `check`        | `astro check`        |
+| `format`       | `prettier --write .` |
 | `format:check` | `prettier --check .` |
 
 ## 配信ワークフロー `site.yml`
