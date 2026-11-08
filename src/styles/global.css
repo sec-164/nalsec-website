@@ -12,6 +12,12 @@
   --font-sans: "Montserrat", "M PLUS 1p", sans-serif;
 }
 
+/* ヘッダーナビ: 展開後の最終レイアウトを測る一瞬だけアニメーションを止める(Base.astro の script が付け外しする)。 */
+[data-nav-viewport].is-measuring,
+[data-nav-viewport].is-measuring * {
+  transition: none !important;
+}
+
 /* 製品・サービスページの Markdown 本文 */
 @layer components {
   .content {

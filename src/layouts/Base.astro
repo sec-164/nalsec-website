@@ -95,9 +95,21 @@ const navGroups = nav.map((item) => {
             株式会社NALSEC
           </span>
         </a>
-        {/* data-active-group(現在のナビ id)は JS が付ける。子の展開は全デバイス共通。下線(after:)が行ボックスの外に出るので、折りたたみ側は横だけクリップする。 */}
-        <nav aria-label="サイト内" data-site-nav>
-          <ul class="flex items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap md:gap-x-8">
+        {/*
+          ナビはロゴの右の幅全部を「窓」にして横だけクリップする。
+          JS なし(トップ以外)では行を ml-auto で右寄せ。トップでは JS が data-js を付け、
+          --nav-x(translateX)で現在の項目を窓の中央へ、ヒーローでは右寄せ位置へ動かす。
+          はみ出している時だけ data-clipped を付けて両端をフェードする。
+          下線(after:)が行の下に出るので、窓は上下に余白を取ってマスクで切れないようにする。
+          子の展開は全デバイス共通。折りたたみ側は横だけクリップする。
+        */}
+        <nav
+          aria-label="サイト内"
+          data-site-nav
+          data-nav-viewport
+          class="group/vp min-w-0 flex-1 overflow-x-clip overflow-y-visible py-2 data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_5%,#000_95%,transparent)] md:data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)]"
+        >
+          <ul class="ml-auto flex w-max items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap transition-transform duration-300 ease-[ease] group-data-[js]/vp:ml-0 group-data-[js]/vp:[transform:translateX(var(--nav-x,0px))] motion-reduce:transition-none md:gap-x-8">
             {navGroups.map((item) => (
               <li class="flex items-baseline">
                 <a
@@ -179,6 +191,69 @@ const navGroups = nav.map((item) => {
             else a.removeAttribute("aria-current");
           });
         };
+        // ナビの行の位置(--nav-x)。現在の項目を窓の中央に(端の項目が切れてもよい)。
+        // 現在の項目がない(ヒーロー)時は右寄せ、行が窓より広ければ左端を 0 に。
+        const row = navEl.firstElementChild;
+        const target = () => {
+          const vw = navEl.clientWidth;
+          const rw = row.offsetWidth;
+          const cur = row.querySelector("[aria-current]");
+          if (!cur) return rw > vw ? 0 : vw - rw;
+          // offsetLeft は row 基準ではないことがあるので、変形を除いた矩形の差で測る
+          const x = row.getBoundingClientRect().left;
+          const r = cur.getBoundingClientRect();
+          const left = r.left - x;
+          return vw / 2 - (left + r.width / 2);
+        };
+        const setX = (x) => {
+          const vw = navEl.clientWidth;
+          row.style.setProperty("--nav-x", `${x}px`);
+          navEl.toggleAttribute(
+            "data-clipped",
+            x < -0.5 || x + row.offsetWidth > vw + 0.5,
+          );
+        };
+        // 展開(grid-template-columns)と移動はどちらも 300ms のアニメーション。
+        // 終わった時の位置を先に知るため、アニメーションを止めて新しい状態を当てて測り、
+        // 古い状態に戻してから止めるのを解除し、改めて新しい状態を当てる(展開はアニメーションする)。
+        let placed = null;
+        const go = (id, nav) => {
+          navEl.classList.add("is-measuring");
+          const prev = placed;
+          placeNav(id, nav);
+          const x = target();
+          if (!prev) {
+            // 初回: アニメーションなしで置く(描画前に同期で終わらせ、位置ずれのちらつきを出さない)
+            navEl.dataset.js = "";
+            setX(x);
+            row.offsetWidth;
+            navEl.classList.remove("is-measuring");
+          } else {
+            placeNav(prev.id, prev.nav);
+            row.offsetWidth;
+            navEl.classList.remove("is-measuring");
+            row.offsetWidth;
+            placeNav(id, nav);
+            setX(x);
+          }
+          placed = { id, nav };
+        };
+        // 状態は変えずに測り直す(リサイズ・フォント読み込み後・展開アニメーションの終わり)
+        const remeasure = () => {
+          if (!placed) return;
+          navEl.classList.add("is-measuring");
+          const x = target();
+          navEl.classList.remove("is-measuring");
+          setX(x);
+        };
+        groups.forEach((g) =>
+          g.addEventListener("transitionend", (e) => {
+            if (e.target === g && e.propertyName === "grid-template-columns")
+              remeasure();
+          }),
+        );
+        document.fonts?.ready.then(remeasure);
+        addEventListener("resize", remeasure);
         // 移動先は各画面の直前にある高さ 0 の目印(sticky でないので offsetTop が本来の位置になる)
         const sections = segs.map((a) =>
           document.getElementById(a.getAttribute("href").slice(1)),
@@ -219,7 +294,7 @@ const navGroups = nav.map((item) => {
             if (k === i) a.setAttribute("aria-current", "true");
             else a.removeAttribute("aria-current");
           });
-          placeNav(segs[i].getAttribute("href").slice(1), segs[i].dataset.nav);
+          go(segs[i].getAttribute("href").slice(1), segs[i].dataset.nav);
           header.dataset.scrolled = String(i > 0);
         };
         let queued = false;
