@@ -1,13 +1,13 @@
 # URL 構成(2026-11-08 決定)
 
-方針: 現行と同じく「トップページで総覧し、製品・サービスは個別ページを持つ」。製品は `/products/`、サービスは `/services/` の下に置く。末尾スラッシュあり(`trailingSlash: "always"`)。
+方針: 現行と同じく「トップページで総覧し、製品・サービスは個別ページを持つ」。製品は `/products/{slug}/`、サービスは `/services/{slug}/` に置き、一覧ページは持たない(トップが総覧)。末尾スラッシュあり(`trailingSlash: "always"`)。
 
 ## 構成
 
 | URL                 | 内容                                                                 | 状態           |
 | ------------------- | -------------------------------------------------------------------- | -------------- |
 | `/`                 | トップ。製品一覧・サービス・会社情報・tech.nalsec.com へのリンク     | 決定           |
-| `/products/`        | 製品一覧(トップの製品部分と同じ内容の薄いページ。階層の親)           | 決定           |
+| `/products/`        | 製品一覧ページは持たない(製品はトップで総覧する)                     | 作らない       |
 | `/products/{slug}/` | 製品シリーズごとの個別ページ                                         | 決定           |
 | `/services/{slug}/` | サービスごとの個別ページ                                             | 決定           |
 | `/services/`        | サービス一覧。サービスが 2 件以上になるまで作らない                  | 保留           |
@@ -49,9 +49,9 @@ Astro の `redirects` 設定で行う(静的出力では meta refresh の HTML �
 | 旧                               | 新                         | 備考                       |
 | -------------------------------- | -------------------------- | -------------------------- |
 | `/services/vitzro-cell/`         | `/products/vitzrocell-er/` | スラッグ変更               |
-| `/services/ecocharge/`           | `/products/`               | Enatel 掲載保留            |
-| `/services/dc-power-system/`     | `/products/`               | Enatel 掲載保留            |
-| `/services/energy-warehouse/`    | `/products/`               | 継続未定。確定したら見直す |
+| `/services/ecocharge/`           | `/`                        | Enatel 掲載保留            |
+| `/services/dc-power-system/`     | `/`                        | Enatel 掲載保留            |
+| `/services/energy-warehouse/`    | `/`                        | 継続未定。確定したら見直す |
 | `/services/medical-institution/` | (変更なし)                 |                            |
 
 ## その他

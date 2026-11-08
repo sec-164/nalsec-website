@@ -1,0 +1,50 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("services");
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+---
+
+<Base title={`${d.title} | 株式会社NALSEC`}>
+  <h1>{d.title}</h1>
+  <dl>
+    <dt>対象</dt>
+    <dd>{d.targets.join("、")}</dd>
+  </dl>
+  <p>{d.summary}</p>
+
+  <h2>詳細</h2>
+  <Content />
+
+  <h2>出典</h2>
+  <ul>
+    {d.sources.map((s) => (
+      <li>{s}</li>
+    ))}
+  </ul>
+
+  <h2>確認事項</h2>
+  {d.questions.length > 0 ? (
+    <ul>
+      {d.questions.map((q) => (
+        <li>{q}</li>
+      ))}
+    </ul>
+  ) : (
+    <p>なし</p>
+  )}
+
+  <p>
+    <a href="/">トップへ戻る</a>
+  </p>
+</Base>

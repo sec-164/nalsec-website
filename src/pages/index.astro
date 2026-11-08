@@ -1,24 +1,76 @@
 ---
 import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { site } from "../data/site";
+
+const products = (await getCollection("products")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const services = (await getCollection("services")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const taglineLines = site.tagline.split("\n");
 ---
 
-<Base title="株式会社NALSEC | リニューアル準備中">
-  <meta slot="head" name="robots" content="noindex, nofollow" />
-  <main class="flex min-h-svh items-center justify-center bg-black p-4 text-white">
-    <div class="max-w-2xl text-center">
-      <h1 class="text-5xl font-normal tracking-[0.15em] sm:text-7xl">NALSEC</h1>
-      <hr class="mx-auto my-6 w-24 border-0 border-t-2 border-white" />
-      <p class="leading-loose">
-        サイトリニューアル準備中です。
-        <br />
-        このページは確認用のプレビューであり、公開サイトではありません。
+<Base title={site.name}>
+  <h1>{site.name}</h1>
+  <p>
+    {taglineLines.map((line, i) => (
+      <>
+        {i > 0 && <br />}
+        {line}
+      </>
+    ))}
+  </p>
+
+  <h2>製品</h2>
+  {products.map((p) => (
+    <section>
+      <h3>
+        <a href={`/products/${p.id}/`}>{p.data.title}</a>
+      </h3>
+      <p>
+        メーカー: {p.data.manufacturer} / 分類: {p.data.categoryLabel}
       </p>
-      <p class="mt-8 text-sm opacity-60">
-        公開サイト:{" "}
-        <a href="https://nalsec.com/" class="underline">
-          nalsec.com
-        </a>
-      </p>
-    </div>
-  </main>
+      <p>{p.data.summary}</p>
+      <p>用途: {p.data.applications.join("、")}</p>
+    </section>
+  ))}
+
+  <h2>サービス</h2>
+  {services.map((s) => (
+    <section>
+      <h3>
+        <a href={`/services/${s.id}/`}>{s.data.title}</a>
+      </h3>
+      <p>{s.data.summary}</p>
+      <p>対象: {s.data.targets.join("、")}</p>
+    </section>
+  ))}
+
+  <h2>会社情報</h2>
+  <p>
+    {site.address.postalCode} {site.address.text}
+  </p>
+  <p>電話: {site.phone}</p>
+  <ul>
+    {site.businessLines.map((line) => (
+      <li>{line}</li>
+    ))}
+  </ul>
+
+  <h2>技術マガジン</h2>
+  <p>
+    <a href={site.techSiteUrl}>{site.techSiteLabel}</a>
+  </p>
+
+  <h2>お問い合わせ</h2>
+  <p>{site.contactNote}</p>
+
+  <h2>このプレビューについての確認事項</h2>
+  <ul>
+    {site.taglineQuestions.map((q) => (
+      <li>{q}</li>
+    ))}
+  </ul>
 </Base>
