@@ -1,11 +1,11 @@
 ---
+// 全画面セクションを sticky で重ねる構成(ヒーロー → 製品 → サービス → 会社情報)。
+// 画像・動きなし(背景は面の色だけのプレースホルダー)、JS なし。
 import Base from "../layouts/Base.astro";
-import Card from "../components/Card.astro";
 import Hero from "../components/Hero.astro";
 import CompanyInfo from "../components/CompanyInfo.astro";
 import TechBand from "../components/TechBand.astro";
 import { getCollection } from "astro:content";
-import { site } from "../data/site";
 
 const products = (await getCollection("products")).sort(
   (a, b) => a.data.order - b.data.order,
@@ -14,54 +14,83 @@ const categoryLabels = ["充電器", "電池"];
 const services = (await getCollection("services")).sort(
   (a, b) => a.data.order - b.data.order,
 );
+
+// トップページと同じ並び(カテゴリ順 → order 順)。
+const items = [
+  ...categoryLabels.flatMap((label) =>
+    products
+      .filter((p) => p.data.categoryLabel === label)
+      .map((p) => ({
+        label,
+        title: p.data.title,
+        summary: p.data.summary,
+        href: `/products/${p.id}/`,
+      })),
+  ),
+  ...services.map((s) => ({
+    label: "サービス",
+    title: s.data.title,
+    summary: s.data.summary,
+    href: `/services/${s.id}/`,
+  })),
+];
 const container = "mx-auto max-w-[1120px] px-4 md:px-8";
-const section = "py-16 md:py-24";
 ---
 
-<Base title={site.name}>
-  <Hero />
+<Base title="株式会社NALSEC">
+  <Hero stacked />
 
-  <section id="products" class={`border-t border-line ${section}`}>
-    <div class={container}>
-      <h2 class="text-4xl font-bold lg:text-5xl">製品</h2>
-      <div class="mt-6 w-24 border-t-2 border-foreground"></div>
-      {categoryLabels.map((label) => (
-        <section class="mt-16">
-          <h3 class="text-2xl font-bold">{label}</h3>
-          <div class="mt-8 grid gap-6 md:grid-cols-2">
-            {products
-              .filter((p) => p.data.categoryLabel === label)
-              .map((p) => (
-                <Card
-                  href={`/products/${p.id}/`}
-                  title={p.data.title}
-                  summary={p.data.summary}
-                />
-              ))}
+  <div id="products">
+    {items.map((item, i) => (
+      <section
+        class="sticky top-0 flex h-svh items-center overflow-hidden border-t border-line bg-background"
+        style={`z-index:${i + 2}`}
+        id={i === products.length ? "services" : undefined}
+      >
+        <div
+          class={`absolute inset-0 ${i % 2 === 0 ? "bg-surface" : "bg-white/10"}`}
+          aria-hidden="true"
+        />
+        <div class={`${container} relative w-full py-16`}>
+          <div class="max-w-3xl">
+            <p class="text-sm text-muted">{item.label}</p>
+            <h2 class="mt-4 text-4xl leading-snug font-bold lg:text-5xl">
+              {item.title}
+            </h2>
+            <p class="mt-8 text-lg leading-loose">
+              {item.summary
+                .trim()
+                .split("\n")
+                .map((line, j) => (
+                  <>
+                    {j > 0 && <br />}
+                    {line}
+                  </>
+                ))}
+            </p>
+            <p class="mt-8">
+              <a
+                href={item.href}
+                class="underline underline-offset-4 hover:text-muted"
+                aria-label={`${item.title}の詳細を見る`}
+              >
+                詳細を見る →
+              </a>
+            </p>
           </div>
-        </section>
-      ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <section
+    class="sticky top-0 flex h-svh items-center overflow-hidden border-t border-line bg-background"
+    style={`z-index:${items.length + 2}`}
+  >
+    <div class="absolute inset-0 bg-surface" aria-hidden="true"></div>
+    <div class={`${container} relative w-full`}>
+      <CompanyInfo embedded />
+      <TechBand embedded />
     </div>
   </section>
-
-  <section id="services" class={`border-t border-line ${section}`}>
-    <div class={container}>
-      <h2 class="text-4xl font-bold lg:text-5xl">サービス</h2>
-      <div class="mt-6 w-24 border-t-2 border-foreground"></div>
-      <div class="mt-16 grid gap-6 md:grid-cols-2">
-        {services.map((s) => (
-          <Card
-            href={`/services/${s.id}/`}
-            title={s.data.title}
-            summary={s.data.summary}
-            level={3}
-          />
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <CompanyInfo />
-
-  <TechBand />
 </Base>
