@@ -1,43 +1,57 @@
-# リニューアル中のプレビューを Cloudflare Pages に配信するワークフロー。
+# リニューアル用サイトの検証とプレビュー配信。
 # 本番 (GitHub Pages, nextjs.yml) には一切触れない。
 #
-# - renewal ブランチへの push  -> https://nalsec-renewal.pages.dev/
-# - それ以外のブランチで手動実行 -> https://<branch>.nalsec-renewal.pages.dev/
+# - main 以外のブランチへの push : 型チェック・整形チェック・ビルド
+# - renewal への push / 手動実行  : 上記に加えて Cloudflare Pages へ配信
+#     renewal  -> https://nalsec-renewal.pages.dev/
+#     その他   -> https://<branch>.nalsec-renewal.pages.dev/
 #
 # 必要な Secrets: CLOUDFLARE_API_TOKEN (Account / Cloudflare Pages / Edit), CLOUDFLARE_ACCOUNT_ID
-name: Preview (Cloudflare Pages)
+name: Site (check / build / preview)
 
 on:
   push:
-    branches: ["renewal"]
+    branches: ["**", "!main"]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: preview-${{ github.ref }}
+  group: site-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   PAGES_PROJECT: nalsec-renewal
   PAGES_PRODUCTION_BRANCH: renewal
-  # 技術構成が決まったらビルドステップを追加し、ここを出力ディレクトリに変える
-  OUTPUT_DIR: site
+  OUTPUT_DIR: dist
 
 jobs:
-  deploy:
+  site:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      # version を省略し package.json の packageManager から読む。
+      # Node は devEngines.runtime に従って pnpm が取得するので setup-node は使わない。
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm check
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Build
+        run: pnpm build
 
       - name: Ensure Pages project exists
+        if: github.ref_name == env.PAGES_PRODUCTION_BRANCH || github.event_name == 'workflow_dispatch'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -49,19 +63,19 @@ jobs:
           case "$status" in
             200) echo "Project ${PAGES_PROJECT} already exists." ;;
             404) echo "Creating project ${PAGES_PROJECT}."
-                 npx --yes wrangler@4 pages project create "${PAGES_PROJECT}" \
+                 pnpm dlx wrangler@4 pages project create "${PAGES_PROJECT}" \
                    --production-branch "${PAGES_PRODUCTION_BRANCH}" ;;
             *)   echo "Unexpected response ${status} from Cloudflare API." >&2; exit 1 ;;
           esac
 
       - name: Deploy to Cloudflare Pages
-        id: deploy
+        if: github.ref_name == env.PAGES_PRODUCTION_BRANCH || github.event_name == 'workflow_dispatch'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          npx --yes wrangler@4 pages deploy "${OUTPUT_DIR}" \
+          pnpm dlx wrangler@4 pages deploy "${OUTPUT_DIR}" \
             --project-name "${PAGES_PROJECT}" \
             --branch "${GITHUB_REF_NAME}" \
             --commit-hash "${GITHUB_SHA}" \
