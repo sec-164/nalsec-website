@@ -6,6 +6,7 @@ import { site } from "../data/site";
 const products = (await getCollection("products")).sort(
   (a, b) => a.data.order - b.data.order,
 );
+const categoryLabels = ["充電器", "電池"];
 const services = (await getCollection("services")).sort(
   (a, b) => a.data.order - b.data.order,
 );
@@ -24,22 +25,29 @@ const taglineLines = site.tagline.split("\n");
   </p>
 
   <h2>製品</h2>
-  {products.map((p) => (
+  {categoryLabels.map((label) => (
     <section>
-      <h3>
-        <a href={`/products/${p.id}/`}>{p.data.title}</a>
-      </h3>
-      <p>
-        {p.data.summary
-          .trim()
-          .split("\n")
-          .map((line, i) => (
-            <>
-              {i > 0 && <br />}
-              {line}
-            </>
-          ))}
-      </p>
+      <h3>{label}</h3>
+      {products
+        .filter((p) => p.data.categoryLabel === label)
+        .map((p) => (
+          <section>
+            <h4>
+              <a href={`/products/${p.id}/`}>{p.data.title}</a>
+            </h4>
+            <p>
+              {p.data.summary
+                .trim()
+                .split("\n")
+                .map((line, i) => (
+                  <>
+                    {i > 0 && <br />}
+                    {line}
+                  </>
+                ))}
+            </p>
+          </section>
+        ))}
     </section>
   ))}
 
