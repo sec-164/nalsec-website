@@ -71,14 +71,15 @@ const navGroups = nav.map((item) => {
           ナビは右端に固定した幅の決まった「窓」にして横だけクリップする(窓の中で現在の項目を中央に)。
           JS なし(トップ以外)では行を ml-auto で右寄せ。トップでは JS が data-js を付け、
           --nav-x(translateX)で現在の項目を窓の中央へ、ヒーローでは右寄せ位置へ動かす。
-          はみ出している時だけ data-clipped を付けて両端をフェードする。
+          はみ出している側だけ data-clipped(left / right / both)を付けて、その側をフェードする。
+          中央寄せは両端でクランプし、行の端が窓の端より内側に来ない(隙間を作らない)ようにする。
           下線(after:)が行の下に出るので、窓は上下に余白を取ってマスクで切れないようにする。
           子の展開は全デバイス共通。折りたたみ側は横だけクリップする。
         */}
         <nav
           aria-label="サイト内"
           data-nav-viewport
-          class="group/vp ml-auto w-[min(100%,60vw)] min-w-0 overflow-x-clip py-2 md:w-[min(100%,36rem)] data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_5%,#000_95%,transparent)] md:data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)]"
+          class="group/vp ml-auto w-[min(100%,60vw)] min-w-0 overflow-x-clip py-2 md:w-[min(100%,36rem)] [--f:5%] [--fl:var(--f)] [--fr:var(--f)] md:[--f:10%] data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_var(--fl),#000_calc(100%-var(--fr)),transparent)] data-[clipped=left]:[--fr:0%] data-[clipped=right]:[--fl:0%]"
         >
           <ul class="ml-auto flex w-max items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap transition-transform duration-300 ease-[ease] group-data-[js]/vp:ml-0 group-data-[js]/vp:[transform:translateX(var(--nav-x,0px))] motion-reduce:transition-none md:gap-x-8">
             {navGroups.map((item) => (
@@ -184,23 +185,29 @@ const navGroups = nav.map((item) => {
             else a.removeAttribute("aria-current");
           });
         };
-        // ナビの行の位置(--nav-x)。現在の項目を窓の中央に(端の項目が切れてもよい)。
-        // 現在の項目がない(ヒーロー)時は右寄せ、行が窓より広ければ左端を 0 に。
+        // ナビの行の位置(--nav-x)。現在の項目を窓の中央に寄せるが、行の端が窓の端より内側に来ないようクランプする。
+        // 行が窓に収まるなら常に右寄せ。現在の項目がない(ヒーロー)時も同じ(収まらなければ左端を 0 に)。
         const row = navEl.firstElementChild;
         const target = () => {
           const vw = navEl.clientWidth;
           const rw = row.offsetWidth;
           const cur = row.querySelector("[aria-current]");
-          if (!cur) return { x: rw > vw ? 0 : vw - rw, vw, rw };
+          if (rw <= vw) return { x: vw - rw, vw, rw };
+          if (!cur) return { x: 0, vw, rw };
           // offsetLeft は row 基準ではないことがあるので、変形を除いた矩形の差で測る
-          const x = row.getBoundingClientRect().left;
           const r = cur.getBoundingClientRect();
-          const left = r.left - x;
-          return { x: vw / 2 - (left + r.width / 2), vw, rw };
+          const left = r.left - row.getBoundingClientRect().left;
+          const centred = vw / 2 - (left + r.width / 2);
+          return { x: Math.min(0, Math.max(vw - rw, centred)), vw, rw };
         };
         const setX = ({ x, vw, rw }) => {
           row.style.setProperty("--nav-x", `${x}px`);
-          navEl.toggleAttribute("data-clipped", x < -0.5 || x + rw > vw + 0.5);
+          const left = x < -0.5;
+          const right = x + rw > vw + 0.5;
+          if (left || right)
+            navEl.dataset.clipped =
+              left && right ? "both" : left ? "left" : "right";
+          else delete navEl.dataset.clipped;
         };
         // 展開(grid-template-columns)と移動はどちらも 300ms のアニメーション。
         // 終わった時の位置を先に知るため、アニメーションを止めて新しい状態を当てて測り、
