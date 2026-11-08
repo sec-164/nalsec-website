@@ -2,9 +2,10 @@
 # 本番 (GitHub Pages, nextjs.yml) には一切触れない。
 #
 # - main 以外のブランチへの push : 型チェック・整形チェック・ビルド
-# - renewal への push / 手動実行  : 上記に加えて Cloudflare Pages へ配信
+# - renewal への push / 手動実行(workflow_dispatch) : 上記に加えて Cloudflare Pages へ配信
 #     renewal  -> https://nalsec-renewal.pages.dev/
-#     その他   -> https://<branch>.nalsec-renewal.pages.dev/
+#     その他   -> https://<branch>.nalsec-renewal.pages.dev/ (workflow_dispatch で手動実行した場合のみ。
+#                 renewal 以外への push は検証だけで配信しない)
 #
 # 必要な Secrets: CLOUDFLARE_API_TOKEN (Account / Cloudflare Pages / Edit), CLOUDFLARE_ACCOUNT_ID
 name: Site (check / build / preview)
@@ -63,7 +64,7 @@ jobs:
           case "$status" in
             200) echo "Project ${PAGES_PROJECT} already exists." ;;
             404) echo "Creating project ${PAGES_PROJECT}."
-                 pnpm dlx wrangler@4 pages project create "${PAGES_PROJECT}" \
+                 pnpm exec wrangler pages project create "${PAGES_PROJECT}" \
                    --production-branch "${PAGES_PRODUCTION_BRANCH}" ;;
             *)   echo "Unexpected response ${status} from Cloudflare API." >&2; exit 1 ;;
           esac
@@ -75,23 +76,23 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          pnpm dlx wrangler@4 pages deploy "${OUTPUT_DIR}" \
+          pnpm exec wrangler pages deploy "${OUTPUT_DIR}" \
             --project-name "${PAGES_PROJECT}" \
             --branch "${GITHUB_REF_NAME}" \
             --commit-hash "${GITHUB_SHA}" \
             --commit-dirty=false \
             --commit-message "${GITHUB_REF_NAME}@${GITHUB_SHA::7}" \
             | tee deploy.log
-          url=$(grep -oE 'https://[a-z0-9.-]+\.pages\.dev' deploy.log | tail -n 1 || true)
+          deploy_url=$(grep -oE 'Deployment complete.*https://[a-z0-9.-]+\.pages\.dev' deploy.log | grep -oE 'https://[a-z0-9.-]+\.pages\.dev' | tail -n 1 || true)
+          alias_url=$(grep -oE 'alias URL: https://[a-z0-9.-]+\.pages\.dev' deploy.log | grep -oE 'https://[a-z0-9.-]+\.pages\.dev' | tail -n 1 || true)
           {
             echo "## Cloudflare Pages preview"
             echo
             echo "- Branch: \`${GITHUB_REF_NAME}\`"
-            echo "- Deployment URL: ${url:-unknown}"
+            echo "- Deployment URL: ${deploy_url:-unknown}"
             if [ "${GITHUB_REF_NAME}" = "${PAGES_PRODUCTION_BRANCH}" ]; then
               echo "- Stable URL: https://${PAGES_PROJECT}.pages.dev/"
             else
-              alias=$(echo "${GITHUB_REF_NAME}" | tr '/_.' '---' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
-              echo "- Branch alias: https://${alias}.${PAGES_PROJECT}.pages.dev/"
+              echo "- Branch alias: ${alias_url:-unknown}"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
