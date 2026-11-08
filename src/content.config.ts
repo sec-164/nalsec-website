@@ -12,6 +12,7 @@ const products = defineCollection({
     models: z.array(z.string()),
     applications: z.array(z.string()),
     summary: z.string(),
+    highlights: z.array(z.string()).optional(),
     catalog: z.string().optional(),
     order: z.number(),
   }),
@@ -27,4 +28,17 @@ const services = defineCollection({
   }),
 });
 
-export const collections = { products, services };
+const series = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/series" }),
+  schema: z.object({
+    title: z.string(),
+    manufacturer: z.string(),
+    category: z.enum(["charger", "battery"]),
+    categoryLabel: z.string(),
+    lead: z.string(),
+    products: z.array(z.string()),
+    order: z.number(),
+  }),
+});
+
+export const collections = { products, series, services };

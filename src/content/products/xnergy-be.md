@@ -16,6 +16,10 @@ summary: |-
   AGV・AMR・サービスロボット・フォークリフトに対応。
   バッテリーの大きな車両に向いています。
 catalog: 20250823_Xnergy_BE_J.pdf
+highlights:
+  - PH より大電流の高出力機
+  - エアギャップは最大 7cm
+  - 受信機は 24V 用と 48V 用
 order: 2
 ---
 

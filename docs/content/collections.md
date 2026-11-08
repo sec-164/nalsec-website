@@ -1,22 +1,39 @@
 # コンテンツコレクション
 
-テキストのみのプレビュー用に、Astro のコンテンツコレクションを 2 つ定義している(`src/content.config.ts`)。内容の根拠は `docs/content/inventory.md`、URL は `docs/content/url-structure.md`。
+テキストのみのプレビュー用に、Astro のコンテンツコレクションを 3 つ定義している(`src/content.config.ts`)。内容の根拠は `docs/content/inventory.md`、URL は `docs/content/url-structure.md`。
 
 ## products(`src/content/products/*.md`)
 
 スラッグはファイル名(`xnergy-ph.md` → `/products/xnergy-ph/`)。
 
-| フィールド      | 型                        | 意味                                                        |
-| --------------- | ------------------------- | ----------------------------------------------------------- |
-| `title`         | string                    | 表示名(例: Xnergy ワイヤレス充電器 PH)                      |
-| `manufacturer`  | string                    | メーカー表記(Xnergy、BSLBATT、VITZROCELL)                   |
-| `category`      | `"charger"` / `"battery"` | 分類                                                        |
-| `categoryLabel` | string                    | 分類の表示用(充電器 / 電池)                                 |
-| `models`        | string[]                  | 型番。なければ `[]`                                         |
-| `applications`  | string[]                  | 用途タグ。製品リストの「市場」に合わせる                    |
-| `summary`       | string                    | トップページに載せる紹介文。1 行 1 文、改行は `<br>` で表示 |
-| `catalog`       | string(省略可)            | `references/` 内のカタログのファイル名                      |
-| `order`         | number                    | 一覧での並び順                                              |
+| フィールド      | 型                        | 意味                                                                                                                                                                |
+| --------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`         | string                    | 表示名(例: Xnergy ワイヤレス充電器 PH)                                                                                                                              |
+| `manufacturer`  | string                    | メーカー表記(Xnergy、BSLBATT、VITZROCELL)                                                                                                                           |
+| `category`      | `"charger"` / `"battery"` | 分類                                                                                                                                                                |
+| `categoryLabel` | string                    | 分類の表示用(充電器 / 電池)                                                                                                                                         |
+| `models`        | string[]                  | 型番。なければ `[]`                                                                                                                                                 |
+| `applications`  | string[]                  | 用途タグ。製品リストの「市場」に合わせる                                                                                                                            |
+| `summary`       | string                    | 製品ページに載せる紹介文。1 行 1 文、改行は `<br>` で表示                                                                                                           |
+| `highlights`    | string[](省略可)          | トップページのシリーズ画面に載せる 2〜3 行。同じシリーズの兄弟製品との違いだけを、体言止め・1 行 22 字程度で書く。`summary` と `## 特長` にない事実や数値は入れない |
+| `catalog`       | string(省略可)            | `references/` 内のカタログのファイル名                                                                                                                              |
+| `order`         | number                    | 一覧での並び順                                                                                                                                                      |
+
+## series(`src/content/series/*.md`)
+
+トップページで 1 画面にまとめる製品のまとまり(シリーズ)。1 エントリ = トップの 1 画面。本文は使わない(空でよい)。
+
+| フィールド      | 型                        | 意味                                                                                |
+| --------------- | ------------------------- | ----------------------------------------------------------------------------------- |
+| `title`         | string                    | シリーズの見出し(例: Xnergy ワイヤレス充電器)                                       |
+| `manufacturer`  | string                    | メーカー表記                                                                        |
+| `category`      | `"charger"` / `"battery"` | 分類                                                                                |
+| `categoryLabel` | string                    | 分類の表示用(充電器 / 電池)                                                         |
+| `lead`          | string                    | シリーズが何かを言う 1 文(体言止め)。所属製品の `summary` と `## 特長` の範囲で書く |
+| `products`      | string[]                  | 所属する製品のスラッグ(products のファイル名)。表示順                               |
+| `order`         | number                    | トップページでの並び順                                                              |
+
+製品数で表示が変わる: 2 製品は 2 列(スマホは縦積み)、3 製品以上は横長の行を縦に並べる、1 製品は文章 + 画像枠。製品を追加したら、どれかのシリーズの `products` に入れ、兄弟製品の `highlights` も見直す。
 
 ## services(`src/content/services/*.md`)
 

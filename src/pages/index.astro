@@ -1,91 +1,204 @@
 ---
-// 全画面セクションを sticky で重ねる構成(ヒーロー → 製品 → サービス → 会社情報)。
+// 全画面セクションを sticky で重ねる構成(ヒーロー → 製品シリーズ → サービス → 会社情報)。
+// 製品は series コレクション単位で 1 画面。兄弟製品は同じ画面に並べ、highlights で違いだけを示す。
 // 画像・動きなし(背景は面の色だけのプレースホルダー)、JS なし。
 import Base from "../layouts/Base.astro";
 import Hero from "../components/Hero.astro";
 import CompanyInfo from "../components/CompanyInfo.astro";
 import TechBand from "../components/TechBand.astro";
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 
-const products = (await getCollection("products")).sort(
+const seriesList = (await getCollection("series")).sort(
   (a, b) => a.data.order - b.data.order,
 );
-const categoryLabels = ["充電器", "電池"];
+const series = await Promise.all(
+  seriesList.map(async (s) => ({
+    ...s.data,
+    products: await Promise.all(
+      s.data.products.map(async (id) => {
+        const p = await getEntry("products", id);
+        if (!p) throw new Error(`series ${s.id}: product "${id}" not found`);
+        return {
+          title: p.data.title,
+          highlights: p.data.highlights ?? [],
+          href: `/products/${p.id}/`,
+        };
+      }),
+    ),
+  })),
+);
 const services = (await getCollection("services")).sort(
   (a, b) => a.data.order - b.data.order,
 );
 
-// トップページと同じ並び(カテゴリ順 → order 順)。
-const items = [
-  ...categoryLabels.flatMap((label) =>
-    products
-      .filter((p) => p.data.categoryLabel === label)
-      .map((p) => ({
-        label,
-        title: p.data.title,
-        summary: p.data.summary,
-        href: `/products/${p.id}/`,
-      })),
-  ),
-  ...services.map((s) => ({
-    label: "サービス",
-    title: s.data.title,
-    summary: s.data.summary,
-    href: `/services/${s.id}/`,
-  })),
-];
 const container = "mx-auto max-w-[1120px] px-4 md:px-8";
+const sectionClass =
+  "sticky top-0 flex h-svh items-center overflow-hidden border-t border-line bg-background";
+const shade = (i: number) => (i % 2 === 0 ? "bg-surface" : "bg-white/10");
+const linkClass = "underline underline-offset-4 hover:text-muted";
 ---
 
 <Base title="株式会社NALSEC">
   <Hero stacked />
 
-  <div id="products">
-    {items.map((item, i) => (
-      <section
-        class="sticky top-0 flex h-svh items-center overflow-hidden border-t border-line bg-background"
-        style={`z-index:${i + 2}`}
-        id={i === products.length ? "services" : undefined}
-      >
-        <div
-          class={`absolute inset-0 ${i % 2 === 0 ? "bg-surface" : "bg-white/10"}`}
-          aria-hidden="true"
-        />
-        <div class={`${container} relative w-full py-16`}>
-          <div class="max-w-3xl">
-            <p class="text-sm text-muted">{item.label}</p>
-            <h2 class="mt-4 text-4xl leading-snug font-bold lg:text-5xl">
-              {item.title}
-            </h2>
-            <p class="mt-8 text-lg leading-loose">
-              {item.summary
-                .trim()
-                .split("\n")
-                .map((line, j) => (
-                  <>
-                    {j > 0 && <br />}
-                    {line}
-                  </>
-                ))}
-            </p>
-            <p class="mt-8">
-              <a
-                href={item.href}
-                class="underline underline-offset-4 hover:text-muted"
-                aria-label={`${item.title}の詳細を見る`}
+  {series.map((s, i) => (
+    <section
+      class={sectionClass}
+      style={`z-index:${i + 2}`}
+      id={i === 0 ? "products" : undefined}
+    >
+      <div class={`absolute inset-0 ${shade(i)}`} aria-hidden="true" />
+      <div class={`${container} relative w-full py-8 md:py-16`}>
+        <p class="text-sm text-muted">{s.categoryLabel}</p>
+        <h2 class="mt-2 text-4xl leading-snug font-bold md:mt-4 lg:text-5xl">
+          {s.title}
+        </h2>
+        <p class="mt-2 text-lg leading-relaxed text-muted md:mt-4">{s.lead}</p>
+
+        {s.products.length === 2 && (
+          <div class="mt-6 md:mt-12 md:grid md:grid-cols-2 md:grid-rows-[auto_auto_auto]">
+            {s.products.map((p, j) => (
+              <article
+                class={`md:row-span-3 md:grid md:grid-rows-subgrid ${
+                  j === 0
+                    ? "pb-5 md:pr-10 md:pb-0"
+                    : "border-t border-line pt-5 md:border-t-0 md:border-l md:pt-0 md:pl-10"
+                }`}
               >
-                詳細を見る →
-              </a>
-            </p>
+                <h3 class="text-xl leading-snug font-bold md:text-[22px]">
+                  {p.title}
+                </h3>
+                <p class="mt-2 leading-relaxed md:mt-4">
+                  {p.highlights.map((line, k) => (
+                    <>
+                      {k > 0 && <br />}
+                      {line}
+                    </>
+                  ))}
+                </p>
+                <p class="mt-2 md:mt-4">
+                  <a
+                    href={p.href}
+                    class={linkClass}
+                    aria-label={`${p.title}の詳細を見る`}
+                  >
+                    詳細を見る →
+                  </a>
+                </p>
+              </article>
+            ))}
           </div>
+        )}
+
+        {s.products.length >= 3 && (
+          <div class="mt-5 border-b border-line md:mt-12">
+            {s.products.map((p) => (
+              <article class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-t border-line py-3 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_auto] md:items-center md:gap-x-10 md:py-6">
+                <h3 class="col-span-2 text-lg leading-snug font-bold md:col-span-1 md:text-[22px]">
+                  {p.title}
+                </h3>
+                <p class="mt-1 text-sm leading-relaxed md:mt-0 md:text-base">
+                  {p.highlights.map((line, k) => (
+                    <>
+                      {k > 0 && <br />}
+                      {line}
+                    </>
+                  ))}
+                </p>
+                <p class="self-end text-sm md:self-auto md:text-base">
+                  <a
+                    href={p.href}
+                    class={linkClass}
+                    aria-label={`${p.title}の詳細を見る`}
+                  >
+                    詳細を見る →
+                  </a>
+                </p>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {s.products.length === 1 && (
+          <div class="mt-6 grid items-center gap-12 md:mt-12 md:grid-cols-2">
+            {s.products.map((p) => (
+              <article>
+                <h3 class="text-xl leading-snug font-bold md:text-[22px]">
+                  {p.title}
+                </h3>
+                <p class="mt-2 leading-relaxed md:mt-4">
+                  {p.highlights.map((line, k) => (
+                    <>
+                      {k > 0 && <br />}
+                      {line}
+                    </>
+                  ))}
+                </p>
+                <p class="mt-2 md:mt-4">
+                  <a
+                    href={p.href}
+                    class={linkClass}
+                    aria-label={`${p.title}の詳細を見る`}
+                  >
+                    詳細を見る →
+                  </a>
+                </p>
+              </article>
+            ))}
+            <div
+              class="hidden aspect-video bg-surface md:block"
+              aria-hidden="true"
+            />
+          </div>
+        )}
+      </div>
+    </section>
+  ))}
+
+  {services.map((item, i) => (
+    <section
+      class={sectionClass}
+      style={`z-index:${series.length + i + 2}`}
+      id={i === 0 ? "services" : undefined}
+    >
+      <div
+        class={`absolute inset-0 ${shade(series.length + i)}`}
+        aria-hidden="true"
+      />
+      <div class={`${container} relative w-full py-16`}>
+        <div class="max-w-3xl">
+          <p class="text-sm text-muted">サービス</p>
+          <h2 class="mt-4 text-4xl leading-snug font-bold lg:text-5xl">
+            {item.data.title}
+          </h2>
+          <p class="mt-8 text-lg leading-loose">
+            {item.data.summary
+              .trim()
+              .split("\n")
+              .map((line, j) => (
+                <>
+                  {j > 0 && <br />}
+                  {line}
+                </>
+              ))}
+          </p>
+          <p class="mt-8">
+            <a
+              href={`/services/${item.id}/`}
+              class={linkClass}
+              aria-label={`${item.data.title}の詳細を見る`}
+            >
+              詳細を見る →
+            </a>
+          </p>
         </div>
-      </section>
-    ))}
-  </div>
+      </div>
+    </section>
+  ))}
 
   <section
-    class="sticky top-0 flex h-svh items-center overflow-hidden border-t border-line bg-background"
-    style={`z-index:${items.length + 2}`}
+    class={sectionClass}
+    style={`z-index:${series.length + services.length + 2}`}
   >
     <div class="absolute inset-0 bg-surface" aria-hidden="true"></div>
     <div class={`${container} relative w-full`}>
