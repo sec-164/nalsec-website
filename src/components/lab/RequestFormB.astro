@@ -1,0 +1,1210 @@
+---
+// 資料請求フォームの試作 B(ステップ型)。① 資料を選ぶ → ② ご連絡先 → ③ 確認して送信 を 1 枚のカードの中で 1 段ずつ見せる。
+// 表示確認用のダミー: 外部へは何も送らない。項目と name 属性は RequestForm.astro と同じ。
+// JS が無効なときは全ステップが縦に並んだ 1 枚のフォームとして見える(ステップ化は script が data-enhanced を付けてから)。
+import { getCollection } from "astro:content";
+
+interface Props {
+  /** いま開いている製品の id(products コレクションのエントリ id) */
+  current: string;
+}
+
+const { current } = Astro.props;
+const products = (await getCollection("products")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const currentEntry = products.find((p) => p.id === current);
+const others = products.filter((p) => p.id !== current);
+// カテゴリ見出しは、製品の並び順で最初に出てきた順に並べる
+const groups: { key: string; label: string; items: typeof products }[] = [];
+for (const p of others) {
+  let g = groups.find((x) => x.key === p.data.category);
+  if (!g) {
+    g = { key: p.data.category, label: p.data.categoryLabel, items: [] };
+    groups.push(g);
+  }
+  g.items.push(p);
+}
+
+const steps = ["資料を選ぶ", "ご連絡先", "確認して送信"];
+
+const inputClass =
+  "block h-12 w-full rounded border border-neutral-300 bg-white pr-10 pl-3 text-base text-neutral-900 transition-[border-color,box-shadow] placeholder:text-neutral-400 hover:border-neutral-500 focus:border-neutral-900 focus:shadow-[0_0_0_3px_rgb(23_23_23/0.1)] focus:outline-none group-data-[state=error]/field:border-red-600 group-data-[state=error]/field:focus:shadow-[0_0_0_3px_rgb(220_38_38/0.15)]";
+const labelClass = "mb-2 flex items-center gap-2 text-sm font-bold";
+const requiredMark =
+  "rounded-sm bg-neutral-900 px-1.5 py-0.5 text-[11px] leading-none font-bold text-white";
+const optionalMark =
+  "rounded-sm border border-neutral-300 px-1.5 py-0.5 text-[11px] leading-none font-normal text-neutral-500";
+const primaryBtn =
+  "group/btn inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-neutral-900 px-7 text-base font-bold text-white transition-[background-color,transform] hover:bg-neutral-700 active:scale-[0.98] aria-disabled:bg-neutral-300 aria-disabled:text-neutral-600 aria-disabled:hover:bg-neutral-300 motion-reduce:transition-none motion-reduce:active:scale-100";
+const secondaryBtn =
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white px-6 text-base font-bold text-neutral-900 transition-colors hover:border-neutral-900 motion-reduce:transition-none";
+const stepHeading =
+  "flex items-baseline gap-3 text-xl leading-snug font-bold focus:outline-none";
+const stepNo =
+  "text-sm font-bold tracking-[0.1em] text-neutral-400 tabular-nums";
+// 製品の行: 行全体がチェックボックスのラベル。選択中は枠を黒・地をごく薄いグレーに、キーボード操作中は枠の外にリング
+const rowClass =
+  "flex h-full min-h-14 cursor-pointer items-center gap-4 rounded-md border border-neutral-200 bg-white px-4 py-3 transition-[border-color,background-color] hover:border-neutral-400 has-checked:border-neutral-900 has-checked:bg-neutral-50 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-neutral-900 motion-reduce:transition-none";
+const boxClass =
+  "peer size-5 cursor-pointer appearance-none rounded-[4px] border border-neutral-400 bg-white transition-colors checked:border-neutral-900 checked:bg-neutral-900 focus-visible:outline-none motion-reduce:transition-none";
+
+type Field = {
+  id: string;
+  name: string;
+  label: string;
+  required: boolean;
+  type: "text" | "email" | "tel";
+  autocomplete: string;
+  inputmode?: "email" | "tel";
+  placeholder?: string;
+};
+const mainFields: Field[] = [
+  {
+    id: "rfb-name",
+    name: "name",
+    label: "お名前",
+    required: true,
+    type: "text",
+    autocomplete: "name",
+  },
+  {
+    id: "rfb-email",
+    name: "email",
+    label: "メールアドレス",
+    required: true,
+    type: "email",
+    autocomplete: "email",
+    inputmode: "email",
+    placeholder: "name@example.co.jp",
+  },
+];
+const subFields: Field[] = [
+  {
+    id: "rfb-company",
+    name: "company",
+    label: "会社名",
+    required: false,
+    type: "text",
+    autocomplete: "organization",
+  },
+  {
+    id: "rfb-tel",
+    name: "tel",
+    label: "電話番号",
+    required: false,
+    type: "tel",
+    autocomplete: "tel",
+    inputmode: "tel",
+    placeholder: "03-1234-5678",
+  },
+];
+const fieldGroups = [
+  { fields: mainFields, cols: "" },
+  { fields: subFields, cols: "sm:grid-cols-2" },
+];
+
+const fixLink =
+  "shrink-0 rounded-sm text-sm text-neutral-600 underline underline-offset-4 transition-colors hover:text-neutral-900";
+---
+
+<section
+  id="request"
+  aria-labelledby="request-heading"
+  class="border-t border-neutral-200 bg-neutral-100 py-14 text-neutral-900 md:py-20"
+>
+  <div class="container-x">
+    <div class="mx-auto max-w-[46rem]">
+      <h2 id="request-heading" class="text-2xl leading-snug font-bold">
+        資料請求
+      </h2>
+      <div class="mt-3 h-0.5 w-8 bg-neutral-900" aria-hidden="true"></div>
+      <p class="mt-6 leading-loose text-neutral-700">
+        ご希望の製品を選んで送信してください。資料のダウンロード用 URL
+        をメールでお送りします。
+      </p>
+
+      <div
+        data-rfb
+        data-card
+        class="rfb mt-8 scroll-mt-20 rounded-lg border border-neutral-200 bg-white shadow-[0_1px_2px_rgb(0_0_0/0.04),0_12px_32px_-16px_rgb(0_0_0/0.12)]"
+      >
+        <div data-viewport class="px-5 pt-7 pb-8 sm:px-10 sm:pt-9 sm:pb-10">
+          {/* 進捗(JS 有効時のみ)。段階名で現在地を示し、上の細いバーが進むにつれて黒く埋まる */}
+          <nav data-js-only aria-label="入力の進み具合" class="mb-9">
+            <ol class="grid grid-cols-3 gap-2 sm:gap-3">
+              {steps.map((label, i) => (
+                <li data-progress-item class="group/p" data-state="todo">
+                  <span class="block h-0.5 overflow-hidden rounded-full bg-neutral-200">
+                    <span class="block h-full w-full origin-left scale-x-0 bg-neutral-900 transition-transform duration-500 ease-out group-data-[state=current]/p:scale-x-100 group-data-[state=done]/p:scale-x-100 motion-reduce:transition-none" />
+                  </span>
+                  <span class="mt-3 flex items-center gap-1.5 text-xs leading-tight whitespace-nowrap text-neutral-400 transition-colors group-data-[state=current]/p:font-bold group-data-[state=current]/p:text-neutral-900 group-data-[state=done]/p:text-neutral-700 sm:text-sm">
+                    <span class="relative hidden size-4 shrink-0 sm:inline-flex items-center justify-center">
+                      <span class="text-[11px] font-bold tabular-nums group-data-[state=done]/p:hidden">
+                        {i + 1}
+                      </span>
+                      <svg
+                        viewBox="0 0 16 16"
+                        class="hidden size-4 text-neutral-900 group-data-[state=done]/p:block"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M3.5 8.5l3 3 6-7"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    <span>
+                      {label}
+                      <span data-progress-sr class="sr-only" />
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </nav>
+
+          <form data-form method="post">
+            {/* ① 資料を選ぶ */}
+            <section data-step="0" aria-labelledby="rfb-h0" class="rfb-step">
+              <h3 id="rfb-h0" tabindex="-1" class={stepHeading}>
+                <span class={stepNo} aria-hidden="true">
+                  01
+                </span>
+                資料を選ぶ
+              </h3>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">
+                資料をお送りする製品を選んでください。複数選べます。
+              </p>
+
+              <fieldset
+                class="mt-6"
+                aria-describedby="rfb-products-count rfb-products-error"
+              >
+                <legend class="sr-only">資料を希望する製品(必須)</legend>
+                {currentEntry && (
+                  <>
+                    <p class="mb-2 text-xs font-bold tracking-[0.08em] text-neutral-500">
+                      このページの製品
+                    </p>
+                    <ul>
+                      <li>
+                        <label class={rowClass}>
+                          <span class="relative inline-flex shrink-0">
+                            <input
+                              type="checkbox"
+                              name="products"
+                              value={currentEntry.id}
+                              data-title={currentEntry.data.title}
+                              checked
+                              class={boxClass}
+                            />
+                            <svg
+                              viewBox="0 0 20 20"
+                              class="pointer-events-none absolute inset-0 size-5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M5.5 10.5l3 3 6-7"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                          </span>
+                          <span class="min-w-0 flex-1">
+                            <span class="block leading-snug font-bold">
+                              {currentEntry.data.title}
+                            </span>
+                            <span class="mt-0.5 block text-xs text-neutral-500">
+                              {`${currentEntry.data.manufacturer} / ${currentEntry.data.categoryLabel}`}
+                            </span>
+                          </span>
+                        </label>
+                      </li>
+                    </ul>
+                  </>
+                )}
+
+                {currentEntry && others.length > 0 && (
+                  <button
+                    type="button"
+                    data-js-only
+                    data-expand
+                    aria-expanded="false"
+                    aria-controls="rfb-others"
+                    class="group/x mt-4 inline-flex min-h-11 items-center gap-2 rounded-full px-1 text-[15px] font-bold text-neutral-900"
+                  >
+                    <span class="inline-flex size-6 items-center justify-center rounded-full border border-neutral-300 transition-[transform,border-color] duration-300 group-hover/x:border-neutral-900 group-aria-expanded/x:rotate-45 motion-reduce:transition-none">
+                      <svg
+                        viewBox="0 0 12 12"
+                        class="size-3"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M6 1.5v9M1.5 6h9"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                    </span>
+                    <span data-expand-label>他の製品も選ぶ</span>
+                    <span
+                      data-expand-extra
+                      class="text-sm font-normal text-neutral-500"
+                    />
+                  </button>
+                )}
+
+                <div id="rfb-others" data-others>
+                  <div class="pt-5">
+                    {groups.map((g) => (
+                      <div
+                        role="group"
+                        aria-labelledby={`rfb-cat-${g.key}`}
+                        class="mt-5 first:mt-0"
+                      >
+                        <p
+                          id={`rfb-cat-${g.key}`}
+                          class="mb-2 flex items-center gap-3 text-xs font-bold tracking-[0.08em] text-neutral-500"
+                        >
+                          {g.label}
+                          <span
+                            class="h-px flex-1 bg-neutral-200"
+                            aria-hidden="true"
+                          />
+                        </p>
+                        <ul class="grid gap-2 sm:grid-cols-2">
+                          {g.items.map((p) => (
+                            <li>
+                              <label class={rowClass}>
+                                <span class="relative inline-flex shrink-0">
+                                  <input
+                                    type="checkbox"
+                                    name="products"
+                                    value={p.id}
+                                    data-title={p.data.title}
+                                    class={boxClass}
+                                  />
+                                  <svg
+                                    viewBox="0 0 20 20"
+                                    class="pointer-events-none absolute inset-0 size-5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      d="M5.5 10.5l3 3 6-7"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                    />
+                                  </svg>
+                                </span>
+                                <span class="min-w-0 flex-1">
+                                  <span class="block text-[15px] leading-snug">
+                                    {p.data.title}
+                                  </span>
+                                  <span class="mt-0.5 block text-xs text-neutral-500">
+                                    {p.data.manufacturer}
+                                  </span>
+                                </span>
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </fieldset>
+
+              <div
+                data-js-only
+                class="mt-8 flex items-center justify-between gap-4 border-t border-neutral-200 pt-6"
+              >
+                <p
+                  id="rfb-products-count"
+                  class="text-sm text-neutral-600"
+                  aria-live="polite"
+                >
+                  <span
+                    data-count
+                    class="text-lg font-bold text-neutral-900 tabular-nums"
+                  >
+                    1
+                  </span>{" "}
+                  件選択中
+                </p>
+                <button type="button" data-next class={primaryBtn}>
+                  次へ
+                  <svg
+                    viewBox="0 0 16 16"
+                    class="size-4 transition-transform group-hover/btn:translate-x-0.5 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 8h9.5M8.5 4l4 4-4 4"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <p
+                id="rfb-products-error"
+                data-products-error
+                aria-live="polite"
+                class="text-right text-sm text-red-700 empty:hidden"
+              />
+            </section>
+
+            {/* ② ご連絡先 */}
+            <section
+              data-step="1"
+              aria-labelledby="rfb-h1"
+              class="rfb-step rfb-nojs-gap"
+            >
+              <h3 id="rfb-h1" tabindex="-1" class={stepHeading}>
+                <span class={stepNo} aria-hidden="true">
+                  02
+                </span>
+                ご連絡先
+              </h3>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">
+                資料のダウンロード用 URL
+                をお送りするメールアドレスをご入力ください。
+              </p>
+
+              {fieldGroups.map((g, gi) => (
+                <div
+                  class:list={[
+                    gi === 0
+                      ? "mt-7"
+                      : "mt-8 border-t border-dashed border-neutral-200 pt-6",
+                  ]}
+                >
+                  {gi === 1 && (
+                    <p class="mb-5 text-xs text-neutral-500">
+                      以下は任意です。お問い合わせへの対応に使わせていただく場合があります。
+                    </p>
+                  )}
+                  <div class:list={["grid gap-6", g.cols]}>
+                    {g.fields.map((f) => (
+                      <div data-field class="group/field">
+                        <label for={f.id} class={labelClass}>
+                          {f.label}
+                          <span
+                            class={f.required ? requiredMark : optionalMark}
+                          >
+                            {f.required ? "必須" : "任意"}
+                          </span>
+                        </label>
+                        <div class="relative">
+                          <input
+                            id={f.id}
+                            name={f.name}
+                            type={f.type}
+                            autocomplete={f.autocomplete}
+                            inputmode={f.inputmode}
+                            placeholder={f.placeholder}
+                            required={f.required}
+                            aria-describedby={`${f.id}-error${f.name === "email" ? ` ${f.id}-suggest` : ""}`}
+                            autocapitalize={
+                              f.type === "email" ? "off" : undefined
+                            }
+                            spellcheck={
+                              f.type === "email" ? "false" : undefined
+                            }
+                            class={inputClass}
+                          />
+                          {/* 正しく入力できた欄に出す小さなチェック印 */}
+                          <svg
+                            viewBox="0 0 20 20"
+                            class="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 scale-75 text-neutral-900 opacity-0 transition-[opacity,transform] duration-200 group-data-[state=ok]/field:scale-100 group-data-[state=ok]/field:opacity-100 motion-reduce:transition-none"
+                            aria-hidden="true"
+                          >
+                            <circle cx="10" cy="10" r="9" fill="currentColor" />
+                            <path
+                              d="M6 10.5l2.5 2.5L14 7.5"
+                              fill="none"
+                              stroke="#fff"
+                              stroke-width="1.8"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </div>
+                        <p
+                          id={`${f.id}-error`}
+                          data-error
+                          aria-live="polite"
+                          class="mt-2 flex items-start gap-1.5 text-sm leading-snug text-red-700 empty:hidden"
+                        />
+                        {f.name === "email" && (
+                          <p
+                            id={`${f.id}-suggest`}
+                            data-suggest
+                            hidden
+                            class="mt-2"
+                          >
+                            <button
+                              type="button"
+                              data-suggest-btn
+                              class="inline-flex min-h-9 items-center gap-2 rounded-full border border-neutral-300 bg-neutral-50 px-3.5 text-sm text-neutral-800 transition-colors hover:border-neutral-900"
+                            >
+                              <span>
+                                <b data-suggest-domain class="font-bold" />{" "}
+                                ではありませんか?
+                              </span>
+                              <span class="text-xs text-neutral-500 underline underline-offset-2">
+                                修正する
+                              </span>
+                            </button>
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <div
+                data-js-only
+                class="mt-9 flex items-center justify-between gap-3 border-t border-neutral-200 pt-6"
+              >
+                <button type="button" data-back class={secondaryBtn}>
+                  戻る
+                </button>
+                <button type="button" data-next class={primaryBtn}>
+                  確認へ
+                  <svg
+                    viewBox="0 0 16 16"
+                    class="size-4 transition-transform group-hover/btn:translate-x-0.5 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 8h9.5M8.5 4l4 4-4 4"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </section>
+
+            {/* ③ 確認して送信 */}
+            <section
+              data-step="2"
+              aria-labelledby="rfb-h2"
+              class="rfb-step rfb-nojs-gap"
+            >
+              <div data-js-only>
+                <h3 id="rfb-h2" tabindex="-1" class={stepHeading}>
+                  <span class={stepNo} aria-hidden="true">
+                    03
+                  </span>
+                  確認して送信
+                </h3>
+                <p class="mt-2 text-sm leading-relaxed text-neutral-600">
+                  内容をご確認のうえ、送信してください。
+                </p>
+
+                <div class="mt-7 divide-y divide-neutral-200 rounded-md border border-neutral-200">
+                  <div class="px-4 py-5 sm:px-6">
+                    <div class="flex items-baseline justify-between gap-4">
+                      <h4 class="text-sm font-bold">ご希望の資料</h4>
+                      <button
+                        type="button"
+                        data-goto="0"
+                        class={fixLink}
+                        aria-label="ご希望の資料を修正"
+                      >
+                        修正
+                      </button>
+                    </div>
+                    <ul
+                      data-summary-products
+                      class="mt-3 grid gap-1.5 text-[15px] leading-snug"
+                    />
+                  </div>
+                  <div class="px-4 py-5 sm:px-6">
+                    <div class="flex items-baseline justify-between gap-4">
+                      <h4 class="text-sm font-bold">ご連絡先</h4>
+                      <button
+                        type="button"
+                        data-goto="1"
+                        class={fixLink}
+                        aria-label="ご連絡先を修正"
+                      >
+                        修正
+                      </button>
+                    </div>
+                    <dl class="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-[15px] leading-snug">
+                      {[
+                        ["お名前", "name"],
+                        ["メールアドレス", "email"],
+                        ["会社名", "company"],
+                        ["電話番号", "tel"],
+                      ].map(([label, key]) => (
+                        <>
+                          <dt class="text-sm whitespace-nowrap text-neutral-500">
+                            {label}
+                          </dt>
+                          <dd data-summary={key} class="min-w-0 break-all" />
+                        </>
+                      ))}
+                    </dl>
+                  </div>
+                </div>
+              </div>
+
+              <p class="mt-6 text-sm leading-relaxed text-neutral-600">
+                ご入力いただいた情報は、資料の送付とお問い合わせへの対応のために利用します。
+              </p>
+
+              <div class="mt-8 flex items-center justify-between gap-3 border-t border-neutral-200 pt-6">
+                <button
+                  type="button"
+                  data-back
+                  data-js-only
+                  class={secondaryBtn}
+                >
+                  戻る
+                </button>
+                <button
+                  type="submit"
+                  data-submit
+                  class={`${primaryBtn} ml-auto max-sm:flex-1 sm:min-w-[13rem]`}
+                >
+                  <span
+                    data-spinner
+                    hidden
+                    class="rfb-spin size-4 rounded-full border-2 border-white/30 border-t-white"
+                    aria-hidden="true"
+                  />
+                  <span data-submit-label>資料を請求する</span>
+                </button>
+              </div>
+            </section>
+          </form>
+
+          {/* 完了表示。テンプレートを複製して role="status" の枠に差し込む(差し込まれた時点で読み上げられる) */}
+          <div data-done-region role="status" />
+          <template data-done>
+            <div
+              data-done-box
+              tabindex="-1"
+              class="py-4 text-center focus:outline-none"
+            >
+              <svg
+                viewBox="0 0 56 56"
+                class="rfb-check mx-auto size-14 text-neutral-900"
+                aria-hidden="true"
+              >
+                <circle
+                  class="rfb-check-circle"
+                  cx="28"
+                  cy="28"
+                  r="26"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path
+                  class="rfb-check-mark"
+                  d="M17 29l7.5 7.5L39.5 21"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <p class="mt-6 text-xl leading-snug font-bold">
+                <span data-done-name></span> 様、ご請求ありがとうございます。
+              </p>
+              <p class="mt-3 leading-loose break-all text-neutral-700">
+                <span data-done-email class="font-bold text-neutral-900"></span>{" "}
+                宛に、資料のダウンロード用 URL をお送りしました。
+              </p>
+              <div class="mx-auto mt-7 max-w-md rounded-md border border-neutral-200 bg-neutral-50 px-5 py-4 text-left">
+                <p class="text-xs font-bold tracking-[0.08em] text-neutral-500">
+                  ご請求いただいた資料
+                </p>
+                <ul
+                  data-done-products
+                  class="mt-2 grid gap-1.5 text-[15px] leading-snug"
+                ></ul>
+              </div>
+              <p class="mt-6 text-sm text-neutral-500">
+                ※ 現在は表示確認用です。実際には送信されません。
+              </p>
+              <button type="button" data-restart class={`${secondaryBtn} mt-8`}>
+                最初に戻る
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* 白地の上なので、全体既定の白いフォーカスリングを黒に */
+  .rfb :focus-visible {
+    outline-color: var(--color-neutral-900);
+  }
+  /* JS 無効時は JS 専用の部品を隠し、各ステップを縦に並べる */
+  .rfb:not([data-enhanced]) [data-js-only] {
+    display: none;
+  }
+  .rfb:not([data-enhanced]) .rfb-nojs-gap {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-neutral-200);
+  }
+
+  .rfb-spin {
+    display: inline-block;
+  }
+  .rfb-spin[hidden] {
+    display: none;
+  }
+
+  @keyframes rfb-rotate {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes rfb-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes rfb-pop {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @keyframes rfb-pulse {
+    50% {
+      transform: scale(1.25);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .rfb-spin {
+      animation: rfb-rotate 0.7s linear infinite;
+    }
+    .rfb-check-circle {
+      stroke-dasharray: 164;
+      stroke-dashoffset: 164;
+      animation: rfb-draw 0.5s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards;
+    }
+    .rfb-check-mark {
+      stroke-dasharray: 36;
+      stroke-dashoffset: 36;
+      animation: rfb-draw 0.35s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+    }
+    [data-done-box] > :not(svg) {
+      animation: rfb-pop 0.4s ease-out 0.45s both;
+    }
+    [data-count].is-bump {
+      display: inline-block;
+      animation: rfb-pulse 0.3s ease-out;
+    }
+  }
+</style>
+
+<script>
+  // ステップ化: 1 ステップずつ表示し、切り替え時は短いスライド + フェード、カードの高さも滑らかに変える。
+  // 非表示のステップは hidden + inert でタブ移動の対象外にする。動きを減らす設定では切り替えるだけ。
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+  // アニメーションの終了を待つ。背景タブなどで遅れても、所要時間 + 余裕の時点で終わらせて先へ進む
+  const settle = (a: Animation) =>
+    Promise.race([
+      a.finished.catch(() => {}),
+      new Promise<void>((r) =>
+        setTimeout(
+          () => {
+            if (a.playState === "running") a.finish();
+            r();
+          },
+          Number(a.effect?.getTiming().duration ?? 0) + 120,
+        ),
+      ),
+    ]);
+
+  // よくあるドメインの打ち間違い(少数だけ)
+  const TYPOS: Record<string, string> = {
+    "gmial.com": "gmail.com",
+    "gmai.com": "gmail.com",
+    "gamil.com": "gmail.com",
+    "gmail.co": "gmail.com",
+    "gmail.con": "gmail.com",
+    "yaho.co.jp": "yahoo.co.jp",
+    "yahooo.co.jp": "yahoo.co.jp",
+    "yahoo.co.j": "yahoo.co.jp",
+    "outlok.com": "outlook.com",
+    "outlook.co": "outlook.com",
+    "hotmial.com": "hotmail.com",
+    "icloud.co": "icloud.com",
+  };
+
+  // 全角英数記号を半角に(メールアドレス・電話番号の入力ゆれ対策)
+  const toHalf = (s: string) =>
+    s
+      .replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+      .replace(/[ー−‐―]/g, "-")
+      .replace(/　/g, " ");
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-rfb]")) {
+    setup(root);
+  }
+
+  function setup(root: HTMLElement) {
+    const form = root.querySelector<HTMLFormElement>("[data-form]")!;
+    const viewport = root.querySelector<HTMLElement>("[data-viewport]")!;
+    const steps = [...root.querySelectorAll<HTMLElement>("[data-step]")];
+    const progress = [
+      ...root.querySelectorAll<HTMLElement>("[data-progress-item]"),
+    ];
+    const boxes = [
+      ...form.querySelectorAll<HTMLInputElement>("input[name='products']"),
+    ];
+    const countEl = root.querySelector<HTMLElement>("[data-count]")!;
+    const productsError = root.querySelector<HTMLElement>(
+      "[data-products-error]",
+    )!;
+    const expand = root.querySelector<HTMLButtonElement>("[data-expand]");
+    const others = root.querySelector<HTMLElement>("[data-others]")!;
+    const doneRegion = root.querySelector<HTMLElement>("[data-done-region]")!;
+    const doneTpl = root.querySelector<HTMLTemplateElement>("[data-done]")!;
+    const submit = root.querySelector<HTMLButtonElement>("[data-submit]")!;
+    const nextButtons = [
+      ...root.querySelectorAll<HTMLButtonElement>("[data-next]"),
+    ];
+    let current = 0;
+    let busy = false;
+
+    // ---- 初期化(ここから先は JS 有効時のステップ表示) ----
+    root.dataset.enhanced = "";
+    form.noValidate = true;
+    steps.forEach((s, i) => show(s, i === 0));
+    if (expand) others.hidden = true;
+    updateProgress();
+    syncCount(false);
+
+    function show(el: HTMLElement, on: boolean) {
+      el.hidden = !on;
+      el.inert = !on;
+    }
+
+    // ---- 高さとスライドのアニメーション ----
+    // swap: from を消して to を出す。dir は 1(進む)/ -1(戻る)/ 0(その場で切り替え)
+    async function swap(
+      from: HTMLElement,
+      to: HTMLElement,
+      dir: number,
+      change?: () => void,
+    ) {
+      const h0 = viewport.offsetHeight;
+      if (!reduce.matches) {
+        await settle(
+          from.animate(
+            [
+              { opacity: 1, transform: "none" },
+              { opacity: 0, transform: `translateX(${-dir * 20}px)` },
+            ],
+            { duration: 160, easing: "ease-in" },
+          ),
+        );
+      }
+      show(from, false);
+      show(to, true);
+      change?.();
+      if (reduce.matches) return;
+      const h1 = viewport.offsetHeight;
+      viewport.style.overflow = "hidden";
+      const anims = [
+        viewport.animate([{ height: `${h0}px` }, { height: `${h1}px` }], {
+          duration: 320,
+          easing: EASE,
+        }),
+        to.animate(
+          [
+            {
+              opacity: 0,
+              transform: dir ? `translateX(${dir * 24}px)` : "translateY(8px)",
+            },
+            { opacity: 1, transform: "none" },
+          ],
+          { duration: 300, easing: EASE },
+        ),
+      ];
+      await Promise.all(anims.map(settle));
+      viewport.style.overflow = "";
+    }
+
+    // カードの上端が画面外(固定ヘッダーの下)に隠れていたら寄せる
+    function bringIntoView() {
+      const top = root.getBoundingClientRect().top;
+      if (top < 64 || top > window.innerHeight * 0.6) {
+        root.scrollIntoView({
+          behavior: reduce.matches ? "auto" : "smooth",
+          block: "start",
+        });
+      }
+    }
+
+    async function goTo(to: number) {
+      if (busy || to === current) return;
+      busy = true;
+      const dir = to > current ? 1 : -1;
+      const from = steps[current];
+      if (to === 2) fillSummary();
+      await swap(from, steps[to], dir, () => {
+        current = to;
+        updateProgress();
+      });
+      busy = false;
+      steps[to]
+        .querySelector<HTMLElement>("h3[tabindex]")
+        ?.focus({ preventScroll: true });
+      bringIntoView();
+    }
+
+    function updateProgress(allDone = false) {
+      progress.forEach((p, i) => {
+        const state =
+          allDone || i < current ? "done" : i === current ? "current" : "todo";
+        p.dataset.state = state;
+        if (state === "current") p.setAttribute("aria-current", "step");
+        else p.removeAttribute("aria-current");
+        const sr = p.querySelector("[data-progress-sr]");
+        if (sr)
+          sr.textContent =
+            state === "done" ? "(完了)" : state === "current" ? "(現在)" : "";
+      });
+    }
+
+    // ---- ① 資料を選ぶ ----
+    function selected() {
+      return boxes.filter((b) => b.checked);
+    }
+    function syncCount(bump = true) {
+      const n = selected().length;
+      countEl.textContent = String(n);
+      if (bump && !reduce.matches) {
+        countEl.classList.remove("is-bump");
+        void countEl.offsetWidth;
+        countEl.classList.add("is-bump");
+      }
+      if (n > 0) productsError.textContent = "";
+      nextButtons[0]?.setAttribute("aria-disabled", String(n === 0));
+      // 閉じているときは、展開側で選んだ件数をボタン横に添える
+      if (expand) {
+        const hiddenSel = selected().filter((b) => others.contains(b)).length;
+        const extra = expand.querySelector("[data-expand-extra]");
+        if (extra)
+          extra.textContent =
+            others.hidden && hiddenSel > 0
+              ? `(ほか ${hiddenSel} 件を選択中)`
+              : "";
+      }
+    }
+    boxes.forEach((b) => b.addEventListener("change", () => syncCount()));
+
+    let expanding = false;
+    expand?.addEventListener("click", async () => {
+      if (expanding) return;
+      expanding = true;
+      const open = others.hidden;
+      expand.setAttribute("aria-expanded", String(open));
+      const label = expand.querySelector("[data-expand-label]");
+      if (label) label.textContent = open ? "閉じる" : "他の製品も選ぶ";
+      if (open) others.hidden = false;
+      if (!reduce.matches) {
+        const h = others.scrollHeight;
+        others.style.overflow = "hidden";
+        const frames = [
+          { height: "0px", opacity: 0 },
+          { height: `${h}px`, opacity: 1 },
+        ];
+        await settle(
+          others.animate(open ? frames : frames.reverse(), {
+            duration: open ? 380 : 260,
+            easing: EASE,
+          }),
+        );
+        others.style.overflow = "";
+      }
+      if (!open) others.hidden = true;
+      syncCount(false);
+      expanding = false;
+    });
+
+    // ---- ② ご連絡先: 欄ごとの検証 ----
+    type FieldName = "name" | "email" | "company" | "tel";
+    const fieldEls = {} as Record<
+      FieldName,
+      { wrap: HTMLElement; input: HTMLInputElement; error: HTMLElement }
+    >;
+    for (const wrap of root.querySelectorAll<HTMLElement>("[data-field]")) {
+      const input = wrap.querySelector<HTMLInputElement>("input")!;
+      fieldEls[input.name as FieldName] = {
+        wrap,
+        input,
+        error: wrap.querySelector<HTMLElement>("[data-error]")!,
+      };
+    }
+    const suggest = root.querySelector<HTMLElement>("[data-suggest]");
+    const suggestBtn =
+      root.querySelector<HTMLButtonElement>("[data-suggest-btn]");
+
+    function check(name: FieldName): string {
+      const v = fieldEls[name].input.value.trim();
+      switch (name) {
+        case "name":
+          return v ? "" : "お名前を入力してください。";
+        case "email":
+          if (!v) return "メールアドレスを入力してください。";
+          return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)
+            ? ""
+            : "メールアドレスの形式をご確認ください(例: name@example.co.jp)。";
+        case "tel": {
+          if (!v) return "";
+          const digits = v.replace(/\D/g, "").length;
+          return /^[0-9+\-() ]+$/.test(v) && digits >= 10 && digits <= 15
+            ? ""
+            : "電話番号は数字とハイフンで入力してください。";
+        }
+        default:
+          return "";
+      }
+    }
+
+    function validate(name: FieldName): boolean {
+      const f = fieldEls[name];
+      const msg = check(name);
+      f.error.textContent = msg;
+      f.input.setAttribute("aria-invalid", String(!!msg));
+      f.wrap.dataset.state = msg ? "error" : f.input.value.trim() ? "ok" : "";
+      return !msg;
+    }
+
+    function updateSuggest() {
+      if (!suggest || !suggestBtn) return;
+      const v = fieldEls.email.input.value.trim();
+      const at = v.lastIndexOf("@");
+      const fix = at > 0 ? TYPOS[v.slice(at + 1).toLowerCase()] : undefined;
+      suggest.hidden = !fix;
+      // 打ち間違いの疑いがある間は、チェック印を出さない
+      const wrap = fieldEls.email.wrap;
+      if (fix && wrap.dataset.state === "ok") wrap.dataset.state = "suggest";
+      else if (!fix && wrap.dataset.state === "suggest")
+        wrap.dataset.state = "ok";
+      if (fix) {
+        suggestBtn.dataset.value = v.slice(0, at + 1) + fix;
+        const domain = suggestBtn.querySelector("[data-suggest-domain]");
+        if (domain) domain.textContent = fix;
+      }
+    }
+    suggestBtn?.addEventListener("click", () => {
+      const v = suggestBtn.dataset.value;
+      if (!v) return;
+      fieldEls.email.input.value = v;
+      updateSuggest();
+      validate("email");
+      fieldEls.email.input.focus();
+    });
+
+    (Object.keys(fieldEls) as FieldName[]).forEach((name) => {
+      const { input, wrap } = fieldEls[name];
+      input.addEventListener("blur", () => {
+        if (name === "email" || name === "tel") {
+          const half = toHalf(input.value).trim();
+          if (half !== input.value) input.value = half;
+        }
+        // 未入力のまま通り過ぎただけの必須欄は、まだ責めない(「次へ」で検証する)
+        if (!input.value.trim() && wrap.dataset.state !== "error") {
+          wrap.dataset.state = "";
+          return;
+        }
+        validate(name);
+        if (name === "email") updateSuggest();
+      });
+      input.addEventListener("input", () => {
+        // エラー表示中は打つたびに再検証して、直った時点で消す
+        if (wrap.dataset.state === "error") validate(name);
+        else if (wrap.dataset.state === "ok" && check(name))
+          wrap.dataset.state = "";
+        if (name === "email" && suggest && !suggest.hidden) updateSuggest();
+      });
+      // Enter で次へ
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.isComposing) {
+          e.preventDefault();
+          next(1);
+        }
+      });
+    });
+
+    // ---- ステップの進行 ----
+    function next(step: number) {
+      if (step === 0) {
+        if (selected().length === 0) {
+          productsError.textContent =
+            "資料を希望する製品を 1 つ以上選んでください。";
+          (boxes[0] as HTMLElement | undefined)?.focus();
+          return;
+        }
+        goTo(1);
+      } else if (step === 1) {
+        const order: FieldName[] = ["name", "email", "company", "tel"];
+        const bad = order.filter((n) => !validate(n));
+        updateSuggest();
+        if (bad.length) {
+          fieldEls[bad[0]].input.focus();
+          return;
+        }
+        goTo(2);
+      }
+    }
+    nextButtons.forEach((b, i) => b.addEventListener("click", () => next(i)));
+    root
+      .querySelectorAll<HTMLButtonElement>("[data-back]")
+      .forEach((b) => b.addEventListener("click", () => goTo(current - 1)));
+    root
+      .querySelectorAll<HTMLButtonElement>("[data-goto]")
+      .forEach((b) =>
+        b.addEventListener("click", () => goTo(Number(b.dataset.goto))),
+      );
+
+    // ---- ③ 確認 ----
+    function titles() {
+      return selected().map((b) => b.dataset.title ?? b.value);
+    }
+    function fillList(ul: Element | null, items: string[]) {
+      if (!ul) return;
+      ul.replaceChildren(
+        ...items.map((t) => {
+          const li = document.createElement("li");
+          li.className = "flex gap-2";
+          const dot = document.createElement("span");
+          dot.className =
+            "mt-[0.6em] size-1 shrink-0 rounded-full bg-neutral-400";
+          dot.setAttribute("aria-hidden", "true");
+          const text = document.createElement("span");
+          text.textContent = t;
+          li.append(dot, text);
+          return li;
+        }),
+      );
+    }
+    function fillSummary() {
+      fillList(root.querySelector("[data-summary-products]"), titles());
+      for (const dd of root.querySelectorAll<HTMLElement>("[data-summary]")) {
+        const v = fieldEls[dd.dataset.summary as FieldName].input.value.trim();
+        dd.textContent = v || "未入力";
+        dd.classList.toggle("text-neutral-400", !v);
+      }
+    }
+
+    // ---- 送信(ダミー) ----
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (current !== 2 || busy) return;
+      busy = true;
+      submit.setAttribute("aria-disabled", "true");
+      submit.setAttribute("aria-busy", "true");
+      root.querySelector("[data-spinner]")?.removeAttribute("hidden");
+      const label = root.querySelector("[data-submit-label]");
+      if (label) label.textContent = "送信中…";
+
+      // HyperForm 接続時はここで new FormData(form) を送信し、成功したら下の完了表示へ進む。
+      await new Promise((r) => setTimeout(r, 900));
+
+      const done = doneTpl.content.cloneNode(true) as DocumentFragment;
+      const name = fieldEls.name.input.value.trim();
+      const email = fieldEls.email.input.value.trim();
+      done.querySelector("[data-done-name]")!.textContent = name;
+      done.querySelector("[data-done-email]")!.textContent = email;
+      fillList(done.querySelector("[data-done-products]"), titles());
+
+      const placeholder = document.createElement("div");
+      doneRegion.replaceChildren(placeholder);
+      doneRegion.hidden = true;
+      await swap(form, doneRegion, 0, () => {
+        doneRegion.replaceChildren(done);
+        updateProgress(true);
+      });
+      busy = false;
+      resetSubmit();
+      doneRegion
+        .querySelector<HTMLElement>("[data-done-box]")
+        ?.focus({ preventScroll: true });
+      bringIntoView();
+      doneRegion
+        .querySelector("[data-restart]")
+        ?.addEventListener("click", restart);
+    });
+
+    function resetSubmit() {
+      submit.removeAttribute("aria-disabled");
+      submit.removeAttribute("aria-busy");
+      root.querySelector("[data-spinner]")?.setAttribute("hidden", "");
+      const label = root.querySelector("[data-submit-label]");
+      if (label) label.textContent = "資料を請求する";
+    }
+
+    async function restart() {
+      if (busy) return;
+      busy = true;
+      form.reset();
+      (Object.keys(fieldEls) as FieldName[]).forEach((n) => {
+        const f = fieldEls[n];
+        f.wrap.dataset.state = "";
+        f.error.textContent = "";
+        f.input.removeAttribute("aria-invalid");
+      });
+      if (suggest) suggest.hidden = true;
+      if (expand) {
+        others.hidden = true;
+        expand.setAttribute("aria-expanded", "false");
+        const label = expand.querySelector("[data-expand-label]");
+        if (label) label.textContent = "他の製品も選ぶ";
+      }
+      steps.forEach((s, i) => show(s, i === 0));
+      syncCount(false);
+      await swap(doneRegion, form, 0, () => {
+        current = 0;
+        updateProgress();
+      });
+      doneRegion.replaceChildren();
+      doneRegion.hidden = false;
+      doneRegion.inert = false;
+      busy = false;
+      steps[0]
+        .querySelector<HTMLElement>("h3[tabindex]")
+        ?.focus({ preventScroll: true });
+      bringIntoView();
+    }
+  }
+</script>

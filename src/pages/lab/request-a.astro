@@ -1,0 +1,37 @@
+---
+// 資料請求フォーム 試作 A(1 画面型)・明るい調子の確認用ページ。製品ページ(products/[slug].astro)の下部を模す。
+import Base from "../../layouts/Base.astro";
+import PageBand from "../../components/PageBand.astro";
+import RequestFormA from "../../components/lab/RequestFormA.astro";
+import { seriesBackground } from "../../data/backgrounds";
+import { getCollection, getEntry } from "astro:content";
+
+const entry = await getEntry("products", "xnergy-be");
+if (!entry) throw new Error('product "xnergy-be" not found');
+const d = entry.data;
+const series = (await getCollection("series")).find((s) =>
+  s.data.products.includes(entry.id),
+);
+const bg = seriesBackground(series?.id ?? "");
+---
+
+<Base title={`資料請求 試作 A(明るい調子) | 株式会社NALSEC`}>
+  <PageBand
+    bg={bg}
+    label={d.categoryLabel}
+    title={d.title}
+    summary={d.summary}
+  />
+  <section class="bg-white py-14 text-neutral-900 md:py-20">
+    <div class="container-x">
+      <div class="content mx-auto max-w-[46rem]">
+        <p>(本文のスタブ)ここには製品ページの Markdown 本文が入ります。</p>
+        <p>
+          この確認用ページでは、本文の下に置く資料請求フォームの試作 A
+          を明るい調子で表示しています。
+        </p>
+      </div>
+    </div>
+  </section>
+  <RequestFormA current={entry.id} tone="light" />
+</Base>
