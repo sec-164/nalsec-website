@@ -10,11 +10,6 @@
 
   /* 欧文は Montserrat、和文は M PLUS 1p。Base.astro で Google Fonts から読み込む。 */
   --font-sans: "Montserrat", "M PLUS 1p", sans-serif;
-
-  /* トップのセクションナビ(SectionNav.astro)をラベル付きにする幅。本文パネルの右端は (幅 + 1056px) / 2
-     (container-x: 最大 1120px、右パディング 32px)、ラベル付きリストは最大 132px + 右余白 24px なので、
-     重ならない最小は約 1368px。xl(1280px)では重なるため、余裕を足して 1440px にする。 */
-  --breakpoint-wide: 90rem;
 }
 
 /* 本文幅の共通コンテナ(最大 1120px + 左右の余白) */
@@ -24,6 +19,15 @@
   padding-inline: --spacing(4);
   @variant md {
     padding-inline: --spacing(8);
+  }
+}
+
+/* トップの各画面の本文を、xl(1280px)以上で右端のセクションナビ(SectionNav.astro のラベル付きリスト)に重ねないための右パディング。
+   確保する幅は 11rem(リスト最大 132px + 右余白 24px + 本文との間隔 20px)。
+   コンテナ外側の余白 (100vw - 1120px) / 2 で足りない分だけ足すので、約 1410px 以上では通常の 2rem のまま。 */
+@utility nav-clear {
+  @variant xl {
+    padding-right: max(--spacing(8), calc(11rem - (100vw - 1120px) / 2));
   }
 }
 
