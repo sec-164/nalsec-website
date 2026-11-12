@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import PageBand from "../../components/PageBand.astro";
+import RequestForm from "../../components/RequestForm.astro";
 import { seriesBackground } from "../../data/backgrounds";
 import { getCollection } from "astro:content";
 import { wrapTables } from "../../lib/wrap-tables";
@@ -54,4 +55,5 @@ const bg = seriesBackground(series?.id ?? "");
       </div>
     </div>
   </section>
+  <RequestForm current={entry.id} />
 </Base>

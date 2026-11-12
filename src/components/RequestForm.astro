@@ -1,0 +1,187 @@
+---
+// 製品ページ下部の資料請求フォーム(products/[slug].astro が本文の下に置く)。
+// いまは表示確認用のダミー: 送信先(action)はなく、送信しても外部へは何も送らない。完了メッセージに差し替えるだけ。
+// 製品の選択肢は products コレクションから order 順に導く(一覧の写しを持たない)。current の製品は最初からチェック済み。
+import { getCollection } from "astro:content";
+
+interface Props {
+  /** いま開いている製品の id(products コレクションのエントリ id) */
+  current: string;
+}
+
+const { current } = Astro.props;
+const products = (await getCollection("products")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+// 入力欄: 白地 + 細枠 + 4px 角丸。高さ 48px、文字 16px(iOS のズーム防止)
+const inputClass =
+  "block h-12 w-full rounded border border-neutral-300 bg-white px-3 text-base text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-500 focus-visible:border-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-neutral-900 user-invalid:border-red-600";
+const labelClass = "mb-2 flex items-center gap-2 text-sm font-bold";
+const requiredMark =
+  "rounded-sm bg-neutral-900 px-1.5 py-0.5 text-[11px] leading-none font-bold text-white";
+const optionalMark =
+  "rounded-sm border border-neutral-300 px-1.5 py-0.5 text-[11px] leading-none font-normal text-neutral-500";
+---
+
+<section
+  id="request"
+  aria-labelledby="request-heading"
+  class="border-t border-neutral-200 bg-neutral-100 py-14 text-neutral-900 md:py-20"
+>
+  <div class="container-x">
+    <div class="mx-auto max-w-[46rem]">
+      <h2 id="request-heading" class="text-2xl leading-snug font-bold">
+        資料請求
+      </h2>
+      <div class="mt-3 h-0.5 w-8 bg-neutral-900" aria-hidden="true"></div>
+
+      <div data-request-result role="status">
+        <form data-request-form class="mt-6">
+          <p class="leading-loose text-neutral-700">
+            ご希望の製品を選んで送信してください。資料のダウンロード用 URL
+            をメールでお送りします。
+          </p>
+
+          <div class="mt-8 grid gap-x-6 gap-y-6 md:grid-cols-2">
+            <div>
+              <label for="request-name" class={labelClass}>
+                お名前<span class={requiredMark}>必須</span>
+              </label>
+              <input
+                id="request-name"
+                name="name"
+                type="text"
+                autocomplete="name"
+                required
+                class={inputClass}
+              />
+            </div>
+            <div>
+              <label for="request-email" class={labelClass}>
+                メールアドレス<span class={requiredMark}>必須</span>
+              </label>
+              <input
+                id="request-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                inputmode="email"
+                required
+                class={inputClass}
+              />
+            </div>
+            <div>
+              <label for="request-company" class={labelClass}>
+                会社名<span class={optionalMark}>任意</span>
+              </label>
+              <input
+                id="request-company"
+                name="company"
+                type="text"
+                autocomplete="organization"
+                class={inputClass}
+              />
+            </div>
+            <div>
+              <label for="request-tel" class={labelClass}>
+                電話番号<span class={optionalMark}>任意</span>
+              </label>
+              <input
+                id="request-tel"
+                name="tel"
+                type="tel"
+                autocomplete="tel"
+                class={inputClass}
+              />
+            </div>
+          </div>
+
+          <fieldset class="mt-8">
+            <legend class="mb-1 flex items-center gap-2 text-sm font-bold">
+              資料を希望する製品<span class={requiredMark}>必須</span>
+            </legend>
+            <p class="mb-3 text-sm text-neutral-600">複数選べます。</p>
+            <ul class="grid gap-2 md:grid-cols-2">
+              {products.map((p) => (
+                <li>
+                  {/* ラベル全体が当たり判定。選択中は枠を黒に、キーボード操作中は枠の外にフォーカスリング */}
+                  <label class="flex h-full min-h-12 cursor-pointer items-center gap-3 rounded border border-neutral-300 bg-white px-3 py-2.5 text-[15px] leading-snug transition-colors hover:border-neutral-500 has-checked:border-neutral-900 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-neutral-900">
+                    <input
+                      type="checkbox"
+                      name="products"
+                      value={p.id}
+                      checked={p.id === current}
+                      class="size-5 shrink-0 accent-neutral-900 focus-visible:outline-none"
+                    />
+                    <span>{p.data.title}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </fieldset>
+
+          <div class="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
+            <button
+              type="submit"
+              class="inline-flex min-h-12 shrink-0 items-center justify-center rounded-full bg-neutral-900 px-8 text-base font-bold text-white transition-colors hover:bg-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-neutral-900 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 max-sm:w-full"
+            >
+              資料を請求する
+            </button>
+            <p class="text-sm leading-relaxed text-neutral-600">
+              ご入力いただいた情報は、資料の送付とお問い合わせへの対応のために利用します。
+            </p>
+          </div>
+        </form>
+      </div>
+
+      <template data-request-done>
+        <div
+          data-request-done-box
+          tabindex="-1"
+          class="mt-6 scroll-mt-24 rounded border border-neutral-300 bg-white px-6 py-8 focus:outline-none"
+        >
+          <p class="leading-loose font-bold">
+            ご請求ありがとうございます。
+            <br />
+            資料のダウンロード用 URL をメールでお送りしました。
+          </p>
+          <p class="mt-3 text-sm text-neutral-500">
+            ※ 現在は表示確認用です。実際には送信されません。
+          </p>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 検証はブラウザ標準(required・type=email)に任せ、「製品が 1 つも選ばれていない」ときだけ setCustomValidity で止める。
+  // 標準の検証を通ると submit イベントが来るので、そこで完了メッセージに差し替える(role="status" の枠の中身を入れ替えて読み上げさせる)。
+  const form = document.querySelector<HTMLFormElement>("[data-request-form]");
+  const result = document.querySelector<HTMLElement>("[data-request-result]");
+  const done = document.querySelector<HTMLTemplateElement>(
+    "[data-request-done]",
+  );
+  if (form && result && done) {
+    const boxes = [
+      ...form.querySelectorAll<HTMLInputElement>("input[name='products']"),
+    ];
+    const syncProducts = () => {
+      const none = !boxes.some((b) => b.checked);
+      boxes[0]?.setCustomValidity(
+        none ? "資料を希望する製品を 1 つ以上選んでください。" : "",
+      );
+    };
+    syncProducts();
+    boxes.forEach((b) => b.addEventListener("change", syncProducts));
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      // HyperForm 接続時はここを差し替える(new FormData(form) を送信し、成功したら下の差し替えを行う)。
+      result.replaceChildren(done.content.cloneNode(true));
+      // 押したボタンが消えるので、フォーカスを完了メッセージへ移す(画面内にも寄せる)
+      result.querySelector<HTMLElement>("[data-request-done-box]")?.focus();
+    });
+  }
+</script>
