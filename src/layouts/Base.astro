@@ -1,42 +1,24 @@
 ---
 import "../styles/global.css";
 import Logo from "../components/Logo.astro";
+import SectionNav from "../components/SectionNav.astro";
 import TechBanner from "../components/TechBanner.astro";
 import { site } from "../data/site";
 import { getScreens, navHref } from "../lib/screens";
 
 interface Props {
   title: string;
-  /** トップページだけ true。ヘッダーに進捗バーを出し、ナビを現在位置で展開し、ヒーロー上では透明にする。 */
-  progress?: boolean;
+  /** トップページだけ true。右端にセクションナビを出し、ヒーロー表示中はヘッダーを透明にする(SectionNav の script が切り替える)。 */
+  home?: boolean;
 }
 
-const { title, progress = false } = Astro.props;
-// 画面一覧は src/lib/screens.ts が唯一の定義。トップのセクションも同じ関数から作られる。
+const { title, home = false } = Astro.props;
+// 画面一覧は src/lib/screens.ts が唯一の定義。ナビのリンク先は各項目に属する最初の画面。
 const screens = await getScreens();
 const nav = site.nav.map((item) => ({
   ...item,
   href: navHref(screens, item.id),
 }));
-const segments = screens.map((screen, i) => {
-  const prev = screens[i - 1];
-  return {
-    ...screen,
-    // 同じナビ内でグループ(充電器 → 電池)が変わる所は間隔を広げる
-    groupBreak:
-      !!prev && !!prev.group && !!screen.group && prev.group !== screen.group,
-  };
-});
-// 右のナビ: ナビ名のあとに、そのナビに属する画面の短い名前を並べる(現在のナビの分だけ JS が開く)。
-// 画面が 1 つだけで短い名前がナビ名と同じもの(会社情報)は子を持たない。
-const navGroups = nav.map((item) => {
-  const own = screens.filter((s) => s.nav === item.id);
-  const children =
-    own.length === 1 && own[0].short === item.label
-      ? []
-      : own.map((s) => ({ id: s.id, label: s.short }));
-  return { ...item, children };
-});
 ---
 
 <!doctype html>
@@ -60,7 +42,7 @@ const navGroups = nav.map((item) => {
       data-scrolled="true"
       class="peer/header group/header fixed inset-x-0 top-0 z-50 border-b border-line bg-black/60 backdrop-blur transition-[background-color,backdrop-filter,border-color] duration-300 motion-reduce:transition-none data-[scrolled=false]:border-transparent data-[scrolled=false]:bg-transparent data-[scrolled=false]:backdrop-blur-none"
     >
-      <div class="container-x relative flex h-14 items-center gap-6">
+      <div class="container-x flex h-14 items-center gap-6">
         <a
           href="/"
           aria-label={`${site.name} トップへ`}
@@ -68,262 +50,31 @@ const navGroups = nav.map((item) => {
         >
           <Logo class="h-5" decorative />
         </a>
-        {/*
-          ナビは右端に固定した幅の決まった「窓」にして横だけクリップする(窓の中で現在の項目を中央に)。
-          JS なし(トップ以外)では行を ml-auto で右寄せ。トップでは JS が data-js を付け、
-          --nav-x(translateX)で現在の項目を窓の中央へ、ヒーローでは右寄せ位置へ動かす。
-          はみ出している側だけ data-clipped(left / right / both)を付けて、その側をフェードする。
-          中央寄せは両端でクランプし、行の端が窓の端より内側に来ない(隙間を作らない)ようにする。
-          下線(after:)が行の下に出るので、窓は上下に余白を取ってマスクで切れないようにする。
-          子の展開は全デバイス共通。折りたたみ側は横だけクリップする。
-        */}
-        <nav
-          aria-label="サイト内"
-          data-nav-viewport
-          class="group/vp ml-auto w-[min(100%,60vw)] min-w-0 overflow-x-clip py-2 md:w-[min(100%,36rem)] [--f:5%] [--fl:var(--f)] [--fr:var(--f)] md:[--f:10%] data-[clipped]:[mask-image:linear-gradient(to_right,transparent,#000_var(--fl),#000_calc(100%-var(--fr)),transparent)] data-[clipped=left]:[--fr:0%] data-[clipped=right]:[--fl:0%]"
-        >
-          <ul class="ml-auto flex w-max items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap transition-transform duration-300 ease-[ease] group-data-[js]/vp:ml-0 group-data-[js]/vp:[transform:translateX(var(--nav-x,0px))] motion-reduce:transition-none md:gap-x-8">
-            {navGroups.map((item) => (
-              <li class="flex items-baseline">
-                <a
-                  href={item.href}
-                  data-nav-link={item.id}
-                  class="relative transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-muted data-[active=false]:text-muted data-[active=false]:hover:text-foreground aria-[current=true]:after:opacity-100"
-                >
+        <nav aria-label="サイト内" class="ml-auto">
+          <ul class="flex items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap md:gap-x-8">
+            {nav.map((item) => (
+              <li>
+                <a href={item.href} class="transition-colors hover:text-muted">
                   {item.label}
                 </a>
-                {item.children.length > 0 && (
-                  <div
-                    data-group={item.id}
-                    inert
-                    class="invisible grid grid-cols-[0fr] transition-[grid-template-columns,visibility] duration-300 ease-in-out data-[open]:visible data-[open]:grid-cols-[1fr] motion-reduce:transition-none"
-                  >
-                    <div class="min-w-0 overflow-x-clip">
-                      <ul class="flex items-baseline gap-x-6 pl-8 font-normal tracking-[0.1em]">
-                        {item.children.map((child) => (
-                          <li>
-                            <a
-                              href={`/#${child.id}`}
-                              data-nav-child={child.id}
-                              class="relative text-muted transition-colors after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:bg-white after:opacity-0 hover:text-foreground aria-[current=true]:text-white aria-[current=true]:after:opacity-100"
-                            >
-                              {child.label}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
               </li>
             ))}
           </ul>
         </nav>
       </div>
-      {/* 進捗バー(見た目はヘッダー下端。フォーカス順をロゴ → ナビ → バーにするため DOM ではナビの後ろに置く) */}
-      {progress && (
-        <div class="absolute inset-x-0 bottom-0 z-10 translate-y-px">
-          <ol class="container-x flex items-end gap-1">
-            {segments.map((seg) => (
-              <li class:list={["flex-1", seg.groupBreak && "ml-1"]}>
-                <a
-                  href={`#${seg.id}`}
-                  title={seg.label}
-                  data-screen
-                  data-nav={seg.nav ?? ""}
-                  class="group/seg flex h-3 items-end focus-visible:outline-offset-1"
-                >
-                  <span class="sr-only">{seg.label}</span>
-                  <span
-                    aria-hidden="true"
-                    class="relative block h-0.5 w-full overflow-hidden bg-white/25 transition-[height,background-color] duration-200 group-hover/seg:h-[3px] group-focus-visible/seg:h-[3px] group-data-[state=passed]/seg:bg-white/60 group-aria-[current=true]/seg:bg-white/40 motion-reduce:transition-none"
-                  >
-                    <span class="absolute inset-y-0 left-0 hidden w-[calc(var(--p,0)*100%)] bg-white group-aria-[current=true]/seg:block" />
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
     </header>
-    {/* ヘッダーの直後に置くこと(ヘッダーの data-scrolled を peer/header で読む) */}
+    {/* TechBanner と SectionNav はヘッダーより後ろの兄弟に置くこと(どちらもヘッダーの data-scrolled を peer/header で読む) */}
     <TechBanner />
     <main>
       <slot />
     </main>
+    {/* main の後ろに置く: SectionNav の script は main 内の目印(各画面の id)をその場で引く */}
+    {home && <SectionNav />}
     <footer class="relative z-20 border-t border-line bg-background">
       <div class="container-x flex items-center justify-between gap-4 py-8 text-sm text-muted">
         <Logo class="h-4 text-foreground" decorative />
         <p>© NALSEC</p>
       </div>
     </footer>
-    {progress && <script is:inline>
-      // トップページのヘッダー: 進捗バー・ナビの現在位置(子のインライン展開)・ヒーロー上の透明化。
-      // 画面の一覧はセグメントのリンク(href と data-*)から読む。JS 側に一覧の写しは持たない。
-      (() => {
-        const header = document.querySelector("[data-site-header]");
-        const segs = [...header.querySelectorAll("[data-screen]")];
-        const navs = [...header.querySelectorAll("[data-nav-link]")];
-        // 右のナビ: 現在のナビの子だけ開き、現在の画面の子(子がなければナビ名)に aria-current を付ける
-        const navEl = header.querySelector("[data-nav-viewport]");
-        const groups = [...header.querySelectorAll("[data-group]")];
-        const children = [...header.querySelectorAll("[data-nav-child]")];
-        const placeNav = (id, nav) => {
-          groups.forEach((g) => {
-            const open = g.dataset.group === nav;
-            g.toggleAttribute("data-open", open);
-            g.inert = !open;
-          });
-          const leaf = children.find((a) => a.dataset.navChild === id);
-          children.forEach((a) => {
-            if (a === leaf) a.setAttribute("aria-current", "true");
-            else a.removeAttribute("aria-current");
-          });
-          navs.forEach((a) => {
-            const active = a.dataset.navLink === nav;
-            if (nav) a.dataset.active = String(active);
-            else delete a.dataset.active;
-            if (active && !leaf) a.setAttribute("aria-current", "true");
-            else a.removeAttribute("aria-current");
-          });
-        };
-        // ナビの行の位置(--nav-x)。現在の項目を窓の中央に寄せるが、行の端が窓の端より内側に来ないようクランプする。
-        // 行が窓に収まるなら常に右寄せ。現在の項目がない(ヒーロー)時も同じ(収まらなければ左端を 0 に)。
-        const row = navEl.firstElementChild;
-        const target = () => {
-          const vw = navEl.clientWidth;
-          const rw = row.offsetWidth;
-          const cur = row.querySelector("[aria-current]");
-          if (rw <= vw) return { x: vw - rw, vw, rw };
-          if (!cur) return { x: 0, vw, rw };
-          // offsetLeft は row 基準ではないことがあるので、変形を除いた矩形の差で測る
-          const r = cur.getBoundingClientRect();
-          const left = r.left - row.getBoundingClientRect().left;
-          const centred = vw / 2 - (left + r.width / 2);
-          return { x: Math.min(0, Math.max(vw - rw, centred)), vw, rw };
-        };
-        const setX = ({ x, vw, rw }) => {
-          row.style.setProperty("--nav-x", `${x}px`);
-          const left = x < -0.5;
-          const right = x + rw > vw + 0.5;
-          if (left || right)
-            navEl.dataset.clipped =
-              left && right ? "both" : left ? "left" : "right";
-          else delete navEl.dataset.clipped;
-        };
-        // 展開(grid-template-columns)と移動はどちらも 300ms のアニメーション。
-        // 終わった時の位置を先に知るため、アニメーションを止めて新しい状態を当てて測り、
-        // 古い状態に戻してから止めるのを解除し、改めて新しい状態を当てる(展開はアニメーションする)。
-        let placed = null;
-        const go = (id, nav) => {
-          navEl.classList.add("is-measuring");
-          const prev = placed;
-          placeNav(id, nav);
-          const x = target();
-          if (!prev) {
-            // 初回: アニメーションなしで置く(描画前に同期で終わらせ、位置ずれのちらつきを出さない)
-            navEl.dataset.js = "";
-            setX(x);
-            row.offsetWidth;
-            navEl.classList.remove("is-measuring");
-          } else {
-            placeNav(prev.id, prev.nav);
-            row.offsetWidth;
-            navEl.classList.remove("is-measuring");
-            row.offsetWidth;
-            placeNav(id, nav);
-            setX(x);
-          }
-          placed = { id, nav };
-        };
-        // 状態は変えずに測り直す(リサイズ・フォント読み込み後・展開アニメーションの終わり)
-        const remeasure = () => {
-          if (!placed) return;
-          navEl.classList.add("is-measuring");
-          const x = target();
-          navEl.classList.remove("is-measuring");
-          setX(x);
-        };
-        groups.forEach((g) =>
-          g.addEventListener("transitionend", (e) => {
-            if (
-              e.target === g &&
-              g.hasAttribute("data-open") &&
-              e.propertyName === "grid-template-columns"
-            )
-              remeasure();
-          }),
-        );
-        document.fonts?.ready.then(remeasure);
-        // 移動先は各画面の直前にある高さ 0 の目印(sticky でないので offsetTop が本来の位置になる)
-        const sections = segs.map((a) =>
-          document.getElementById(a.getAttribute("href").slice(1)),
-        );
-        if (!segs.length || sections.includes(null)) return;
-        let tops = [];
-        let spans = [];
-        let current = -1;
-        let progress = "";
-        const measure = () => {
-          tops = sections.map((el) => el.offsetTop);
-          // 各画面の長さ = 次の目印までの距離(ちょうど 1 画面分)。最後の画面は積み重ねの終わり
-          // (フッターの上端。ページ末尾でスクロールが止まるならそこ)までの距離。
-          const footer = document.querySelector("body > footer");
-          const end = Math.min(
-            footer ? footer.offsetTop : Infinity,
-            document.documentElement.scrollHeight - innerHeight,
-          );
-          const n = tops.length;
-          spans = tops.map((t, k) =>
-            Math.max(1, (k + 1 < n ? tops[k + 1] : end) - t),
-          );
-        };
-        const update = () => {
-          // i = 先頭が画面上端に届いた最後の画面。p = その画面内の進み具合(0→1 で線形、次の画面の開始は 0)。
-          let i = 0;
-          while (i + 1 < tops.length && tops[i + 1] <= scrollY) i++;
-          const p = Math.min(1, Math.max(0, (scrollY - tops[i]) / spans[i]));
-          const ps = p.toFixed(3);
-          if (ps !== progress || i !== current) {
-            progress = ps;
-            segs[i].style.setProperty("--p", ps);
-            header.dataset.progress = ps;
-          }
-          if (i === current) return;
-          current = i;
-          header.dataset.index = String(i);
-          segs.forEach((a, k) => {
-            if (k < i) a.dataset.state = "passed";
-            else delete a.dataset.state;
-            if (k === i) a.setAttribute("aria-current", "true");
-            else a.removeAttribute("aria-current");
-          });
-          go(segs[i].getAttribute("href").slice(1), segs[i].dataset.nav);
-          header.dataset.scrolled = String(i > 0);
-        };
-        let queued = false;
-        const onScroll = () => {
-          if (queued) return;
-          queued = true;
-          requestAnimationFrame(() => {
-            queued = false;
-            update();
-          });
-        };
-        addEventListener("scroll", onScroll, { passive: true });
-        addEventListener("resize", () => {
-          measure();
-          remeasure();
-          onScroll();
-        });
-        addEventListener("load", () => {
-          measure();
-          update();
-        });
-        measure();
-        update();
-      })();
-    </script>}
   </body>
 </html>

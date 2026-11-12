@@ -1,8 +1,8 @@
 ---
 // 全画面セクションを sticky で重ねる構成(ヒーロー → 製品シリーズ → サービス → 会社情報)。
-// 画面の並びと id は src/lib/screens.ts の getScreens() が唯一の定義。ヘッダーの進捗バーも同じ一覧から作る。
+// 画面の並びと id は src/lib/screens.ts の getScreens() が唯一の定義。右端のセクションナビ(SectionNav)も同じ一覧から作る。
 // 製品は series コレクション単位で 1 画面。兄弟製品は同じ画面に並べ、highlights で違いだけを示す。
-// 背景は現行サイトの写真を暫定流用(src/data/backgrounds.ts)。セクションの動きは CSS(スクロール連動)のみ。ヘッダーの進捗・ナビは layout の小さなインラインスクリプトが担う。
+// 背景は現行サイトの写真を暫定流用(src/data/backgrounds.ts)。セクションの動きは CSS(スクロール連動)のみ。ヘッダーの透明化とセクションナビの現在地は SectionNav の小さなインラインスクリプトが担う。
 import Base from "../layouts/Base.astro";
 import Hero from "../components/Hero.astro";
 import CompanyInfo from "../components/CompanyInfo.astro";
@@ -61,7 +61,7 @@ const arrowClass =
 const labelClass = "flex items-center gap-3 text-sm text-muted";
 ---
 
-<Base title="株式会社NALSEC" progress>
+<Base title="株式会社NALSEC" home>
   {screens.map((screen, i) => {
     const s = seriesById.get(screen.id);
     const item = serviceById.get(screen.id);

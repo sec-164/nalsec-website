@@ -10,6 +10,11 @@
 
   /* 欧文は Montserrat、和文は M PLUS 1p。Base.astro で Google Fonts から読み込む。 */
   --font-sans: "Montserrat", "M PLUS 1p", sans-serif;
+
+  /* トップのセクションナビ(SectionNav.astro)をラベル付きにする幅。本文パネルの右端は (幅 + 1056px) / 2
+     (container-x: 最大 1120px、右パディング 32px)、ラベル付きリストは最大 132px + 右余白 24px なので、
+     重ならない最小は約 1368px。xl(1280px)では重なるため、余裕を足して 1440px にする。 */
+  --breakpoint-wide: 90rem;
 }
 
 /* 本文幅の共通コンテナ(最大 1120px + 左右の余白) */
@@ -20,12 +25,6 @@
   @variant md {
     padding-inline: --spacing(8);
   }
-}
-
-/* ヘッダーナビ: 展開後の最終レイアウトを測る一瞬だけアニメーションを止める(Base.astro の script が付け外しする)。 */
-[data-nav-viewport].is-measuring,
-[data-nav-viewport].is-measuring * {
-  transition: none !important;
 }
 
 /* 製品・サービスページの Markdown 本文(白地・黒文字。使うのは products/services の詳細ページだけ) */
@@ -158,7 +157,7 @@
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  /* ヘッダーの進捗バー・ナビからの移動 */
+  /* ヘッダーのナビ・セクションナビからの移動 */
   html {
     scroll-behavior: smooth;
   }

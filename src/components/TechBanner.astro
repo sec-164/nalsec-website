@@ -1,6 +1,6 @@
 ---
 // 右下に固定する TECH NALSEC(技術マガジン)へのバナー。全ページ共通で Base.astro から置く。
-// ヘッダーの直後の兄弟として置き、ヘッダーの data-scrolled を peer で読む(状態の写しを持たない)。
+// ヘッダーより後ろの兄弟として置き、ヘッダーの data-scrolled を peer で読む(状態の写しを持たない。SectionNav も同じ)。
 // トップのヒーロー表示中は隠し、それ以外(他ページ・JS なし)は常に表示。
 // ロゴ SVG は黒文字を含むので白い面に載せる。
 import { Image } from "astro:assets";

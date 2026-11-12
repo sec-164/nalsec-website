@@ -1,0 +1,103 @@
+---
+// トップページ右端の縦インジケーター(セクションナビ)。Base.astro が home のときだけ、main の直後(ヘッダーより後ろの兄弟)に置く
+// (TechBanner と同じく、ヘッダーの data-scrolled を peer で読んでヒーロー表示中は隠す)。
+// 項目は src/lib/screens.ts の getScreens() から導き、site.nav のグループ順に並べる(ヒーローは含めない)。
+// 画面が複数あるグループは見出し(キャプション)+ 各画面の short、1 枚だけのグループはグループ名を 1 項目にする。
+// マークアップは 1 つで、CSS だけで形を切り替える: wide(90rem = 1440px)未満は点だけ(ラベルは sr-only)、wide 以上はラベル付きの縦リスト(幅の根拠は global.css の --breakpoint-wide)。
+// wide 以上では明るい写真の上でも読めるよう、リストの背後に右端から薄れる黒のぼかし(::before)を敷く。枠やパネルには見せない。
+// 下の script がヘッダーの data-scrolled(ヒーロー上で透明)と、現在の画面の aria-current を更新する。
+import { site } from "../data/site";
+import { getScreens } from "../lib/screens";
+
+const screens = await getScreens();
+const groups = site.nav
+  .map((item) => ({
+    ...item,
+    links: screens
+      .filter((s) => s.nav === item.id)
+      .map((s) => ({ id: s.id, label: s.short })),
+  }))
+  .filter((g) => g.links.length > 0);
+
+// リンク: wide(90rem = 1440px)未満は 24×28px の当たり判定の右寄りに点(SP の右パディング 16px 内で本文パネルの枠から離す)、
+// wide 以上はラベル + 右の横線
+const linkClass =
+  "group/link flex items-center justify-end text-xs tracking-[0.1em] whitespace-nowrap text-muted text-shadow-md text-shadow-black/80 transition-colors duration-200 hover:text-foreground focus-visible:text-foreground aria-[current=true]:text-foreground motion-reduce:transition-none max-wide:h-7 max-wide:w-6 max-wide:pr-1.5 wide:gap-3 wide:py-1.5";
+// 印: wide(90rem = 1440px)未満は点(現在地は白で縦長)、wide 以上は文字色の横線(現在地は長い)
+const markClass =
+  "block shrink-0 shadow-[0_0_3px_rgb(0_0_0/0.5)] transition-[width,height,background-color] duration-200 motion-reduce:transition-none max-wide:size-1.5 max-wide:rounded-full max-wide:bg-white/40 max-wide:group-hover/link:bg-white/80 max-wide:group-focus-visible/link:bg-white/80 max-wide:group-aria-[current=true]/link:h-3 max-wide:group-aria-[current=true]/link:bg-white wide:h-px wide:w-3 wide:bg-current wide:group-aria-[current=true]/link:w-8";
+---
+
+<nav
+  aria-label="トップページ内の位置"
+  data-section-nav
+  class="fixed top-1/2 right-[env(safe-area-inset-right)] z-40 -translate-y-1/2 wide:before:pointer-events-none wide:before:absolute wide:before:-inset-y-16 wide:before:-right-6 wide:before:-left-20 wide:before:-z-10 wide:before:bg-[radial-gradient(ellipse_at_right,rgb(0_0_0/0.6),transparent_70%)] transition-[opacity,visibility] duration-200 motion-reduce:transition-none peer-data-[scrolled=false]/header:pointer-events-none peer-data-[scrolled=false]/header:invisible peer-data-[scrolled=false]/header:opacity-0 md:right-[max(0.25rem,env(safe-area-inset-right))] wide:right-[max(1.5rem,env(safe-area-inset-right))]"
+>
+  <ul class="flex flex-col items-end gap-2 wide:gap-4">
+    {groups.map((g) =>
+      g.links.length === 1 ? (
+        <li>
+          <a href={`#${g.links[0].id}`} class={linkClass}>
+            <span class="max-wide:sr-only">{g.label}</span>
+            <span aria-hidden="true" class={markClass} />
+          </a>
+        </li>
+      ) : (
+        <li class="flex flex-col items-end">
+          <span
+            id={`section-nav-${g.id}`}
+            class="text-[10px] tracking-[0.2em] text-white/55 text-shadow-md text-shadow-black/80 max-wide:sr-only wide:mr-6 wide:pb-1"
+          >
+            {g.label}
+          </span>
+          <ul
+            aria-labelledby={`section-nav-${g.id}`}
+            class="flex flex-col items-end"
+          >
+            {g.links.map((link) => (
+              <li>
+                <a href={`#${link.id}`} class={linkClass}>
+                  <span class="max-wide:sr-only">{link.label}</span>
+                  <span aria-hidden="true" class={markClass} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ),
+    )}
+  </ul>
+</nav>
+
+<script is:inline>
+  // 現在の画面 = 開始位置(各画面の直前にある高さ 0 の目印の offsetTop)が scrollY 以下の最後の画面。
+  // 目印はリンクの href から引く(画面一覧の写しを JS に持たない)。ヒーローは一覧にないので「どれも満たさない」= ヒーロー。
+  (() => {
+    const header = document.querySelector("[data-site-header]");
+    const links = [
+      ...document.querySelectorAll("[data-section-nav] a[href^='#']"),
+    ];
+    const marks = links.map((a) =>
+      document.getElementById(a.getAttribute("href").slice(1)),
+    );
+    if (!header || !links.length || marks.includes(null)) return;
+    let current;
+    const update = () => {
+      // 1px の余裕: アンカー移動後の scrollY が小数で目印の直前に止まることがある
+      const y = scrollY + 1;
+      let i = -1;
+      while (i + 1 < marks.length && marks[i + 1].offsetTop <= y) i++;
+      if (i === current) return;
+      current = i;
+      links.forEach((a, k) => {
+        if (k === i) a.setAttribute("aria-current", "true");
+        else a.removeAttribute("aria-current");
+      });
+      header.dataset.scrolled = String(i >= 0);
+    };
+    // update は目印 7 個の位置を読むだけで、画面が変わらなければ何も書かないので、間引かずに毎回呼ぶ
+    for (const type of ["scroll", "resize", "load"])
+      addEventListener(type, update, { passive: true });
+    update();
+  })();
+</script>
