@@ -125,7 +125,7 @@ const fixLink =
       </h2>
       <div class="mt-3 h-0.5 w-8 bg-neutral-900" aria-hidden="true"></div>
       <p class="mt-6 leading-loose text-neutral-700">
-        ご希望の製品を選んで送信してください。資料のダウンロード用 URL
+        ご希望の製品を選んでください。資料のダウンロード用 URL
         をメールでお送りします。
       </p>
 
@@ -159,14 +159,14 @@ const fixLink =
                 資料を選ぶ
               </h3>
               <p class="mt-2 text-sm leading-relaxed text-neutral-600">
-                資料をお送りする製品を選んでください。複数選べます。
+                ご検討される製品を選んでください。複数選べます。
               </p>
 
               <fieldset
                 class="mt-6"
                 aria-describedby="request-products-count request-products-error"
               >
-                <legend class="sr-only">資料を希望する製品(必須)</legend>
+                <legend class="sr-only">ご検討される製品(必須)</legend>
                 {currentEntry && (
                   <>
                     <p class="mb-2 text-xs font-bold tracking-[0.08em] text-neutral-500">
@@ -501,12 +501,12 @@ const fixLink =
                 <div class="mt-7 divide-y divide-neutral-200 rounded-md border border-neutral-200">
                   <div class="px-4 py-5 sm:px-6">
                     <div class="flex items-baseline justify-between gap-4">
-                      <h4 class="text-sm font-bold">ご希望の資料</h4>
+                      <h4 class="text-sm font-bold">ご検討の製品</h4>
                       <button
                         type="button"
                         data-goto="0"
                         class={fixLink}
-                        aria-label="ご希望の資料を修正"
+                        aria-label="ご検討の製品を修正"
                       >
                         修正
                       </button>
@@ -625,9 +625,6 @@ const fixLink =
                   class="mt-2 grid gap-1.5 text-[15px] leading-snug"
                 ></ul>
               </div>
-              <p class="mt-6 text-sm text-neutral-500">
-                ※ 現在は表示確認用です。実際には送信されません。
-              </p>
               <button type="button" data-restart class={`${secondaryBtn} mt-8`}>
                 最初に戻る
               </button>
@@ -1055,8 +1052,7 @@ const fixLink =
       if (step === 0) {
         if (selected().length > 0) return true;
         if (report) {
-          productsError.textContent =
-            "資料を希望する製品を 1 つ以上選んでください。";
+          productsError.textContent = "製品は 1 つ以上選んでください。";
           (boxes[0] as HTMLElement | undefined)?.focus();
         }
         return false;
