@@ -51,7 +51,7 @@ const nav = site.nav.map((item) => ({
           <Logo class="h-5" decorative />
         </a>
         <nav aria-label="サイト内" class="ml-auto">
-          <ul class="flex items-baseline gap-x-5 text-xs font-bold tracking-[0.15em] whitespace-nowrap md:gap-x-8">
+          <ul class="flex items-baseline gap-x-5 text-sm font-bold tracking-[0.15em] whitespace-nowrap max-[359px]:gap-x-3 max-[359px]:tracking-[0.08em] md:gap-x-8 md:text-[15px]">
             {nav.map((item) => (
               <li>
                 <a href={item.href} class="transition-colors hover:text-muted">
