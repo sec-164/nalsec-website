@@ -57,8 +57,8 @@ const panelClass =
   "group block bg-black/20 p-3 backdrop-blur-[4px] transition-[background-color,backdrop-filter] duration-300 motion-reduce:transition-none hover:bg-black/45 hover:backdrop-blur-[10px] focus-visible:bg-black/45 focus-visible:backdrop-blur-[10px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:p-8";
 // パネル内の擬似ボタン(非インタラクティブ)。パネルの hover で塗りつぶす。
 const arrowClass =
-  "inline-block rounded-full border border-white/40 px-4 py-1.5 text-sm transition-colors group-hover:bg-white group-hover:text-black group-focus-visible:bg-white group-focus-visible:text-black";
-const labelClass = "flex items-center gap-3 text-sm text-muted";
+  "inline-block rounded-full border border-white/40 px-4 py-1.5 transition-colors group-hover:bg-white group-hover:text-black group-focus-visible:bg-white group-focus-visible:text-black";
+const labelClass = "flex items-center gap-3 text-label text-muted";
 ---
 
 <Base title="株式会社NALSEC" home>
@@ -81,10 +81,10 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                 <span class="h-px w-8 bg-white/60" aria-hidden="true"></span>
                 {s.categoryLabel}
               </p>
-              <h2 class="mt-2 text-4xl leading-snug font-bold md:mt-4 lg:text-5xl">
+              <h2 class="mt-2 text-4xl leading-tight font-bold md:mt-4 md:leading-snug lg:text-5xl">
                 {s.title}
               </h2>
-              <p class="mt-2 text-lg leading-relaxed text-muted md:mt-4">
+              <p class="mt-2 leading-normal text-muted md:mt-4 md:leading-relaxed">
                 {s.lead}
               </p>
 
@@ -98,7 +98,7 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                       <h3 class="text-xl leading-snug font-bold md:text-[22px]">
                         {p.title}
                       </h3>
-                      <p class="mt-1 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
+                      <p class="mt-1 leading-snug md:mt-4 md:leading-loose">
                         {p.highlights.map((line, k) => (
                           <>
                             {k > 0 && <br />}
@@ -116,17 +116,18 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                 </div>
               )}
 
+              {/* 3 製品以上の一覧は、SP(md 未満)では 1 画面に収めるため説明を 16px(text-label)・製品名を 18px にし、余白も詰める */}
               {s.products.length >= 3 && (
                 <div class="mt-4 flex flex-col gap-0 divide-y divide-line overflow-hidden rounded border border-line md:mt-12">
                   {s.products.map((p) => (
                     <a
                       href={p.href}
-                      class={`${panelClass} grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 !p-2.5 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_auto] md:items-center md:gap-x-10 md:!p-8`}
+                      class={`${panelClass} grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-2 !px-2.5 !py-2 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_auto] md:items-center md:gap-x-10 md:!px-8 md:!py-6`}
                     >
-                      <h3 class="col-span-2 text-base leading-snug font-bold md:col-span-1 md:text-[22px]">
+                      <h3 class="col-span-2 text-lg leading-snug font-bold md:col-span-1 md:text-[22px]">
                         {p.title}
                       </h3>
-                      <p class="mt-1 text-sm leading-relaxed md:mt-0 md:text-[17px] md:leading-loose">
+                      <p class="mt-1 text-label leading-snug md:mt-0 md:text-body md:leading-loose">
                         {p.highlights.map((line, k) => (
                           <>
                             {k > 0 && <br />}
@@ -134,7 +135,9 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                           </>
                         ))}
                       </p>
-                      <span class={`${arrowClass} self-end md:self-auto`}>
+                      <span
+                        class={`${arrowClass} self-end max-md:px-3 max-md:py-1 md:self-auto`}
+                      >
                         詳細を見る →
                       </span>
                     </a>
@@ -152,7 +155,7 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                       <h3 class="text-xl leading-snug font-bold md:text-[22px]">
                         {p.title}
                       </h3>
-                      <p class="mt-1 leading-relaxed md:mt-4 md:text-[17px] md:leading-loose">
+                      <p class="mt-1 leading-snug md:mt-4 md:leading-loose">
                         {p.highlights.map((line, k) => (
                           <>
                             {k > 0 && <br />}
@@ -187,7 +190,7 @@ const labelClass = "flex items-center gap-3 text-sm text-muted";
                   <h2 class="text-4xl leading-snug font-bold lg:text-5xl">
                     {item.data.title}
                   </h2>
-                  <p class="mt-6 text-lg leading-loose">
+                  <p class="mt-6 leading-loose">
                     {item.data.summary
                       .trim()
                       .split("\n")

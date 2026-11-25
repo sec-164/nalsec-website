@@ -16,7 +16,7 @@ const taglineLines = site.tagline.split("\n");
         <span class="sr-only">{site.name}</span>
       </h1>
       <div class="mt-6 w-24 border-t-2 border-foreground md:mt-8"></div>
-      <p class="mt-8 text-lg leading-loose md:text-xl">
+      <p class="mt-8 leading-loose md:text-xl">
         {taglineLines.map((line, i) => (
           <>
             {i > 0 && <br />}
@@ -30,7 +30,7 @@ const taglineLines = site.tagline.split("\n");
     class="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
     aria-hidden="true"
   >
-    <span class="text-[10px] tracking-[0.3em] text-muted">SCROLL</span>
+    <span class="text-label tracking-[0.3em] text-muted">SCROLL</span>
     <span class="h-10 w-px bg-white/60"></span>
   </div>
 </section>

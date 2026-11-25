@@ -22,7 +22,7 @@ const groups = site.nav
 // リンク: xl(1280px)未満は 24×28px の当たり判定の右寄りに点(SP の右パディング 16px 内で本文パネルの枠から離す)、
 // xl 以上はラベル + 右の横線
 const linkClass =
-  "group/link flex items-center justify-end text-[15px] tracking-[0.1em] whitespace-nowrap text-muted text-shadow-md text-shadow-black/80 transition-colors duration-200 hover:text-foreground focus-visible:text-foreground aria-[current=true]:text-foreground motion-reduce:transition-none max-xl:h-7 max-xl:w-6 max-xl:pr-1.5 xl:gap-3 xl:py-1.5";
+  "group/link flex items-center justify-end tracking-[0.1em] whitespace-nowrap text-muted text-shadow-md text-shadow-black/80 transition-colors duration-200 hover:text-foreground focus-visible:text-foreground aria-[current=true]:text-foreground motion-reduce:transition-none max-xl:h-7 max-xl:w-6 max-xl:pr-1.5 xl:gap-3 xl:py-1.5";
 // 印: xl(1280px)未満は点(現在地は白で縦長)、xl 以上は文字色の横線(現在地は長い)
 const markClass =
   "block shrink-0 shadow-[0_0_3px_rgb(0_0_0/0.5)] transition-[width,height,background-color] duration-200 motion-reduce:transition-none max-xl:size-1.5 max-xl:rounded-full max-xl:bg-white/40 max-xl:group-hover/link:bg-white/80 max-xl:group-focus-visible/link:bg-white/80 max-xl:group-aria-[current=true]/link:h-3 max-xl:group-aria-[current=true]/link:bg-white xl:h-px xl:w-3 xl:bg-current xl:group-aria-[current=true]/link:w-8";
@@ -46,7 +46,7 @@ const markClass =
         <li class="flex flex-col items-end">
           <span
             id={`section-nav-${g.id}`}
-            class="text-xs tracking-[0.2em] text-white/55 text-shadow-md text-shadow-black/80 max-xl:sr-only xl:mr-6 xl:pb-1"
+            class="text-label tracking-[0.2em] text-white/55 text-shadow-md text-shadow-black/80 max-xl:sr-only xl:mr-6 xl:pb-1"
           >
             {g.label}
           </span>

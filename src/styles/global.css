@@ -10,6 +10,15 @@
 
   /* 欧文は Montserrat、和文は M PLUS 1p。Base.astro で Google Fonts から読み込む。 */
   --font-sans: "Montserrat", "M PLUS 1p", sans-serif;
+
+  /* 文字サイズは 2 段だけ持つ。基準(本文・説明・リスト・入力欄・ボタン・ナビの項目など普通に読む文字)は 18px で、
+     body の既定にしてあるので個別の指定は要らない(下の @layer base)。補助的な小さいラベル
+     (見出し上の小ラベル、注記、バッジ、キャプション、フッター、表など)は text-label の 16px。16px 未満は使わない。
+     見出しはこれより大きい Tailwind 標準の text-xl 以上を使う。 */
+  --text-body: 1.125rem;
+  --text-body--line-height: 1.5;
+  --text-label: 1rem;
+  --text-label--line-height: 1.5;
 }
 
 /* 本文幅の共通コンテナ(最大 1120px + 左右の余白) */
@@ -23,18 +32,17 @@
 }
 
 /* トップの各画面の本文を、xl(1280px)以上で右端のセクションナビ(SectionNav.astro のラベル付きリスト)に重ねないための右パディング。
-   確保する幅は 12.5rem(リスト最大 154px + 右余白 24px + 本文との間隔 22px。リストの文字はヘッダーのメニューと同じ 15px)。
-   コンテナ外側の余白 (100vw - 1120px) / 2 で足りない分だけ足すので、約 1456px 以上では通常の 2rem のまま。 */
+   確保する幅は 13.75rem(リスト最大 176px = 最長の「VITZROCELL」が現在地で印が長いとき + 右余白 24px + 本文との間隔 20px。
+   リストの文字は基準の 18px)。コンテナ外側の余白 (100vw - 1120px) / 2 で足りない分だけ足すので、約 1496px 以上では通常の 2rem のまま。 */
 @utility nav-clear {
   @variant xl {
-    padding-right: max(--spacing(8), calc(12.5rem - (100vw - 1120px) / 2));
+    padding-right: max(--spacing(8), calc(13.75rem - (100vw - 1120px) / 2));
   }
 }
 
 /* 製品・サービスページの Markdown 本文(白地・黒文字。使うのは products/services の詳細ページだけ) */
 @layer components {
   .content {
-    font-size: 1rem;
     line-height: 1.9;
   }
   .content p {
@@ -59,7 +67,7 @@
   .content h3 {
     margin-top: --spacing(8);
     margin-bottom: --spacing(3);
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     line-height: 1.5;
     font-weight: 700;
     color: var(--color-neutral-700);
@@ -96,7 +104,7 @@
   .content table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9375rem;
+    font-size: var(--text-label);
     line-height: 1.6;
   }
   .content th,
@@ -127,13 +135,17 @@
   /* 表の直後の段落は注記として小さく淡く */
   .content .table-wrap + p {
     margin-top: --spacing(-2);
-    font-size: 0.875rem;
+    font-size: var(--text-label);
     color: var(--color-neutral-600);
   }
 }
 
-/* フォーカスリングは白(アクセント色は持たない) */
 @layer base {
+  /* 文字の基準サイズ(18px)。行間は Tailwind 既定の 1.5 のまま */
+  body {
+    font-size: var(--text-body);
+  }
+  /* フォーカスリングは白(アクセント色は持たない) */
   :focus-visible {
     outline: 2px solid var(--color-foreground);
     outline-offset: 3px;
