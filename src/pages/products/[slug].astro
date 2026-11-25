@@ -30,25 +30,19 @@ const bg = seriesBackground(series?.id ?? "");
     title={d.title}
     summary={d.summary}
   />
-  <section class="bg-white py-14 text-neutral-900 md:py-20">
+  <section class="surface-light py-14 md:py-20">
     <div class="container-x">
-      <div class="mx-auto max-w-[46rem]">
+      <div class="mx-auto max-w-column">
         <p class="mb-10 text-label">
-          <a
-            href="/"
-            class="text-neutral-600 underline-offset-4 transition-colors hover:text-black hover:underline"
-          >
+          <a href="/" class="back-link">
             ← トップへ戻る
           </a>
         </p>
         <article class="content">
           <Fragment set:html={html} />
         </article>
-        <p class="mt-14 border-t border-neutral-200 pt-8 text-label">
-          <a
-            href="/"
-            class="text-neutral-600 underline-offset-4 transition-colors hover:text-black hover:underline"
-          >
+        <p class="mt-14 border-t border-rule pt-8 text-label">
+          <a href="/" class="back-link">
             ← トップへ戻る
           </a>
         </p>

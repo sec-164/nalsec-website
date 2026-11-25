@@ -40,19 +40,19 @@ const nav = site.nav.map((item) => ({
     <header
       data-site-header
       data-scrolled="true"
-      class="peer/header group/header fixed inset-x-0 top-0 z-50 border-b border-line bg-black/60 backdrop-blur transition-[background-color,backdrop-filter,border-color] duration-300 motion-reduce:transition-none data-[scrolled=false]:border-transparent data-[scrolled=false]:bg-transparent data-[scrolled=false]:backdrop-blur-none"
+      class="peer/header group/header fixed inset-x-0 top-0 z-(--z-header) border-b border-line bg-bar backdrop-blur-glass-strong transition duration-300 motion-reduce:transition-none data-[scrolled=false]:border-transparent data-[scrolled=false]:bg-transparent data-[scrolled=false]:backdrop-blur-none"
     >
       <div class="container-x flex h-14 items-center gap-4 md:gap-6">
         <a
           href="/"
           aria-label={`${site.name} トップへ`}
-          class="flex items-center transition-[opacity,visibility] duration-300 group-data-[scrolled=false]/header:invisible group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none"
+          class="flex items-center transition-presence duration-300 group-data-[scrolled=false]/header:invisible group-data-[scrolled=false]/header:opacity-0 motion-reduce:transition-none"
         >
           <Logo class="h-5" decorative />
         </a>
         {/* メニューは基準の 18px。SP はロゴとの間隔・項目の間隔・字間を詰めて 360px まで 18px で収め、360px 未満だけ 16px にする */}
         <nav aria-label="サイト内" class="ml-auto">
-          <ul class="flex items-baseline gap-x-4 font-bold tracking-[0.1em] whitespace-nowrap max-[359px]:gap-x-2.5 max-[359px]:text-label max-[359px]:tracking-[0.05em] md:gap-x-8 md:tracking-[0.15em]">
+          <ul class="flex items-baseline gap-x-4 font-bold tracking-wider whitespace-nowrap max-[359px]:gap-x-2.5 max-[359px]:text-label max-[359px]:tracking-wide md:gap-x-8">
             {nav.map((item) => (
               <li>
                 <a href={item.href} class="transition-colors hover:text-muted">
@@ -71,7 +71,7 @@ const nav = site.nav.map((item) => ({
     </main>
     {/* main の後ろに置く: SectionNav の script は main 内の目印(各画面の id)をその場で引く */}
     {home && <SectionNav />}
-    <footer class="relative z-20 border-t border-line bg-background">
+    <footer class="relative z-(--z-footer) border-t border-line bg-background">
       <div class="container-x flex items-center justify-between gap-4 py-8 text-label text-muted">
         <Logo class="h-4 text-foreground" decorative />
         <p>© NALSEC</p>

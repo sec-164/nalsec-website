@@ -7,7 +7,7 @@ import PhotoBackground from "./PhotoBackground.astro";
 const taglineLines = site.tagline.split("\n");
 ---
 
-<section class="sticky top-0 z-[1] flex h-svh items-center overflow-hidden pt-14">
+<section class="sticky top-0 z-1 flex h-svh items-center overflow-hidden pt-14">
   <PhotoBackground bg={heroBackground} eager />
   <div class="container-x relative w-full py-12 md:py-16">
     <div class="hero-in">
@@ -15,8 +15,8 @@ const taglineLines = site.tagline.split("\n");
         <Logo class="h-14 md:h-20" decorative />
         <span class="sr-only">{site.name}</span>
       </h1>
-      <div class="mt-6 w-24 border-t-2 border-foreground md:mt-8"></div>
-      <p class="mt-8 leading-loose md:text-xl">
+      <div class="heading-rule mt-6 md:mt-8"></div>
+      <p class="mt-8 leading-loose md:text-title-sm">
         {taglineLines.map((line, i) => (
           <>
             {i > 0 && <br />}
@@ -30,7 +30,7 @@ const taglineLines = site.tagline.split("\n");
     class="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
     aria-hidden="true"
   >
-    <span class="text-label tracking-[0.3em] text-muted">SCROLL</span>
-    <span class="h-10 w-px bg-white/60"></span>
+    <span class="text-label tracking-widest text-muted">SCROLL</span>
+    <span class="h-10 w-px bg-faint"></span>
   </div>
 </section>

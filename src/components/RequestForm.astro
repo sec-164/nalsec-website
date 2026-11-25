@@ -31,28 +31,28 @@ for (const p of others) {
 const screens = ["資料", "ご連絡先", "確認"];
 
 const inputClass =
-  "block h-12 w-full rounded border border-neutral-300 bg-white pr-10 pl-3 text-neutral-900 transition-[border-color,box-shadow] placeholder:text-neutral-400 hover:border-neutral-500 focus:border-neutral-900 focus:shadow-[0_0_0_3px_rgb(23_23_23/0.1)] focus:outline-none group-data-[state=error]/field:border-red-600 group-data-[state=error]/field:focus:shadow-[0_0_0_3px_rgb(220_38_38/0.15)]";
+  "block h-12 w-full rounded-control border border-rule-strong bg-paper pr-10 pl-3 text-ink transition placeholder:text-ink-faint hover:border-ink-faint focus:border-ink focus:shadow-focus focus:outline-none group-data-[state=error]/field:border-danger group-data-[state=error]/field:focus:shadow-focus-danger";
 const labelClass = "mb-2 flex items-center gap-2 font-bold";
 const requiredMark =
-  "rounded-sm bg-neutral-900 px-1.5 py-1 text-label leading-none font-bold text-white";
+  "rounded-control bg-ink px-1.5 py-1 text-label leading-none font-bold text-paper";
 const optionalMark =
-  "rounded-sm border border-neutral-300 px-1.5 py-1 text-label leading-none font-normal text-neutral-500";
+  "rounded-control border border-rule-strong px-1.5 py-1 text-label leading-none font-normal text-ink-faint";
 const primaryBtn =
-  "group/btn inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-neutral-900 px-7 font-bold text-white transition-[background-color,transform] hover:bg-neutral-700 active:scale-[0.98] aria-disabled:bg-neutral-300 aria-disabled:text-neutral-600 aria-disabled:hover:bg-neutral-300 motion-reduce:transition-none motion-reduce:active:scale-100";
+  "group/btn inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-ink px-7 font-bold text-paper transition hover:bg-ink-muted active:scale-98 aria-disabled:bg-rule-strong aria-disabled:text-ink-muted aria-disabled:hover:bg-rule-strong motion-reduce:transition-none motion-reduce:active:scale-100";
 const secondaryBtn =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white px-6 font-bold text-neutral-900 transition-colors hover:border-neutral-900 motion-reduce:transition-none";
-const stepHeading = "text-xl leading-snug font-bold focus:outline-none";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-rule-strong bg-paper px-6 font-bold text-ink transition-colors hover:border-ink motion-reduce:transition-none";
+const stepHeading = "text-title-sm leading-snug font-bold focus:outline-none";
 // インジケーターの項目(SectionNav に合わせる): lg 未満は 20〜40px 幅 × 28px の当たり判定の中央に点、
 // lg 以上はカードの右外側に「横線 + ラベル」(線をカード側に置く)
 const navItem =
-  "group/nav flex items-center text-label tracking-[0.1em] whitespace-nowrap text-neutral-400 transition-colors duration-200 hover:text-neutral-700 focus-visible:text-neutral-900 aria-[current=step]:text-neutral-900 motion-reduce:transition-none max-lg:h-7 max-lg:w-full max-lg:justify-center lg:gap-3 lg:py-1.5 lg:pr-2";
+  "group/nav flex items-center text-label tracking-wider whitespace-nowrap text-ink-faint transition-colors hover:text-ink-muted focus-visible:text-ink aria-[current=step]:text-ink motion-reduce:transition-none max-lg:h-7 max-lg:w-full max-lg:justify-center lg:gap-3 lg:py-1.5 lg:pr-2";
 const navMark =
-  "block shrink-0 transition-[width,height,background-color] duration-200 motion-reduce:transition-none max-lg:size-1.5 max-lg:rounded-full max-lg:bg-neutral-300 max-lg:group-hover/nav:bg-neutral-500 max-lg:group-aria-[current=step]/nav:h-3 max-lg:group-aria-[current=step]/nav:bg-neutral-900 lg:h-px lg:w-3 lg:bg-current lg:group-aria-[current=step]/nav:w-8";
+  "block shrink-0 transition-indicator motion-reduce:transition-none max-lg:size-1.5 max-lg:rounded-full max-lg:bg-rule-strong max-lg:group-hover/nav:bg-ink-faint max-lg:group-aria-[current=step]/nav:h-3 max-lg:group-aria-[current=step]/nav:bg-ink lg:h-px lg:w-3 lg:bg-current lg:group-aria-[current=step]/nav:w-8";
 // 製品の行: 行全体がチェックボックスのラベル。選択中は枠を黒・地をごく薄いグレーに、キーボード操作中は枠の外にリング
 const rowClass =
-  "flex h-full min-h-14 cursor-pointer items-center gap-4 rounded-md border border-neutral-200 bg-white px-4 py-3 transition-[border-color,background-color] hover:border-neutral-400 has-checked:border-neutral-900 has-checked:bg-neutral-50 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-neutral-900 motion-reduce:transition-none";
+  "flex h-full min-h-14 cursor-pointer items-center gap-4 rounded-panel border border-rule bg-paper px-4 py-3 transition-colors hover:border-ink-faint has-checked:border-ink has-checked:bg-tint has-focus-visible:focus-ring motion-reduce:transition-none";
 const boxClass =
-  "peer size-5 cursor-pointer appearance-none rounded-[4px] border border-neutral-400 bg-white transition-colors checked:border-neutral-900 checked:bg-neutral-900 focus-visible:outline-none motion-reduce:transition-none";
+  "peer size-5 cursor-pointer appearance-none rounded-control border border-ink-faint bg-paper transition-colors checked:border-ink checked:bg-ink focus-visible:outline-none motion-reduce:transition-none";
 
 type Field = {
   id: string;
@@ -110,35 +110,35 @@ const fieldGroups = [
 ];
 
 const fixLink =
-  "shrink-0 rounded-sm text-label text-neutral-600 underline underline-offset-4 transition-colors hover:text-neutral-900";
+  "shrink-0 rounded-control text-label text-ink-muted underline underline-offset-4 transition-colors hover:text-ink";
 ---
 
 <section
   id="request"
   aria-labelledby="request-heading"
-  class="border-t border-neutral-200 bg-neutral-100 py-14 text-neutral-900 md:py-20"
+  class="surface-light border-t border-rule bg-tint py-14 md:py-20"
 >
   <div class="container-x">
-    <div class="mx-auto max-w-[46rem]">
-      <h2 id="request-heading" class="text-2xl leading-snug font-bold">
+    <div class="mx-auto max-w-column">
+      <h2 id="request-heading" class="text-title-lg leading-snug font-bold">
         資料請求
       </h2>
-      <div class="mt-3 h-0.5 w-8 bg-neutral-900" aria-hidden="true"></div>
-      <p class="mt-6 leading-loose text-neutral-700">
+      <div class="heading-rule-short mt-3" aria-hidden="true"></div>
+      <p class="mt-6 leading-loose text-ink-muted">
         ご希望の製品を選んでください。資料のダウンロード用 URL
         をメールでお送りします。
       </p>
 
       <div
         data-request-card
-        class="request-card relative mt-8 scroll-mt-20 rounded-lg border border-neutral-200 bg-white shadow-[0_1px_2px_rgb(0_0_0/0.04),0_12px_32px_-16px_rgb(0_0_0/0.12)]"
+        class="request-card relative mt-8 scroll-mt-20 rounded-panel border border-rule bg-paper shadow-card"
       >
         {/* 現在地のインジケーター(JS 有効時のみ)。前の画面へは自由に戻れ、先へは「次へ」と同じ検証を通ったときだけ進む */}
         <nav
           data-js-only
           data-indicator
           aria-label="フォーム内の位置"
-          class="absolute top-7 right-0 w-5 transition-opacity duration-200 motion-reduce:transition-none sm:top-9 sm:w-10 lg:right-auto lg:left-full lg:w-auto lg:pl-3"
+          class="absolute top-7 right-0 w-5 transition-opacity motion-reduce:transition-none sm:top-9 sm:w-10 lg:right-auto lg:left-full lg:w-auto lg:pl-3"
         >
           <ul class="flex flex-col lg:gap-1">
             {screens.map((label, i) => (
@@ -158,7 +158,7 @@ const fixLink =
               <h3 id="request-h0" tabindex="-1" class={stepHeading}>
                 資料を選ぶ
               </h3>
-              <p class="mt-2 leading-relaxed text-neutral-600">
+              <p class="mt-2 leading-relaxed text-ink-muted">
                 ご検討される製品を選んでください。複数選べます。
               </p>
 
@@ -169,9 +169,7 @@ const fixLink =
                 <legend class="sr-only">ご検討される製品(必須)</legend>
                 {currentEntry && (
                   <>
-                    <p class="mb-2 text-label font-bold tracking-[0.08em] text-neutral-500">
-                      このページの製品
-                    </p>
+                    <p class="group-label mb-2">このページの製品</p>
                     <ul>
                       <li>
                         <label class={rowClass}>
@@ -186,7 +184,7 @@ const fixLink =
                             />
                             <svg
                               viewBox="0 0 20 20"
-                              class="pointer-events-none absolute inset-0 size-5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+                              class="pointer-events-none absolute inset-0 size-5 text-paper opacity-0 transition-opacity peer-checked:opacity-100"
                               aria-hidden="true"
                             >
                               <path
@@ -203,7 +201,7 @@ const fixLink =
                             <span class="block leading-snug font-bold">
                               {currentEntry.data.title}
                             </span>
-                            <span class="mt-0.5 block text-label text-neutral-500">
+                            <span class="mt-0.5 block text-label text-ink-faint">
                               {`${currentEntry.data.manufacturer} / ${currentEntry.data.categoryLabel}`}
                             </span>
                           </span>
@@ -220,9 +218,9 @@ const fixLink =
                     data-expand
                     aria-expanded="false"
                     aria-controls="request-others"
-                    class="group/x mt-4 inline-flex min-h-11 items-center gap-2 rounded-full px-1 font-bold text-neutral-900"
+                    class="group/x mt-4 inline-flex min-h-11 items-center gap-2 rounded-full px-1 font-bold text-ink"
                   >
-                    <span class="inline-flex size-6 items-center justify-center rounded-full border border-neutral-300 transition-[transform,border-color] duration-300 group-hover/x:border-neutral-900 group-aria-expanded/x:rotate-45 motion-reduce:transition-none">
+                    <span class="inline-flex size-6 items-center justify-center rounded-full border border-rule-strong transition duration-300 group-hover/x:border-ink group-aria-expanded/x:rotate-45 motion-reduce:transition-none">
                       <svg
                         viewBox="0 0 12 12"
                         class="size-3"
@@ -239,7 +237,7 @@ const fixLink =
                     <span data-expand-label>他の製品も選ぶ</span>
                     <span
                       data-expand-extra
-                      class="text-label font-normal text-neutral-500"
+                      class="text-label font-normal text-ink-faint"
                     />
                   </button>
                 )}
@@ -254,11 +252,11 @@ const fixLink =
                       >
                         <p
                           id={`request-cat-${g.key}`}
-                          class="mb-2 flex items-center gap-3 text-label font-bold tracking-[0.08em] text-neutral-500"
+                          class="group-label mb-2 flex items-center gap-3"
                         >
                           {g.label}
                           <span
-                            class="h-px flex-1 bg-neutral-200"
+                            class="h-px flex-1 bg-rule"
                             aria-hidden="true"
                           />
                         </p>
@@ -276,7 +274,7 @@ const fixLink =
                                   />
                                   <svg
                                     viewBox="0 0 20 20"
-                                    class="pointer-events-none absolute inset-0 size-5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+                                    class="pointer-events-none absolute inset-0 size-5 text-paper opacity-0 transition-opacity peer-checked:opacity-100"
                                     aria-hidden="true"
                                   >
                                     <path
@@ -293,7 +291,7 @@ const fixLink =
                                   <span class="block leading-snug">
                                     {p.data.title}
                                   </span>
-                                  <span class="mt-0.5 block text-label text-neutral-500">
+                                  <span class="mt-0.5 block text-label text-ink-faint">
                                     {p.data.manufacturer}
                                   </span>
                                 </span>
@@ -309,16 +307,16 @@ const fixLink =
 
               <div
                 data-js-only
-                class="mt-8 flex items-center justify-between gap-4 border-t border-neutral-200 pt-6"
+                class="mt-8 flex items-center justify-between gap-4 border-t border-rule pt-6"
               >
                 <p
                   id="request-products-count"
-                  class="text-neutral-600"
+                  class="text-ink-muted"
                   aria-live="polite"
                 >
                   <span
                     data-count
-                    class="text-xl font-bold text-neutral-900 tabular-nums"
+                    class="text-title-sm font-bold text-ink tabular-nums"
                   >
                     1
                   </span>{" "}
@@ -346,7 +344,7 @@ const fixLink =
                 id="request-products-error"
                 data-products-error
                 aria-live="polite"
-                class="text-right text-red-700 empty:hidden"
+                class="text-right text-danger empty:hidden"
               />
             </section>
 
@@ -359,7 +357,7 @@ const fixLink =
               <h3 id="request-h1" tabindex="-1" class={stepHeading}>
                 ご連絡先
               </h3>
-              <p class="mt-2 leading-relaxed text-neutral-600">
+              <p class="mt-2 leading-relaxed text-ink-muted">
                 資料のダウンロード用 URL
                 をお送りするメールアドレスをご入力ください。
               </p>
@@ -369,11 +367,11 @@ const fixLink =
                   class:list={[
                     gi === 0
                       ? "mt-7"
-                      : "mt-8 border-t border-dashed border-neutral-200 pt-6",
+                      : "mt-8 border-t border-dashed border-rule pt-6",
                   ]}
                 >
                   {gi === 1 && (
-                    <p class="mb-5 text-label text-neutral-500">
+                    <p class="mb-5 text-label text-ink-faint">
                       以下は任意です。お問い合わせへの対応に使わせていただく場合があります。
                     </p>
                   )}
@@ -409,7 +407,7 @@ const fixLink =
                           {/* 正しく入力できた欄に出す小さなチェック印 */}
                           <svg
                             viewBox="0 0 20 20"
-                            class="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 scale-75 text-neutral-900 opacity-0 transition-[opacity,transform] duration-200 group-data-[state=ok]/field:scale-100 group-data-[state=ok]/field:opacity-100 motion-reduce:transition-none"
+                            class="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 scale-75 text-ink opacity-0 transition group-data-[state=ok]/field:scale-100 group-data-[state=ok]/field:opacity-100 motion-reduce:transition-none"
                             aria-hidden="true"
                           >
                             <circle cx="10" cy="10" r="9" fill="currentColor" />
@@ -427,7 +425,7 @@ const fixLink =
                           id={`${f.id}-error`}
                           data-error
                           aria-live="polite"
-                          class="mt-2 flex items-start gap-1.5 leading-snug text-red-700 empty:hidden"
+                          class="mt-2 flex items-start gap-1.5 leading-snug text-danger empty:hidden"
                         />
                         {f.name === "email" && (
                           <p
@@ -439,13 +437,13 @@ const fixLink =
                             <button
                               type="button"
                               data-suggest-btn
-                              class="inline-flex min-h-9 flex-wrap items-center gap-x-2 rounded-full border border-neutral-300 bg-neutral-50 px-3.5 py-1 text-left text-label text-neutral-800 transition-colors hover:border-neutral-900"
+                              class="inline-flex min-h-9 flex-wrap items-center gap-x-2 rounded-full border border-rule-strong bg-tint px-3.5 py-1 text-left text-label text-ink transition-colors hover:border-ink"
                             >
                               <span>
                                 <b data-suggest-domain class="font-bold" />{" "}
                                 ではありませんか?
                               </span>
-                              <span class="whitespace-nowrap text-neutral-500 underline underline-offset-2">
+                              <span class="whitespace-nowrap text-ink-faint underline underline-offset-2">
                                 修正する
                               </span>
                             </button>
@@ -459,7 +457,7 @@ const fixLink =
 
               <div
                 data-js-only
-                class="mt-9 flex items-center justify-between gap-3 border-t border-neutral-200 pt-6"
+                class="mt-9 flex items-center justify-between gap-3 border-t border-rule pt-6"
               >
                 <button type="button" data-back class={secondaryBtn}>
                   戻る
@@ -494,11 +492,11 @@ const fixLink =
                 <h3 id="request-h2" tabindex="-1" class={stepHeading}>
                   内容の確認
                 </h3>
-                <p class="mt-2 leading-relaxed text-neutral-600">
+                <p class="mt-2 leading-relaxed text-ink-muted">
                   内容をご確認のうえ、送信してください。
                 </p>
 
-                <div class="mt-7 divide-y divide-neutral-200 rounded-md border border-neutral-200">
+                <div class="mt-7 divide-y divide-rule rounded-panel border border-rule">
                   <div class="px-4 py-5 sm:px-6">
                     <div class="flex items-baseline justify-between gap-4">
                       <h4 class="text-label font-bold">ご検討の製品</h4>
@@ -537,7 +535,7 @@ const fixLink =
                         ["電話番号", "tel"],
                       ].map(([label, key]) => (
                         <>
-                          <dt class="text-label whitespace-nowrap text-neutral-500">
+                          <dt class="text-label whitespace-nowrap text-ink-faint">
                             {label}
                           </dt>
                           <dd
@@ -551,11 +549,11 @@ const fixLink =
                 </div>
               </div>
 
-              <p class="mt-6 text-label leading-relaxed text-neutral-600">
+              <p class="mt-6 text-label leading-relaxed text-ink-muted">
                 ご入力いただいた情報は、資料の送付とお問い合わせへの対応のために利用します。
               </p>
 
-              <div class="mt-8 flex items-center justify-between gap-3 border-t border-neutral-200 pt-6">
+              <div class="mt-8 flex items-center justify-between gap-3 border-t border-rule pt-6">
                 <button
                   type="button"
                   data-back
@@ -567,12 +565,12 @@ const fixLink =
                 <button
                   type="submit"
                   data-submit
-                  class={`${primaryBtn} ml-auto max-sm:flex-1 sm:min-w-[13rem]`}
+                  class={`${primaryBtn} ml-auto max-sm:flex-1 sm:min-w-52`}
                 >
                   <span
                     data-spinner
                     hidden
-                    class="request-spin size-4 rounded-full border-2 border-white/30 border-t-white"
+                    class="request-spin size-4 rounded-full border-2 border-line border-t-paper"
                     aria-hidden="true"
                   />
                   <span data-submit-label>資料を請求する</span>
@@ -591,7 +589,7 @@ const fixLink =
             >
               <svg
                 viewBox="0 0 56 56"
-                class="request-check mx-auto size-14 text-neutral-900"
+                class="request-check mx-auto size-14 text-ink"
                 aria-hidden="true"
               >
                 <circle
@@ -613,17 +611,15 @@ const fixLink =
                   stroke-linejoin="round"
                 />
               </svg>
-              <p class="mt-6 text-xl leading-snug font-bold">
+              <p class="mt-6 text-title-sm leading-snug font-bold">
                 <span data-done-name></span> 様、ご請求ありがとうございます。
               </p>
-              <p class="mt-3 leading-loose break-all text-neutral-700">
-                <span data-done-email class="font-bold text-neutral-900"></span>{" "}
+              <p class="mt-3 leading-loose break-all text-ink-muted">
+                <span data-done-email class="font-bold text-ink"></span>{" "}
                 宛に、資料のダウンロード用 URL をお送りしました。
               </p>
-              <div class="mx-auto mt-7 max-w-md rounded-md border border-neutral-200 bg-neutral-50 px-5 py-4 text-left">
-                <p class="text-label font-bold tracking-[0.08em] text-neutral-500">
-                  ご請求いただいた資料
-                </p>
+              <div class="mx-auto mt-7 max-w-narrow rounded-panel border border-rule bg-tint px-5 py-4 text-left">
+                <p class="group-label">ご請求いただいた資料</p>
                 <ul
                   data-done-products
                   class="mt-2 grid gap-1.5 leading-snug"
@@ -641,10 +637,6 @@ const fixLink =
 </section>
 
 <style>
-  /* 白地の上なので、全体既定の白いフォーカスリングを黒に */
-  .request-card :focus-visible {
-    outline-color: var(--color-neutral-900);
-  }
   /* JS 無効時は JS 専用の部品を隠し、3 つの画面を縦に並べる */
   .request-card:not([data-enhanced]) [data-js-only] {
     display: none;
@@ -652,7 +644,7 @@ const fixLink =
   .request-card:not([data-enhanced]) .nojs-gap {
     margin-top: 3rem;
     padding-top: 2.5rem;
-    border-top: 1px solid var(--color-neutral-200);
+    border-top: 1px solid var(--color-rule);
   }
 
   .request-spin {
@@ -690,12 +682,12 @@ const fixLink =
     .request-check-circle {
       stroke-dasharray: 164;
       stroke-dashoffset: 164;
-      animation: request-draw 0.5s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards;
+      animation: request-draw 0.5s var(--ease-draw) 0.1s forwards;
     }
     .request-check-mark {
       stroke-dasharray: 36;
       stroke-dashoffset: 36;
-      animation: request-draw 0.35s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+      animation: request-draw 0.35s var(--ease-draw) 0.5s forwards;
     }
     [data-done-box] > :not(svg) {
       animation: request-pop 0.4s ease-out 0.45s both;
@@ -1096,7 +1088,7 @@ const fixLink =
           li.className = "flex gap-2";
           const dot = document.createElement("span");
           dot.className =
-            "mt-[0.6em] size-1 shrink-0 rounded-full bg-neutral-400";
+            "mt-[0.6em] size-1 shrink-0 rounded-full bg-ink-faint";
           dot.setAttribute("aria-hidden", "true");
           const text = document.createElement("span");
           text.textContent = t;
@@ -1110,7 +1102,7 @@ const fixLink =
       for (const dd of root.querySelectorAll<HTMLElement>("[data-summary]")) {
         const v = fieldEls[dd.dataset.summary as FieldName].input.value.trim();
         dd.textContent = v || "未入力";
-        dd.classList.toggle("text-neutral-400", !v);
+        dd.classList.toggle("text-ink-faint", !v);
       }
     }
 

@@ -1,25 +1,200 @@
 @import "tailwindcss";
+/* クラスを拾うのは src だけ。docs と references の文書に出てくるクラス名を CSS に出さない */
+@source not "../../docs";
+@source not "../../references";
+
+/* このサイトのデザインシステム。見た目の値(色・文字・余白以外の寸法・角丸・影・ぼかし・動き・重なり)と、
+   繰り返し使う部品はここだけで定義し、各コンポーネントはここにある名前だけを使う。
+   構成: token(@theme)→ 基本(base)→ レイアウト → 部品 → Markdown 本文 → 動き。
+   token の名前空間は既定値を消して(`--color-*: initial` など)このサイトの値だけを置くので、
+   枠外のクラス(text-neutral-600、rounded-lg、tracking-wide の Tailwind 既定値など)は効かない。
+   余白(spacing)とブレークポイントは Tailwind 既定のまま使う。 */
 
 @theme {
-  /* 現行サイトの雰囲気(黒地・白文字・細い白線)を引き継ぐ色。 */
+  /* ---- 色 ----
+     黒地・白文字・細い白線。アクセント色は持たない(赤は入力エラーだけ)。
+     暗い面(ページの大半、写真の上)と明るい面(製品・サービスの本文、資料請求)で別の名前を使う。 */
+  --color-*: initial;
+
+  /* 暗い面
+     background: ページの地
+     foreground: 文字、見出し下の線、丸ボタン・バナーの反転した塗り
+     muted:      補助の文字(小ラベル・説明・フッター)、セクションナビの点の hover
+     faint:      淡い飾り(小ラベル前の横線、SCROLL の縦線、セクションナビの見出し)
+     line:       罫線・枠
+     line-strong: 操作できる部品の線(丸ボタンの枠)、セクションナビの点
+     glass:      写真の上のパネル(.panel)の地。glass-strong はその hover・focus
+     bar:        固定ヘッダーの地、セクションナビの背後のぼかし
+     black:      写真の暗幕(PhotoBackground)で不透明度を付けて使う */
   --color-background: #000;
   --color-foreground: #fff;
   --color-muted: rgb(255 255 255 / 0.7);
+  --color-faint: rgb(255 255 255 / 0.6);
   --color-line: rgb(255 255 255 / 0.25);
-  --color-surface: rgb(255 255 255 / 0.05);
+  --color-line-strong: rgb(255 255 255 / 0.4);
+  --color-glass: rgb(0 0 0 / 0.2);
+  --color-glass-strong: rgb(0 0 0 / 0.45);
+  --color-bar: rgb(0 0 0 / 0.6);
+  --color-black: #000;
 
-  /* 欧文は Montserrat、和文は M PLUS 1p。Base.astro で Google Fonts から読み込む。 */
+  /* 明るい面
+     paper:       地・カード・入力欄、濃色ボタンの文字
+     tint:        一段沈んだ地(資料請求の背景、選択中の行、表の見出し行・偶数行)
+     ink:         本文・見出し、主ボタン、選択中の枠、フォーカスリング
+     ink-muted:   補助の文字(説明・注記・戻るリンク)、主ボタンの hover
+     ink-faint:   淡い文字(小ラベル・メーカー名・placeholder)、hover 時の枠
+     rule:        罫線・枠
+     rule-strong: 入力欄・副ボタン・バッジの枠、無効なボタンの地
+     danger:      入力エラーの文字と枠 */
+  --color-paper: #fff;
+  --color-tint: oklch(97% 0 0);
+  --color-ink: oklch(20.5% 0 0);
+  --color-ink-muted: oklch(43.9% 0 0);
+  --color-ink-faint: oklch(55.6% 0 0);
+  --color-rule: oklch(92.2% 0 0);
+  --color-rule-strong: oklch(87% 0 0);
+  --color-danger: oklch(50.5% 0.213 27.518);
+
+  /* ---- 文字 ----
+     欧文は Montserrat、和文は M PLUS 1p(Base.astro で Google Fonts から 400 と 700 だけ読み込む)。 */
+  --font-*: initial;
   --font-sans: "Montserrat", "M PLUS 1p", sans-serif;
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
 
-  /* 文字サイズは 2 段だけ持つ。基準(本文・説明・リスト・入力欄・ボタン・ナビの項目など普通に読む文字)は 18px で、
+  /* 文字サイズ。基準(本文・説明・リスト・入力欄・ボタン・ナビなど普通に読む文字)は body の 18px で、
      body の既定にしてあるので個別の指定は要らない(下の @layer base)。補助的な小さいラベル
-     (見出し上の小ラベル、注記、バッジ、キャプション、フッター、表など)は text-label の 16px。16px 未満は使わない。
-     見出しはこれより大きい Tailwind 標準の text-xl 以上を使う。 */
-  --text-body: 1.125rem;
-  --text-body--line-height: 1.5;
+     (見出し上の小ラベル、注記、バッジ、キャプション、フッター、表など)は label の 16px。16px 未満は使わない。
+     見出しは title(部品の中の見出し)と display(ページ・画面の大見出し)の段から選ぶ。
+     行間の既定は label/body が 1.5、見出しは Tailwind の同じ大きさの段と同じ(多くは leading-* で上書きする)。
+     label       16px 小ラベル・注記・表
+     body        18px 本文(基準)
+     title-sm    20px 小見出し(フォームの各画面、Markdown の h3、トップのカード見出し SP)、ヒーローの一文(md 以上)
+     title       22px トップのカード見出し(md 以上)
+     title-lg    24px 本文中の見出し(資料請求、Markdown の h2)
+     display-sm  30px 製品・サービスページの題(SP)
+     display     36px トップの各画面の題(SP)、会社情報
+     display-lg  48px 各画面の題(lg 以上)、製品・サービスページの題(md 以上)、404 */
+  --text-*: initial;
   --text-label: 1rem;
   --text-label--line-height: 1.5;
+  --text-body: 1.125rem;
+  --text-body--line-height: 1.5;
+  --text-title-sm: 1.25rem;
+  --text-title-sm--line-height: calc(1.75 / 1.25);
+  --text-title: 1.375rem;
+  --text-title--line-height: calc(1.75 / 1.375);
+  --text-title-lg: 1.5rem;
+  --text-title-lg--line-height: calc(2 / 1.5);
+  --text-display-sm: 1.875rem;
+  --text-display-sm--line-height: calc(2.25 / 1.875);
+  --text-display: 2.25rem;
+  --text-display--line-height: calc(2.5 / 2.25);
+  --text-display-lg: 3rem;
+  --text-display-lg--line-height: 1;
+
+  /* 字間。和文の詰まりを開くための 3 段(Tailwind 既定の同名とは値が違う)
+     wide    欧文の短い語(バナーの TECH、404)、ヘッダーのメニュー(360px 未満)
+     wider   ナビ・インジケーターの項目、ヘッダーのメニュー、明るい面の小ラベル(.group-label)
+     widest  飾りのキャプション(SCROLL、セクションナビの見出し) */
+  --tracking-*: initial;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.2em;
+
+  /* 行間
+     none 1: バッジ / tight 1.25: 大見出し(SP) / snug 1.375: 見出し、カード内の短い文、確認画面の値
+     normal 1.5: 本文の既定 / relaxed 1.625: 補足説明・注記、表 / loose 2: リード文、Markdown 本文 */
+  --leading-*: initial;
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* ---- 形 ---- */
+  /* 角丸は 3 種: control(入力欄・チェック・バッジ)、panel(カード・行・表・写真の上のパネル)、
+     丸(Tailwind の rounded-full: ボタン・点) */
+  --radius-*: initial;
+  --radius-control: 0.25rem;
+  --radius-panel: 0.375rem;
+
+  /* 文の幅(max-w-*)
+     column  読む文の段(製品・サービスの本文と資料請求)
+     lead    概要・紹介文(製品・サービスページ上部の概要、トップのサービス画面のパネル)
+     narrow  資料請求の完了表示の中の枠 */
+  --container-*: initial;
+  --container-column: 46rem;
+  --container-lead: 48rem;
+  --container-narrow: 28rem;
+
+  /* 影
+     card         明るい面に浮かぶカード(資料請求)
+     float        右下に固定したバナー(1px の縁 + 影)。float-hover はその hover
+     dot          写真の上のセクションナビの印
+     focus        入力欄のフォーカス(ink の薄い縁)。focus-danger はエラー中(danger の薄い縁)
+     text-shadow-photo  写真の上に直接置く文字(セクションナビ) */
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --shadow-card:
+    0 1px 2px rgb(0 0 0 / 0.04), 0 12px 32px -16px rgb(0 0 0 / 0.12);
+  --shadow-float:
+    0 0 0 1px rgb(0 0 0 / 0.1), 0 10px 15px -3px rgb(0 0 0 / 0.4),
+    0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-float-hover:
+    0 0 0 1px rgb(0 0 0 / 0.1), 0 20px 25px -5px rgb(0 0 0 / 0.5),
+    0 8px 10px -6px rgb(0 0 0 / 0.5);
+  --shadow-dot: 0 0 3px rgb(0 0 0 / 0.5);
+  --shadow-focus: 0 0 0 3px oklch(20.5% 0 0 / 0.1);
+  --shadow-focus-danger: 0 0 0 3px oklch(50.5% 0.213 27.518 / 0.15);
+  --text-shadow-*: initial;
+  --text-shadow-photo:
+    0 1px 1px rgb(0 0 0 / 0.8), 0 1px 2px rgb(0 0 0 / 0.8),
+    0 2px 4px rgb(0 0 0 / 0.8);
+
+  /* ぼかし(backdrop-blur-*。写真の上の半透明の面)
+     glass 4px: パネル / glass-strong 8px: パネルの hover・focus、固定ヘッダー */
+  --blur-*: initial;
+  --blur-glass: 4px;
+  --blur-glass-strong: 8px;
+
+  /* ---- 動き ----
+     hover などの反応は既定の 200ms(transition / transition-colors などに duration を付けない)。
+     面全体が変わるもの(ヘッダーの透明化、パネル、展開ボタンの回転)だけ duration-300。
+     ease-draw は資料請求の完了マークを描く動き。読み込み・スクロール連動の動きは下の「動き」の節。 */
+  --default-transition-duration: 200ms;
+  --ease-*: initial;
+  --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
+  --animate-*: initial;
+
+  /* ---- 重なり ----
+     トップの各画面は sticky で重ね、画面の順に style="z-index: 1〜" を振る(index.astro。ヒーローは z-1)。
+     それより上に置くものだけここで決め、z-(--z-header) のように使う。
+     footer: フッター(トップの最後の画面より上) / overlay: 右下のバナー、セクションナビ / header: 固定ヘッダー */
+  --z-footer: 20;
+  --z-overlay: 40;
+  --z-header: 50;
 }
+
+/* ---- 基本 ---- */
+@layer base {
+  /* 文字の基準サイズ(18px)。行間は Tailwind 既定の 1.5 のまま */
+  body {
+    font-size: var(--text-body);
+  }
+  /* フォーカスリングの色は面ごとに変える: 暗い面は白、明るい面(.surface-light)は ink */
+  :root {
+    --focus-color: var(--color-foreground);
+  }
+  :focus-visible {
+    @apply focus-ring;
+  }
+}
+
+/* ---- レイアウト ---- */
 
 /* 本文幅の共通コンテナ(最大 1120px + 左右の余白) */
 @utility container-x {
@@ -40,37 +215,116 @@
   }
 }
 
-/* 製品・サービスページの Markdown 本文(白地・黒文字。使うのは products/services の詳細ページだけ) */
+/* ---- 部品 ----
+   1 つの要素で完結する小さなものは @utility、クラスで一部を上書きして使うもの(余白・表示形式など)は
+   @layer components(後から書く通常のクラスが勝つ)に置く。 */
+
+/* フォーカスリング(2px、要素から 3px 離す)。:focus-visible の既定で、子のフォーカスで枠を光らせる行では has-focus-visible:focus-ring */
+@utility focus-ring {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 3px;
+}
+
+/* 見出しの下の短い線。暗い面は 6rem × 2px の白、明るい面は 2rem × 2px の ink */
+@utility heading-rule {
+  width: --spacing(24);
+  border-top: 2px solid var(--color-foreground);
+}
+@utility heading-rule-short {
+  width: --spacing(8);
+  height: 2px;
+  background-color: var(--color-ink);
+}
+
+/* 出し入れ: 不透明度と visibility を一緒に動かす(消えるときも最後まで見せてから隠す)。位置のずれと影も含める。
+   ヘッダーのロゴ、セクションナビ、右下のバナー */
+@utility transition-presence {
+  transition-property: opacity, visibility, translate, box-shadow;
+  transition-timing-function: var(
+    --tw-ease,
+    var(--default-transition-timing-function)
+  );
+  transition-duration: var(--tw-duration, var(--default-transition-duration));
+}
+
+/* 位置のインジケーター(セクションナビ、資料請求の画面)の印: 点が縦に伸びる・横線が伸びる */
+@utility transition-indicator {
+  transition-property: width, height, background-color;
+  transition-timing-function: var(
+    --tw-ease,
+    var(--default-transition-timing-function)
+  );
+  transition-duration: var(--tw-duration, var(--default-transition-duration));
+}
+
+@layer components {
+  /* 明るい面(製品・サービスの本文、資料請求)。地は paper、文字とフォーカスリングは ink */
+  .surface-light {
+    --focus-color: var(--color-ink);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  /* 見出し上の小ラベル(暗い面): 横線 + 「充電器」など。横線は中の <span class="eyebrow-line"> */
+  .eyebrow {
+    @apply flex items-center gap-3 text-label text-muted;
+  }
+  .eyebrow-line {
+    @apply h-px w-8 bg-faint;
+  }
+
+  /* 項目のまとまりに付ける小ラベル(明るい面): 「このページの製品」、カテゴリ名など */
+  .group-label {
+    @apply text-label font-bold tracking-wider text-ink-faint;
+  }
+
+  /* 枠だけの丸ボタン(暗い面): 「詳細を見る →」「トップへ戻る」。hover(パネルの中ではパネルの hover・focus)で白く塗る */
+  .btn-pill {
+    @apply inline-block rounded-full border border-line-strong px-4 py-1.5 transition-colors group-hover:bg-foreground group-hover:text-background group-focus-visible:bg-foreground group-focus-visible:text-background hover:bg-foreground hover:text-background;
+  }
+
+  /* 写真の上に置くリンクのパネル(トップの製品・サービス)。黒の半透明 + ぼかしで写真上の文字を読みやすくし、
+     hover・focus で濃くする。枠と角丸は置く場所で付ける(一覧では外側の枠、単独ではパネル自身) */
+  .panel {
+    @apply block bg-glass p-3 backdrop-blur-glass transition duration-300 hover:bg-glass-strong hover:backdrop-blur-glass-strong focus-visible:bg-glass-strong focus-visible:backdrop-blur-glass-strong motion-reduce:transition-none md:p-8;
+  }
+
+  /* 「← トップへ戻る」(明るい面) */
+  .back-link {
+    @apply text-ink-muted underline-offset-4 transition-colors hover:text-ink hover:underline;
+  }
+}
+
+/* ---- Markdown 本文 ----
+   製品・サービスページの本文(明るい面。使うのは products/services の詳細ページだけ) */
 @layer components {
   .content {
-    line-height: 1.9;
+    line-height: var(--leading-loose);
   }
   .content p {
     margin-bottom: --spacing(5);
   }
-  /* 見出しの下に黒の短い線(2rem × 2px)を置く */
+  /* 見出しの下に ink の短い線を置く */
   .content h2 {
     margin-top: --spacing(12);
     margin-bottom: --spacing(5);
-    font-size: 1.5rem;
-    line-height: 1.4;
-    font-weight: 700;
+    font-size: var(--text-title-lg);
+    line-height: var(--leading-snug);
+    font-weight: var(--font-weight-bold);
   }
   .content h2::after {
     content: "";
     display: block;
-    width: 2rem;
-    height: 2px;
     margin-top: --spacing(3);
-    background: var(--color-neutral-900);
+    @apply heading-rule-short;
   }
   .content h3 {
     margin-top: --spacing(8);
     margin-bottom: --spacing(3);
-    font-size: 1.25rem;
-    line-height: 1.5;
-    font-weight: 700;
-    color: var(--color-neutral-700);
+    font-size: var(--text-title-sm);
+    line-height: var(--leading-normal);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-ink-muted);
   }
   .content > :first-child {
     margin-top: 0;
@@ -84,28 +338,24 @@
     margin-bottom: --spacing(1.5);
   }
   .content strong {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
   .content a {
     text-decoration: underline;
     text-underline-offset: 4px;
-    transition: color 0.15s;
   }
-  .content a:hover {
-    color: #000;
-  }
-  /* 表は本文幅に収め、はみ出す分は枠の中で横スクロール(枠は rehype-table-wrap が付ける) */
+  /* 表は本文幅に収め、はみ出す分は枠の中で横スクロール(枠は src/lib/wrap-tables.ts が付ける) */
   .content .table-wrap {
     margin-bottom: --spacing(5);
     overflow-x: auto;
-    border: 1px solid var(--color-neutral-200);
-    border-radius: var(--radius-md);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-panel);
   }
   .content table {
     width: 100%;
     border-collapse: collapse;
     font-size: var(--text-label);
-    line-height: 1.6;
+    line-height: var(--leading-relaxed);
   }
   .content th,
   .content td {
@@ -114,14 +364,13 @@
     vertical-align: top;
   }
   .content th {
-    border-bottom: 1px solid var(--color-neutral-300);
-    background: var(--color-neutral-100);
-    color: var(--color-neutral-800);
-    font-weight: 600;
+    border-bottom: 1px solid var(--color-rule-strong);
+    background: var(--color-tint);
+    font-weight: var(--font-weight-bold);
     white-space: nowrap;
   }
   .content td {
-    border-bottom: 1px solid var(--color-neutral-200);
+    border-bottom: 1px solid var(--color-rule);
   }
   .content tbody tr:last-child td {
     border-bottom: 0;
@@ -130,30 +379,20 @@
     white-space: nowrap;
   }
   .content tbody tr:nth-child(even) td {
-    background: var(--color-neutral-50);
+    background: var(--color-tint);
   }
   /* 表の直後の段落は注記として小さく淡く */
   .content .table-wrap + p {
     margin-top: --spacing(-2);
     font-size: var(--text-label);
-    color: var(--color-neutral-600);
+    color: var(--color-ink-muted);
   }
 }
 
-@layer base {
-  /* 文字の基準サイズ(18px)。行間は Tailwind 既定の 1.5 のまま */
-  body {
-    font-size: var(--text-body);
-  }
-  /* フォーカスリングは白(アクセント色は持たない) */
-  :focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 3px;
-  }
-}
-
-/* 動き: ヒーローは読み込み時に 1 回だけフェードイン、各画面の本文はスクロール連動で下から浮かぶ。
-   それ以外は動かさない。動きを減らす設定では何もしない。 */
+/* ---- 動き ----
+   ヒーローとページ上部は読み込み時に 1 回だけフェードイン、トップの各画面の本文はスクロール連動で下から浮かぶ。
+   それ以外は hover などの反応だけ(上の token の「動き」)。資料請求の画面切り替えは RequestForm.astro。
+   動きを減らす設定では何もしない。 */
 @keyframes fadein {
   from {
     opacity: 0;

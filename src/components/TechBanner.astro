@@ -13,12 +13,12 @@ import techLogo from "../assets/legacy/technalsec.svg";
   target="_blank"
   rel="noopener"
   aria-label={`${site.techSiteLabel}(新しいタブで開く)`}
-  class="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(0.75rem,env(safe-area-inset-bottom))] md:bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex h-10 items-center gap-2 rounded-full bg-white px-3.5 text-black shadow-lg ring-1 shadow-black/40 ring-black/10 transition-[translate,opacity,box-shadow,visibility] duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/50 focus-visible:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white motion-reduce:transition-none peer-data-[scrolled=false]/header:pointer-events-none peer-data-[scrolled=false]/header:invisible peer-data-[scrolled=false]/header:translate-y-4 peer-data-[scrolled=false]/header:opacity-0 md:h-11"
+  class="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(0.75rem,env(safe-area-inset-bottom))] md:bottom-[max(1rem,env(safe-area-inset-bottom))] z-(--z-overlay) flex h-10 items-center gap-2 rounded-full bg-foreground px-3.5 text-background shadow-float transition-presence hover:-translate-y-0.5 hover:shadow-float-hover focus-visible:-translate-y-0.5 motion-reduce:transition-none peer-data-[scrolled=false]/header:pointer-events-none peer-data-[scrolled=false]/header:invisible peer-data-[scrolled=false]/header:translate-y-4 peer-data-[scrolled=false]/header:opacity-0 md:h-11"
 >
-  <Image src={techLogo} alt="" height={20} class="h-[18px] w-auto md:h-5" />
+  <Image src={techLogo} alt="" height={20} class="h-4.5 w-auto md:h-5" />
   <span
     aria-hidden="true"
-    class="hidden items-center gap-1 border-l border-black/15 pl-2 text-label font-bold tracking-wider md:flex"
+    class="hidden items-center gap-1 border-l border-rule-strong pl-2 text-label font-bold tracking-wide md:flex"
   >
     {site.techSiteShortLabel}
     <svg
