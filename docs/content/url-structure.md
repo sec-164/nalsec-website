@@ -25,13 +25,14 @@
 
 いま作れるもの(資料あり。`docs/content/inventory.md` の充実度 ◎○):
 
-| URL                              | 対象                                        |
-| -------------------------------- | ------------------------------------------- |
-| `/products/xnergy-ph/`           | Xnergy ワイヤレス充電器 PH                  |
-| `/products/xnergy-be/`           | Xnergy ワイヤレス充電器 BE                  |
-| `/products/bslbatt-lfp-gse/`     | BSLBATT LFP バッテリー(GSE 向け)            |
-| `/products/vitzrocell-er/`       | VITZROCELL ER 電池                          |
-| `/services/medical-institution/` | 医療機関向けコンサルティング(現行 URL 維持) |
+| URL                              | 対象                                         |
+| -------------------------------- | -------------------------------------------- |
+| `/products/xnergy-ph/`           | Xnergy ワイヤレス充電器 PH                   |
+| `/products/xnergy-be/`           | Xnergy ワイヤレス充電器 BE                   |
+| `/products/bslbatt-lfp-gse/`     | BSLBATT LFP バッテリー(GSE 向け)             |
+| `/products/vitzrocell-er/`       | VITZROCELL ER 電池                           |
+| `/products/enatel-ecocharge/`    | Enatel EcoCharge 充電器(2026-11-25 保留解除) |
+| `/services/medical-institution/` | 医療機関向けコンサルティング(現行 URL 維持)  |
 
 資料が揃い次第、同じ規則で追加するもの:
 
@@ -40,19 +41,19 @@
 - `/products/electrovaya-lithium-ion/`
 - `/products/pbm-onboard-charger/`、`/products/pbm-stationary-charger/`
 - `/services/it-consulting/`(内容確定後)
-- Enatel(掲載保留): 解除後に `/products/enatel-ecocharge/`、`/products/enatel-eco9703/` など
+- Enatel の EcoCharge 以外(掲載保留): 解除後に同じ規則で追加(DC Power System、屋外キャビネットなど)
 
 ## 旧 URL からのリダイレクト
 
 Astro の `redirects` 設定で行う(静的出力では meta refresh の HTML が生成され、GitHub Pages / Cloudflare Pages のどちらでも動く)。
 
-| 旧                               | 新                         | 備考                       |
-| -------------------------------- | -------------------------- | -------------------------- |
-| `/services/vitzro-cell/`         | `/products/vitzrocell-er/` | スラッグ変更               |
-| `/services/ecocharge/`           | `/`                        | Enatel 掲載保留            |
-| `/services/dc-power-system/`     | `/`                        | Enatel 掲載保留            |
-| `/services/energy-warehouse/`    | `/`                        | 継続未定。確定したら見直す |
-| `/services/medical-institution/` | (変更なし)                 |                            |
+| 旧                               | 新                            | 備考                       |
+| -------------------------------- | ----------------------------- | -------------------------- |
+| `/services/vitzro-cell/`         | `/products/vitzrocell-er/`    | スラッグ変更               |
+| `/services/ecocharge/`           | `/products/enatel-ecocharge/` | 2026-11-25 保留解除        |
+| `/services/dc-power-system/`     | `/`                           | Enatel 掲載保留            |
+| `/services/energy-warehouse/`    | `/`                           | 継続未定。確定したら見直す |
+| `/services/medical-institution/` | (変更なし)                    |                            |
 
 ## その他
 

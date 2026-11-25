@@ -21,7 +21,7 @@ summary: |-
 highlights:
   - ゴルフカート用
   - 最大 16 並列のモジュール式
-order: 7
+order: 8
 ---
 
 ## 特長

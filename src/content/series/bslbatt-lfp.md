@@ -9,5 +9,5 @@ products:
   - bslbatt-lfp-gse
   - bslbatt-lfp-forklift
   - bslbatt-lfp-golf-cart
-order: 3
+order: 4
 ---

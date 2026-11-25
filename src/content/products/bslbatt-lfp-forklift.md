@@ -19,7 +19,7 @@ summary: |-
 highlights:
   - フォークリフト用
   - 25.6V〜83.2V の 5 系統
-order: 6
+order: 7
 ---
 
 ## 特長

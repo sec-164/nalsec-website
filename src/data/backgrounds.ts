@@ -20,6 +20,7 @@ export const serviceBackground: Background = { src: medical, bright: true };
 const seriesBackgrounds: Record<string, Background> = {
   "xnergy-wireless": { src: forkliftWarehouse },
   "pbm-chargers": { src: switchboard },
+  enatel: { src: forkliftWarehouse },
   "bslbatt-lfp": { src: essContainer, bright: true },
   "vitzrocell-primary": { src: batteries },
   electrovaya: { src: forkliftWarehouse },

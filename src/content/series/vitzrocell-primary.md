@@ -8,5 +8,5 @@ lead: 充電せずに使い切る、スマートメーターなど長期使用�
 products:
   - vitzrocell-er
   - vitzrocell-cr
-order: 4
+order: 5
 ---

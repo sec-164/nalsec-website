@@ -7,7 +7,7 @@ export default defineConfig({
   trailingSlash: "always",
   redirects: {
     "/services/vitzro-cell/": "/products/vitzrocell-er/",
-    "/services/ecocharge/": "/",
+    "/services/ecocharge/": "/products/enatel-ecocharge/",
     "/services/dc-power-system/": "/",
     "/services/energy-warehouse/": "/",
   },

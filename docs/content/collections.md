@@ -59,7 +59,7 @@
 3. 本文を書き換える。
 4. `pnpm exec astro sync` と `pnpm check` を通す。
 
-Enatel は掲載保留、資料が無い製品(PBM、Electrovaya、Vitzrocell CR / LFP、BSL フォークリフト・ゴルフカート、IT コンサルテーション)は、資料がそろうまで作らない。
+Enatel は EcoCharge 以外が掲載保留、資料が無い製品(PBM、Electrovaya、Vitzrocell CR / LFP、BSL フォークリフト・ゴルフカート、IT コンサルテーション)は、資料がそろうまで作らない。
 
 ## サイト共通情報
 
