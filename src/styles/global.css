@@ -56,9 +56,13 @@
   --color-danger: oklch(50.5% 0.213 27.518);
 
   /* ---- 文字 ----
-     欧文は Montserrat、和文は M PLUS 1p(Base.astro で Google Fonts から 400 と 700 だけ読み込む)。 */
+     Web フォントは読み込まず、端末に入っている書体(デバイスフォント)で表示する。
+     欧文は Helvetica Neue(Mac・iOS)/ Arial(Windows)、和文はヒラギノ角ゴ(Mac・iOS)/ メイリオ(Windows)、
+     どれも無い端末(Android など)はその端末の既定のゴシック体(sans-serif)。太さは標準と太字の 2 段だけ使う。 */
   --font-*: initial;
-  --font-sans: "Montserrat", "M PLUS 1p", sans-serif;
+  --font-sans:
+    "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans",
+    Meiryo, sans-serif;
   --font-weight-*: initial;
   --font-weight-normal: 400;
   --font-weight-bold: 700;
